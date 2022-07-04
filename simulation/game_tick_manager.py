@@ -9,7 +9,7 @@ class GameTickManager:
     def __init__(self, trees, survivors):
         self.trees = trees
         self.survivors = survivors
-        self.tick_interval = 4  # IDK what this number is yet
+        self.tick_interval = 10  # IDK what this number is yet
         self.tick_counter = 0
 
     def tick(self):

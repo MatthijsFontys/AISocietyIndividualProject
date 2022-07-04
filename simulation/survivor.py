@@ -13,7 +13,7 @@ class Survivor:
         self.velocity = Vector()
 
         # TODO: REMOVE AFTER TESTING IS DONE
-        self.speed = 10
+        self.speed = 2
         #self.velocity_arr = [Vector(), Vector(0, self.speed), Vector(0, -self.speed), Vector(self.speed, 0), Vector(-self.speed, 0)]
         self.velocity_arr = [Vector(0, self.speed), Vector(0, -self.speed)]
 

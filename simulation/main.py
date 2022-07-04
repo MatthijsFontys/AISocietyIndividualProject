@@ -13,7 +13,7 @@ from camera import Camera
 pygame.init()
 
 # Game setup
-FPS_CAP = 10
+FPS_CAP = 60  # CAMERA ISN'T SMOOTH BECAUSE FPS CAP WAS SO LOW FROM MAKING SNAKE
 WORLD_SIZE = 1600
 WIN_SIZE = 800
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
@@ -37,7 +37,6 @@ def draw(population, trees, camera):
     creature_size = 20
     for survivor in population:  # AKA survivor
         survivor.move()
-
         for tree in trees:
             tree.try_forage_food(survivor)
 
@@ -77,7 +76,7 @@ def main():
         ))
 
     tick_manager = GameTickManager(trees, population)
-    camera = Camera(20, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
+    camera = Camera(10, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
 
     clock = pygame.time.Clock()
     should_run = True
@@ -87,12 +86,10 @@ def main():
             if event.type == pygame.QUIT:
                 should_run = False
 
-        camera_speed = 20
         keys = pygame.key.get_pressed()
         for key in MOVEMENT_MAP.keys():
             if keys[key]:
                 camera.move(MOVEMENT_MAP[key])
-
 
         # draw stuff
         tick_manager.tick()
