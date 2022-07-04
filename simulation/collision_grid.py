@@ -3,10 +3,10 @@ import math
 
 class CollisionGrid:
 
-    def __init__(self, cel_size, world_width, world_height, trees):
-        self.width = math.floor(world_width / cel_size)
-        self.height = math.floor(world_height / cel_size)
-        self.cel_size = cel_size
+    def __init__(self, cell_size, world_width, world_height, trees):
+        self.width = math.floor(world_width / cell_size)
+        self.height = math.floor(world_height / cell_size)
+        self.cell_size = cell_size
         self.grid = [[[] for x in range(self.width)] for y in range(self.height)]
         self.nearby_directions = []
         for i in range(-1, 2):
@@ -32,6 +32,6 @@ class CollisionGrid:
         return nearby_trees
 
     def position_to_index(self, position):
-        return math.floor(position / self.cel_size)
+        return math.floor(position / self.cell_size)
 
 

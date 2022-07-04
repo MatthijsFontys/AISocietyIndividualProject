@@ -3,7 +3,7 @@ class Tree:
     def __init__(self, position):
         self.food_count = 3
         self.ticks_since_grow = 0
-        self.forage_range = 100
+        self.forage_range = 80
         # Need something to keep track of when to regrow food
         self.position = position
 

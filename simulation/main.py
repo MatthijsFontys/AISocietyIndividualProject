@@ -32,19 +32,8 @@ def draw(population, trees, camera, collision_grid):
     WINDOW.fill(pygame.Color(106, 148, 106))
 
     # DRAW OBJECTS HERE
-    creature_size = camera.apply_zoom(20)
-    for survivor in population:  # AKA survivor
-        survivor.move()
-        for tree in collision_grid.get_nearby_trees(survivor.position.x, survivor.position.y):
-            tree.try_forage_food(survivor)
-
-        l2 = survivor.position
-        r2 = Vector.add_new(l2, Vector(creature_size, creature_size))
-        if camera.is_in_view(l2, r2):
-            offset_position = Vector.subtract_new(survivor.position, camera.position)
-            pygame.draw.circle(WINDOW, pygame.Color(58, 103, 176), (offset_position.x, offset_position.y), creature_size)
-
     tree_size = camera.apply_zoom(80)
+    creature_size = camera.apply_zoom(20)
     main_font = pygame.font.SysFont("arial", math.floor(camera.apply_zoom(48)))
 
     for tree in trees:  # AKA tree
@@ -52,8 +41,9 @@ def draw(population, trees, camera, collision_grid):
         r2 = Vector.add_new(l2, Vector(tree_size, tree_size))
         if camera.is_in_view(l2, r2):
             offset_position = Vector.subtract_new(tree.position, camera.position)
-            tree_rect = pygame.Rect(offset_position.x + tree_size / 2, offset_position.y + tree_size / 2, tree_size, tree_size)
-            range_rect = pygame.Rect(offset_position.x + 25, offset_position.y + 25, tree_size + 50, tree_size + 50)
+            range_size = tree.forage_range * 2 - creature_size   # TODO: FIGURE OUT WHY THIS IS A LITTLE OFF STILL
+            tree_rect = pygame.Rect(offset_position.x - tree_size / 2, offset_position.y - tree_size / 2, tree_size, tree_size)
+            range_rect = pygame.Rect(offset_position.x - range_size / 2, offset_position.y - range_size / 2, range_size, range_size)
             pygame.draw.rect(WINDOW, pygame.Color(148, 22, 37), range_rect)
             pygame.draw.rect(WINDOW, pygame.Color(13, 56, 13), tree_rect)
             text = main_font.render(str(tree.food_count), True, 'white')
@@ -61,18 +51,40 @@ def draw(population, trees, camera, collision_grid):
             text_rect.center = tree_rect.center
             WINDOW.blit(text, text_rect)
 
+    for survivor in population:  # AKA survivor
+        survivor.move()
+        for tree in collision_grid.get_nearby_trees(survivor.position.x, survivor.position.y):
+            # TODO: REMOVE STUPID TESTING LINE
+            # sprint(len(collision_grid.get_nearby_trees(survivor.position.x, survivor.position.y)))
+            tree.try_forage_food(survivor)
+
+        l2 = survivor.position
+        r2 = Vector.add_new(l2, Vector(creature_size, creature_size))
+        if camera.is_in_view(l2, r2):
+            offset_position = Vector.subtract_new(survivor.position, camera.position)
+            pygame.draw.circle(WINDOW, pygame.Color(58, 103, 176), (offset_position.x - creature_size / 2, offset_position.y - creature_size / 2), creature_size)
+
+    # GRID
+    size = collision_grid.cell_size
+    for i in range(collision_grid.width):
+        for j in range(collision_grid.height):
+            offset_position = Vector.subtract_new(Vector(i * size, j * size), camera.position)
+            grid_rect = pygame.Rect(offset_position.x, offset_position.y, size, size)
+            # TODO: check if is in camera view
+            pygame.draw.rect(WINDOW, pygame.Color(255, 255, 255), grid_rect, 1)
+
     pygame.display.update()
 
 
 def main():
     population = []
-    for i in range(50):
+    for i in range(1):
         population.append(Survivor(
             Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
         ))
 
     trees = []
-    for i in range(10):
+    for i in range(30):
         trees.append(Tree(
             Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
         ))
@@ -83,6 +95,7 @@ def main():
 
     clock = pygame.time.Clock()
     should_run = True
+    zoom_speed = 0  # 10 or something when not testing or when zoom isn't broken anymore
     while should_run:
         clock.tick(FPS_CAP)
         for event in pygame.event.get():
@@ -90,9 +103,9 @@ def main():
                 should_run = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 4:
-                    camera.set_zoom(10)
+                    camera.set_zoom(zoom_speed)
                 elif event.button == 5:
-                    camera.set_zoom(-10)
+                    camera.set_zoom(-zoom_speed)
 
         keys = pygame.key.get_pressed()
         for key in MOVEMENT_MAP.keys():
