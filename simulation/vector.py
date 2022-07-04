@@ -31,6 +31,9 @@ class Vector:
     def get_distance(self, vector):
         return Vector.subtract_new(vector, self).get_magnitude()
 
+    def copy(self):
+        return Vector(self.x, self.y)
+
     # TODO: THINK OF A BETTER NAME FOR THE STATIC VARIANTS
     @staticmethod
     def add_new(vector_a, vector_b):
