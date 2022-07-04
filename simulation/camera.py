@@ -5,6 +5,7 @@ from my_enums import Direction as Dir
 class Camera:
 
     def __init__(self, speed, view_width, view_height, world_width, world_height):
+        self.zoom = 100
         self.position = Vector(0, 0)  # aka top left
         self.view = Vector(view_width, view_height)
         self.bottom_right = Vector.add_new(self.position, self.view)
@@ -59,3 +60,17 @@ class Camera:
 
         # calc new bottom right after movement
         self.bottom_right = Vector.add_new(self.position, self.view)
+
+    def apply_zoom(self, num_to_scale):
+        return num_to_scale * (self.zoom / 100)
+
+    def set_zoom(self, delta_zoom):
+        # TODO: FIGURE OUT WHERE I AM GOING WRONG
+        old_zoom = self.zoom
+        self.zoom += delta_zoom
+        self.zoom = min(self.zoom, 200)
+        self.zoom = max(self.zoom, 50)
+
+        self.view.scale(self.zoom / old_zoom)
+        self.bottom_right = Vector.add_new(self.position, self.view)
+
