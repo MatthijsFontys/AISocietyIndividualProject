@@ -26,7 +26,7 @@ class CollisionGrid:
         for directions in self.nearby_directions:
             x_index = start_x + directions[0]
             y_index = start_y + directions[1]
-            if x_index >= 0 and x_index < self.width and y_index > 0 and y_index < self.height:
+            if x_index >= 0 and x_index < self.width and y_index >= 0 and y_index < self.height:
                 nearby_trees.extend(self.grid[x_index][y_index])
 
         return nearby_trees
