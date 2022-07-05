@@ -21,7 +21,7 @@ WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Survival")
 
 PLAYABLE_CHAR = True
-PLAYER_SPEED = 7
+PLAYER_SPEED = 3
 PLAYER_MAP = {pygame.K_UP: [0, -PLAYER_SPEED], pygame.K_DOWN: [0, PLAYER_SPEED], pygame.K_LEFT: [-PLAYER_SPEED, 0], pygame.K_RIGHT: [PLAYER_SPEED, 0]}
 
 MOVEMENT_MAP = {
@@ -45,12 +45,12 @@ def draw(population, trees, camera, collision_grid):
         r2 = Vector.add_new(l2, Vector(tree_size, tree_size))
         if camera.is_in_view(l2, r2):
             offset_position = Vector.subtract_new(tree.position, camera.position)
-            range_size = tree.forage_range * 2 - creature_size   # TODO: FIGURE OUT WHY THIS IS A LITTLE OFF STILL
+            range_size = tree.forage_range - creature_size # The full creature size, because the creature size is its radius which is half the actual size
+
             tree_rect = pygame.Rect(offset_position.x - tree_size / 2, offset_position.y - tree_size / 2, tree_size, tree_size)
-            range_rect = pygame.Rect(offset_position.x - range_size / 2, offset_position.y - range_size / 2, range_size, range_size)
-            center_rect = pygame.Rect(offset_position.x - 6, offset_position.y - 6, 12, 12)
-            pygame.draw.circle(WINDOW, pygame.Color(148, 22, 37), range_rect.center, range_size / 2)
+            pygame.draw.circle(WINDOW, pygame.Color(148, 22, 37), (offset_position.x, offset_position.y), range_size)
             pygame.draw.rect(WINDOW, pygame.Color(13, 56, 13), tree_rect)
+
             text = main_font.render(str(tree.food_count), True, 'white')
             text_rect = text.get_rect()
             text_rect.center = tree_rect.center
@@ -59,8 +59,6 @@ def draw(population, trees, camera, collision_grid):
             # TODO: IS IT AN ERROR WITH MY DISTANCE FUNCTION? OR AM I DRAWING THE SURVIVOR OR THE TREE IN THE WRONG SPOT ?
             # TODO: THERE ALSO SEEMS TO BE A BUG WHERE NOT NEARBY TREES ARE NOTICED AS BEING NEARBY (SEEN IT WITH TREES ON THE TOP EDGE) I THINK I FIXED THIS ONE
 
-            pygame.draw.rect(WINDOW, pygame.Color(0,0,0), center_rect)
-
     for survivor in population:  # AKA survivor
         # survivor.move()
         for tree in collision_grid.get_nearby_trees(survivor.position.x, survivor.position.y):
@@ -68,11 +66,11 @@ def draw(population, trees, camera, collision_grid):
             # TODO: REMOVE STUPID TESTING LINE
             print(tree.position.get_distance(survivor.position))
 
-        l2 = survivor.position # TODO: THIS MIGHT NOT BE RIGHT, BECAUSE THE POSITION IS SUPPOSED TO BE THE CENTER AND NOT THE TOP LEFT
+        l2 = Vector.subtract_new(survivor.position, Vector(creature_size / 2, creature_size / 2)) # TODO: THIS MIGHT NOT BE RIGHT, BECAUSE THE POSITION IS SUPPOSED TO BE THE CENTER AND NOT THE TOP LEFT
         r2 = Vector.add_new(l2, Vector(creature_size, creature_size))
         if camera.is_in_view(l2, r2):
             offset_position = Vector.subtract_new(survivor.position, camera.position)
-            pygame.draw.circle(WINDOW, pygame.Color(58, 103, 176), (offset_position.x - creature_size / 2, offset_position.y - creature_size / 2), creature_size)
+            pygame.draw.circle(WINDOW, pygame.Color(58, 103, 176), (offset_position.x, offset_position.y), creature_size)
 
     # GRID
     size = collision_grid.cell_size
@@ -122,11 +120,15 @@ def main():
         keys = pygame.key.get_pressed()
         for key in MOVEMENT_MAP.keys():
             if keys[key]:
-                camera.move(MOVEMENT_MAP[key])
-                # TODO: remove when done
                 if PLAYABLE_CHAR:
                     dir = PLAYER_MAP[key]
-                    population[0].position.add(Vector(dir[0], dir[1]))
+                    player = population[0]
+                    player.position.add(Vector(dir[0], dir[1]))
+                    camera.follow_player(player.position)
+                else:
+                    camera.move(MOVEMENT_MAP[key])
+                # TODO: remove when done
+
 
         # draw stuff
         tick_manager.tick()

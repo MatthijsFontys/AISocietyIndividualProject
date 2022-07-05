@@ -50,15 +50,13 @@ class Camera:
     def move(self, direction):
         self.position.add(self.movement[direction])
 
-        # limit out of bounds width
-        self.position.x = min(self.position.x, self.world_width - self.view.x)
-        self.position.x = max(self.position.x, 0)
-
-        # limit out of bounds height
-        self.position.y = min(self.position.y, self.world_height - self.view.y)
-        self.position.y = max(self.position.y, 0)
-
+        self.limit_to_bounds()
         # calc new bottom right after movement
+        self.bottom_right = Vector.add_new(self.position, self.view)
+
+    def follow_player(self, player_position):
+        self.position = Vector(player_position.x - self.view.x / 2, player_position.y - self.view.y / 2)
+        self.limit_to_bounds()
         self.bottom_right = Vector.add_new(self.position, self.view)
 
     def apply_zoom(self, num_to_scale):
@@ -74,3 +72,11 @@ class Camera:
         self.view.scale(self.zoom / old_zoom)
         self.bottom_right = Vector.add_new(self.position, self.view)
 
+    def limit_to_bounds(self):
+        # limit out of bounds width
+        self.position.x = min(self.position.x, self.world_width - self.view.x)
+        self.position.x = max(self.position.x, 0)
+
+        # limit out of bounds height
+        self.position.y = min(self.position.y, self.world_height - self.view.y)
+        self.position.y = max(self.position.y, 0)
