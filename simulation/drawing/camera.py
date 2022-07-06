@@ -20,6 +20,7 @@ class Camera:
         }
 
     def is_in_view(self, l2, r2):
+        # TODO: SOMETHING IS WRONG, SOME TIMES THINGS DISAPPEAR FROM SCREEN WHEN THEY ARE STILL PARTIALLY VISIBLE
         # algorithm from https://www.geeksforgeeks.org/find-two-rectangles-overlap/
         # l1 = top left coordinate of camera
         # r1 = bottom right coordinate of camera
@@ -28,10 +29,10 @@ class Camera:
         l1 = self.position
         r1 = self.bottom_right
 
-        to_return = False
+        to_return = True
 
         # if one rectangle is within the other rectangle
-        if (l2.x > l1.x and l2.y > l1.y) and (r2.x < r1.x and r2.y < r1.y):
+        if (l2.x >= l1.x and l2.y >= l1.y) and (r2.x <= r1.x and r2.y <= r1.y):
             to_return = True
         # if rectangle has area 0, no overlap
         elif l1.x == r1.x or l1.y == r1.y or r2.x == l2.x or l2.y == r2.y:
@@ -60,17 +61,21 @@ class Camera:
         self.bottom_right = Vector.add_new(self.position, self.view)
 
     def apply_zoom(self, num_to_scale):
-        return num_to_scale * (self.zoom / 100)
+        return num_to_scale
+        #return num_to_scale * (self.zoom / 100)
 
     def set_zoom(self, delta_zoom):
-        # TODO: FIGURE OUT WHERE I AM GOING WRONG
-        old_zoom = self.zoom
-        self.zoom += delta_zoom
-        self.zoom = min(self.zoom, 200)
-        self.zoom = max(self.zoom, 50)
-
-        self.view.scale(self.zoom / old_zoom)
-        self.bottom_right = Vector.add_new(self.position, self.view)
+        # TODO: FIGURE OUT HOW TO ADJUST THE OFFSET FOR THE OBJECTS WITHIN VIEW
+        # old_zoom = self.zoom
+        # self.zoom += delta_zoom
+        # self.zoom = min(self.zoom, 200)
+        # self.zoom = max(self.zoom, 50)
+        #
+        # self.position.scale(old_zoom / self.zoom)
+        # self.limit_to_bounds()
+        # self.view.scale(old_zoom / self.zoom)
+        # self.bottom_right = Vector.add_new(self.position, self.view)
+        pass
 
     def limit_to_bounds(self):
         # limit out of bounds width
@@ -80,3 +85,5 @@ class Camera:
         # limit out of bounds height
         self.position.y = min(self.position.y, self.world_height - self.view.y)
         self.position.y = max(self.position.y, 0)
+
+    
