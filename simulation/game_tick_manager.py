@@ -17,7 +17,7 @@ class GameTickManager:
         self.tick_counter += 1
         if self.tick_counter >= self.tick_interval:
             for tree in self.trees:
-                tree.try_grow_food()
+                tree.tick()
 
             # reversed so that elements can be removed while looping through
             for survivor in reversed(self.survivors):

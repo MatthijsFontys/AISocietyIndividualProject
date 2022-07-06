@@ -46,7 +46,7 @@ MOVEMENT_MAP = {
 def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
     WINDOW.fill(pygame.Color(106, 148, 106))
 
-    tree_painter.paint(survivor_painter.survivor_radius)
+    tree_painter.paint(survivor_painter.survivor_radius, True)
     survivor_painter.paint()
     grid_painter.paint(False)
 
@@ -63,14 +63,14 @@ def main():
         ))
 
     trees = []
-    for i in range(30):
+    for i in range(10):
         trees.append(Tree(
             Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
         ))
 
     # world managing objects
     tick_manager = GameTickManager(trees, population)
-    collision_grid = CollisionGrid(50, WORLD_SIZE, WORLD_SIZE, trees)
+    collision_grid = CollisionGrid(100, WORLD_SIZE, WORLD_SIZE, trees)
 
     # drawing objects
     zoom_speed = 0  # 10 or something when not testing or when zoom isn't broken anymore

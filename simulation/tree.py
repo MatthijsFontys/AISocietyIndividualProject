@@ -4,7 +4,7 @@ class Tree:
         self.food_count = 3
         self.max_food_count = 3
         self.ticks_since_grow = 0
-        self.forage_tick_cooldown = 5
+        self.forage_tick_cooldown = 20
         self.ticks_since_forage = self.forage_tick_cooldown
         self.forage_range = 80
         self.position = position
@@ -19,9 +19,10 @@ class Tree:
             return True
         return False
 
-    def try_grow_food(self):
+    def tick(self):
+        self.ticks_since_forage += 1
         self.ticks_since_grow += 1
-        if self.ticks_since_grow > 20:
+        if self.ticks_since_grow > 30:
             if self.food_count < self.max_food_count:
                 self.food_count += 1
             self.ticks_since_grow = 0

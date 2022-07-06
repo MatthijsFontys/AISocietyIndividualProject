@@ -20,7 +20,9 @@ class Camera:
         }
 
     def is_in_view(self, l2, r2):
-        # TODO: SOMETHING IS WRONG, SOME TIMES THINGS DISAPPEAR FROM SCREEN WHEN THEY ARE STILL PARTIALLY VISIBLE
+        # TODO: SOMETHING IS WRONG WITH MY OLD METHOD, SOME TIMES THINGS DISAPPEAR FROM SCREEN WHEN THEY ARE STILL PARTIALLY VISIBLE
+        # TODO: IF THIS NEW METHOD IS TOO SLOW GO BACK TO THE OLD METHOD AND FIX IT INSTEAD
+        # TODO: might use object pooling if using so many vectors slows down the program
         # algorithm from https://www.geeksforgeeks.org/find-two-rectangles-overlap/
         # l1 = top left coordinate of camera
         # r1 = bottom right coordinate of camera
@@ -29,24 +31,14 @@ class Camera:
         l1 = self.position
         r1 = self.bottom_right
 
-        to_return = True
+        angles = [l2, r2, Vector(r2.x, l2.y), Vector(l2.x, r2.y)]
 
-        # if one rectangle is within the other rectangle
-        if (l2.x >= l1.x and l2.y >= l1.y) and (r2.x <= r1.x and r2.y <= r1.y):
-            to_return = True
-        # if rectangle has area 0, no overlap
-        elif l1.x == r1.x or l1.y == r1.y or r2.x == l2.x or l2.y == r2.y:
-            to_return = False
+        for angle in angles:
+            if angle.x >= self.position.x and angle.x <= self.bottom_right.x:
+                if angle.y >= self.position.y and angle.y <= self.bottom_right.y:
+                    return True
 
-        # If one rectangle is on left side of other
-        elif l1.x > r2.x or l2.x > r1.x:
-            to_return = False
-
-        # If one rectangle is above other
-        elif r1.y > l2.y or r2.y > l1.y:
-            to_return = False
-
-        return to_return
+        return False
 
     def move(self, direction):
         self.position.add(self.movement[direction])

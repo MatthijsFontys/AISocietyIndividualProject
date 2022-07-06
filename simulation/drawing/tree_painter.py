@@ -13,12 +13,14 @@ class TreePainter:
         self.window = window
 
     def paint(self, survivor_radius, show_range=True, show_fruit_count=True):
+        draw_counter = 0  # TODO: remove temp variable used for debugging the camera | or move the variable to the camera instead idk
         tree_size = self.camera.apply_zoom(80)
 
         for tree in self.trees:  # AKA tree
-            l2 = tree.position
+            l2 = Vector(tree.position.x - tree_size / 2, tree.position.y - tree_size / 2)
             r2 = Vector.add_new(l2, Vector(tree_size, tree_size))
             if self.camera.is_in_view(l2, r2):
+                draw_counter += 1
                 offset_position = Vector.subtract_new(tree.position, self.camera.position)
                 offset_x = offset_position.x - tree_size / 2
                 offset_y = offset_position.y - tree_size / 2
