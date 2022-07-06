@@ -86,4 +86,3 @@ class Camera:
         self.position.y = min(self.position.y, self.world_height - self.view.y)
         self.position.y = max(self.position.y, 0)
 
-    

@@ -34,6 +34,7 @@ PLAYER_MAP = {
     pygame.K_RIGHT: [PLAYER_SPEED, 0]
 }
 
+# Map from pygame keys to my enum to keep layers seperate
 MOVEMENT_MAP = {
     pygame.K_UP: Dir.UP,
     pygame.K_DOWN: Dir.DOWN,
@@ -72,15 +73,18 @@ def main():
     collision_grid = CollisionGrid(50, WORLD_SIZE, WORLD_SIZE, trees)
 
     # drawing objects
+    zoom_speed = 0  # 10 or something when not testing or when zoom isn't broken anymore
     camera = Camera(PLAYER_SPEED, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
     grid_painter = GridPainter(WINDOW, camera, collision_grid)
     survivor_painter = SurvivorPainter(WINDOW, camera, population)
     tree_painter = TreePainter(WINDOW, camera, trees)
 
-
+    # pygame stuff
     clock = pygame.time.Clock()
     should_run = True
-    zoom_speed = 0  # 10 or something when not testing or when zoom isn't broken anymore
+
+
+    # Main loop and camera controls
     while should_run:
         clock.tick(FPS_CAP)
         for event in pygame.event.get():
@@ -92,19 +96,22 @@ def main():
                 elif event.button == 5:
                     camera.set_zoom(-zoom_speed)
 
+        # Player and camera movement
         keys = pygame.key.get_pressed()
         for key in MOVEMENT_MAP.keys():
             if keys[key]:
                 if PLAYABLE_CHAR:
-                    dir = PLAYER_MAP[key]
+                    player_dir = PLAYER_MAP[key]
                     player = population[0]
-                    player.position.add(Vector(dir[0], dir[1]))
+                    player.position.add(Vector(player_dir[0], player_dir[1]))
                     camera.follow_player(player.position)
                 else:
                     camera.move(MOVEMENT_MAP[key])
 
-        # draw stuff
+        # Handling the game world
         tick_manager.tick()
+
+        # Drawing
         draw(tree_painter, survivor_painter, grid_painter)
 
     pygame.quit()
