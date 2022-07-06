@@ -65,7 +65,9 @@ class Survivor:
         return self.fullness <= 0
 
     def give_food(self):
-        self.food_count = min(self.food_count + 1, self.food_limit)
+        # self.food_count = min(self.food_count + 1, self.food_limit)
+        self.fullness += 20
+        self.fullness = min(self.fullness, 100)
 
     # TODO: See if I need acceleration
     def move(self):

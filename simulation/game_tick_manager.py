@@ -9,7 +9,7 @@ class GameTickManager:
     def __init__(self, trees, survivors):
         self.trees = trees
         self.survivors = survivors
-        self.tick_interval = 10  # IDK what this number is yet
+        self.tick_interval = 10
         self.tick_counter = 0
 
     def tick(self):
@@ -19,7 +19,8 @@ class GameTickManager:
             for tree in self.trees:
                 tree.try_grow_food()
 
-            for survivor in reversed(self.survivors):  # reversed so that elements can be removed while looping through
+            # reversed so that elements can be removed while looping through
+            for survivor in reversed(self.survivors):
                 survivor.increase_fitness()
                 survivor.decrease_fullness()
                 if survivor.is_dead():

@@ -48,7 +48,7 @@ def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
 
     tree_painter.paint(survivor_painter.survivor_radius)
     survivor_painter.paint()
-    grid_painter.paint()
+    grid_painter.paint(False)
 
     pygame.display.update()
 
@@ -111,10 +111,22 @@ def main():
         # Handling the game world
         tick_manager.tick()
 
+        # Actions before drawing
+        do_survivor_actions(population, collision_grid)
+
         # Drawing
         draw(tree_painter, survivor_painter, grid_painter)
 
     pygame.quit()
+
+
+def do_survivor_actions(population, grid: CollisionGrid):
+    for survivor in population:
+        trees = grid.get_nearby_trees(survivor.position.x, survivor.position.y)
+        for tree in trees:
+            tree.try_forage_food(survivor)
+
+
 
 
 if __name__ == "__main__":
