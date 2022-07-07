@@ -2,13 +2,13 @@ import pygame
 from random import randrange
 
 # my imports
-from survivor import Survivor
-from tree import Tree
-from vector import Vector
-from game_tick_manager import GameTickManager
-from my_enums import Direction as Dir
+from entities.survivor import Survivor
+from entities.tree import Tree
+from util.vector import Vector
+from world.game_tick_manager import GameTickManager
+from util.util_enums import Direction as Dir
 from drawing.camera import Camera
-from collision_grid import CollisionGrid
+from world.collision_grid import CollisionGrid
 
 # my drawing imports
 from drawing.grid_painter import GridPainter

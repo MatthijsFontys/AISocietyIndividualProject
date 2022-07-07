@@ -1,8 +1,8 @@
 import pygame
 import math
-from vector import Vector
+from util.vector import Vector
 from drawing.camera import Camera
-from tree import Tree
+from entities.tree import Tree
 
 
 class TreePainter:

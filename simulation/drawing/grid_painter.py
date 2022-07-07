@@ -1,7 +1,7 @@
 import pygame
 from drawing.camera import Camera
-from collision_grid import CollisionGrid
-from vector import Vector
+from world.collision_grid import CollisionGrid
+from util.vector import Vector
 
 
 class GridPainter:
@@ -12,7 +12,7 @@ class GridPainter:
         self.grid = grid
 
     # TODO: FIGURE OUT WHY CELLS ARE NOT GETTING PAINTED WHEN THEY ARE NOT ENTIRELY WITHIN THE CAMERA
-    def paint(self, should_paint=True, draw_entire_grid=False):
+    def paint(self, should_paint=True):
         if should_paint:
             # GRID
             size = self.grid.cell_size
@@ -20,7 +20,7 @@ class GridPainter:
                 for j in range(self.grid.height):
                     x = i * size
                     y = j * size
-                    if draw_entire_grid or self.camera.is_in_view(Vector(x, y), Vector(x + size, y + size)):
+                    if self.camera.is_in_view(Vector(x, y), Vector(x + size, y + size)):
                         offset_position = Vector.subtract_new(Vector(x, y), self.camera.position)
                         grid_rect = pygame.Rect(offset_position.x, offset_position.y, size, size)
                         pygame.draw.rect(self.window, pygame.Color(255, 255, 255), grid_rect, 1)

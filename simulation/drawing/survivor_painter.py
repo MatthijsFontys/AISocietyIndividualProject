@@ -1,7 +1,7 @@
 import pygame
 from drawing.camera import Camera
-from survivor import Survivor
-from vector import Vector
+from entities.survivor import Survivor
+from util.vector import Vector
 
 
 class SurvivorPainter:

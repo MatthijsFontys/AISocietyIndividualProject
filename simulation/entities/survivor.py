@@ -1,7 +1,6 @@
 import random
 
-from vector import Vector
-from random import randint, choice
+from util.vector import Vector
 
 
 class Survivor:

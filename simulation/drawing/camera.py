@@ -1,5 +1,5 @@
-from vector import Vector
-from my_enums import Direction as Dir
+from util.vector import Vector
+from util.util_enums import Direction as Dir
 
 
 class Camera:
