@@ -16,7 +16,7 @@ from drawing.tree_painter import TreePainter
 from drawing.survivor_painter import SurvivorPainter
 
 # Neural network
-from nn.neuralnetwork import NeuralNetwork
+from ai.neuralnetwork import NeuralNetwork
 
 pygame.init()
 
