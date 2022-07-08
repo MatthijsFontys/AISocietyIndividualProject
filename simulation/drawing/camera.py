@@ -53,20 +53,22 @@ class Camera:
         self.bottom_right = Vector.add_new(self.position, self.view)
 
     def apply_zoom(self, num_to_scale):
-        return num_to_scale
-        #return num_to_scale * (self.zoom / 100)
+        #return num_to_scale
+        return num_to_scale * (self.zoom / 100)
 
     def set_zoom(self, delta_zoom):
         # TODO: FIGURE OUT HOW TO ADJUST THE OFFSET FOR THE OBJECTS WITHIN VIEW
-        # old_zoom = self.zoom
-        # self.zoom += delta_zoom
-        # self.zoom = min(self.zoom, 200)
-        # self.zoom = max(self.zoom, 50)
+        old_zoom = self.zoom
+        self.zoom += delta_zoom
+        if self.zoom < 20:
+            self.zoom = 20
+        elif self.zoom > 200:
+            self.zoom = 200
         #
-        # self.position.scale(old_zoom / self.zoom)
+        # self.position.scale(- (self.zoom / old_zoom / 2))
         # self.limit_to_bounds()
-        # self.view.scale(old_zoom / self.zoom)
-        # self.bottom_right = Vector.add_new(self.position, self.view)
+        self.view.scale(2.1 - self.zoom / old_zoom / 2)
+        self.bottom_right = Vector.add_new(self.position, self.view)
         pass
 
     def limit_to_bounds(self):

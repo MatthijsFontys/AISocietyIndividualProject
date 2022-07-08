@@ -27,7 +27,7 @@ class TreePainter:
                 tree_rect = pygame.Rect(offset_x, offset_y, tree_size, tree_size)
 
                 if show_range:
-                    range_size = self.camera.apply_zoom(tree.forage_range - survivor_radius)
+                    range_size = self.camera.apply_zoom(self.camera.apply_zoom(tree.forage_range - survivor_radius))
                     pygame.draw.circle(self.window, pygame.Color(148, 22, 37), (offset_position.x, offset_position.y), range_size)
 
                 pygame.draw.rect(self.window, pygame.Color(13, 56, 13), tree_rect)

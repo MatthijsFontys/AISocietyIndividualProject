@@ -15,12 +15,15 @@ from drawing.grid_painter import GridPainter
 from drawing.tree_painter import TreePainter
 from drawing.survivor_painter import SurvivorPainter
 
+# Neural network
+from nn.neuralnetwork import NeuralNetwork
+
 pygame.init()
 
 # Game setup
 FPS_CAP = 60  # CAMERA WASN'T SMOOTH BECAUSE FPS CAP WAS SO LOW FROM MAKING SNAKE
 WORLD_SIZE = 1600
-WIN_SIZE = 800
+WIN_SIZE = 900
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Survival")
 
@@ -46,7 +49,7 @@ MOVEMENT_MAP = {
 def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
     WINDOW.fill(pygame.Color(106, 148, 106))
 
-    tree_painter.paint(survivor_painter.survivor_radius, True)
+    tree_painter.paint(survivor_painter.survivor_radius, False)
     survivor_painter.paint()
     grid_painter.paint(False)
 
@@ -57,7 +60,7 @@ def main():
     population = []
     if PLAYABLE_CHAR:
         population.append(Survivor(Vector(400, 400)))
-    for i in range(100):
+    for i in range(50):
         population.append(Survivor(
             Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
         ))
@@ -73,6 +76,7 @@ def main():
     collision_grid = CollisionGrid(100, WORLD_SIZE, WORLD_SIZE, trees)
 
     # drawing objects
+    # TODO: CAN'T GET THE ZOOM TO WORK IT IS DIFFICULT
     zoom_speed = 0  # 10 or something when not testing or when zoom isn't broken anymore
     camera = Camera(PLAYER_SPEED, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
     grid_painter = GridPainter(WINDOW, camera, collision_grid)
@@ -82,7 +86,6 @@ def main():
     # pygame stuff
     clock = pygame.time.Clock()
     should_run = True
-
 
     # Main loop and camera controls
     while should_run:
