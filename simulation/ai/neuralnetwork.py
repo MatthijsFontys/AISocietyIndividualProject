@@ -30,16 +30,15 @@ class NeuralNetwork:
         for layer_index in range(len(self.layers)):
             my_layer = self.layers[layer_index]
             parent_layers = [parent_a.layers[layer_index], parent_b.layers[layer_index]]
-            for i in self.layers[layer_index].node_count:
-                for j in self.layers[layer_index].input_count:
+            for i in range(self.layers[layer_index].node_count):
+                for j in range(self.layers[layer_index].input_count):
                     parent_weights = random.choice(parent_layers).weights[i][j]
                     my_layer.weights[i][j] = parent_weights
                     # mutation
                     my_layer.weights[i][j] = self.get_mutated_value(my_layer.weights[i][j])
 
-
     def get_mutated_value(self, start_value):
-        if random.random() < 0.5:
+        if random.random() < 0.05:
             return start_value + random.uniform(-0.3, 0.3)
         else:
             return start_value

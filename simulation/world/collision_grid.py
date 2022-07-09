@@ -1,4 +1,5 @@
 import math
+from util.vector import Vector
 
 
 class CollisionGrid:
@@ -26,10 +27,28 @@ class CollisionGrid:
         for directions in self.nearby_directions:
             x_index = start_x + directions[0]
             y_index = start_y + directions[1]
-            if x_index >= 0 and x_index < self.width and y_index >= 0 and y_index < self.height:
+            # don't check outside the edges of the grid
+            if self.is_in_grid(x_index, y_index):
                 nearby_trees.extend(self.grid[x_index][y_index])
 
         return nearby_trees
+
+    def get_closest_tree(self, x, y):
+        position = Vector(x, y)
+        record_distance = 1000_000
+        record_tree = None
+
+        for tree in self.get_nearby_trees(x, y):
+            distance = tree.position.get_distance(position)
+            if distance < record_distance:
+                record_distance = distance
+                record_tree = tree
+
+        return record_tree
+
+    # helper methods
+    def is_in_grid(self, x_index, y_index):
+        return 0 <= x_index < self.width and 0 <= y_index < self.height
 
     def position_to_index(self, position):
         return math.floor(position / self.cell_size)

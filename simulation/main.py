@@ -28,7 +28,7 @@ WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Survival")
 
 # Allow a playable character for debugging
-PLAYABLE_CHAR = True
+PLAYABLE_CHAR = False
 PLAYER_SPEED = 3
 PLAYER_MAP = {
     pygame.K_UP: [0, -PLAYER_SPEED],
@@ -60,20 +60,20 @@ def main():
     population = []
     if PLAYABLE_CHAR:
         population.append(Survivor(Vector(400, 400)))
-    for i in range(50):
+    for i in range(200):
         population.append(Survivor(
             Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
         ))
 
     trees = []
-    for i in range(10):
+    for i in range(20):
         trees.append(Tree(
             Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
         ))
 
     # world managing objects
     tick_manager = GameTickManager(trees, population)
-    collision_grid = CollisionGrid(100, WORLD_SIZE, WORLD_SIZE, trees)
+    collision_grid = CollisionGrid(200, WORLD_SIZE, WORLD_SIZE, trees)
 
     # drawing objects
     # TODO: CAN'T GET THE ZOOM TO WORK IT IS DIFFICULT
@@ -125,11 +125,34 @@ def main():
 
 def do_survivor_actions(population, grid: CollisionGrid):
     for survivor in population:
-        trees = grid.get_nearby_trees(survivor.position.x, survivor.position.y)
-        for tree in trees:
+        # getting the inputs for the neural network and performing the chosen action
+        tree = grid.get_closest_tree(survivor.position.x, survivor.position.y)
+        tree_x_dist = 1
+        tree_y_dist = 1
+        tree_fruit_count = 0
+
+        # todo: make a nullable survivor and tree instead
+        if tree is not None:
+            tree_x_dist = (survivor.position.x - tree.position.x) / WORLD_SIZE
+            tree_y_dist = (survivor.position.y - tree.position.y) / WORLD_SIZE
+            tree_fruit_count = tree.food_count / tree.max_food_count
+
+        inputs = [
+            survivor.fullness / 100,
+            survivor.position.x / WORLD_SIZE,
+            survivor.position.y / WORLD_SIZE,
+            tree_x_dist,
+            tree_y_dist,
+            tree_fruit_count
+        ]
+
+        outputs = survivor.brain.feed_forward(inputs)
+        action_index = outputs.index(max(outputs))
+
+        # do stuff as survivor
+        survivor.move(action_index + 1)
+        if tree is not None:
             tree.try_forage_food(survivor)
-
-
 
 
 if __name__ == "__main__":
