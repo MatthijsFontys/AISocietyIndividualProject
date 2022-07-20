@@ -1,3 +1,4 @@
+import numpy as np
 from util.vector import Vector
 from util.util_enums import Direction as Dir
 
@@ -19,18 +20,12 @@ class Camera:
             Dir.RIGHT: Vector(speed, 0)
         }
 
-    def is_in_view(self, l2, r2):
-        # TODO: SOMETHING IS WRONG WITH MY OLD METHOD, SOME TIMES THINGS DISAPPEAR FROM SCREEN WHEN THEY ARE STILL PARTIALLY VISIBLE
-        # TODO: IF THIS NEW METHOD IS TOO SLOW GO BACK TO THE OLD METHOD AND FIX IT INSTEAD
-        # TODO: might use object pooling if using so many vectors slows down the program
-        # algorithm from https://www.geeksforgeeks.org/find-two-rectangles-overlap/
-        # l1 = top left coordinate of camera
-        # r1 = bottom right coordinate of camera
-        # l2 is top left of object to check
-        # r2 is bottom right of object to check
-        l1 = self.position
-        r1 = self.bottom_right
+        # for debugging purposes
+        print("zoom: " + str(self.zoom))
+        print("view:" + str(self.view.x))
+        self.default_view = Vector(view_width, view_height)
 
+    def is_in_view(self, l2, r2):
         angles = [l2, r2, Vector(r2.x, l2.y), Vector(l2.x, r2.y)]
 
         for angle in angles:
@@ -42,9 +37,7 @@ class Camera:
 
     def move(self, direction):
         self.position.add(self.movement[direction])
-
         self.limit_to_bounds()
-        # calc new bottom right after movement
         self.bottom_right = Vector.add_new(self.position, self.view)
 
     def follow_player(self, player_position):
@@ -53,23 +46,27 @@ class Camera:
         self.bottom_right = Vector.add_new(self.position, self.view)
 
     def apply_zoom(self, num_to_scale):
-        #return num_to_scale
         return num_to_scale * (self.zoom / 100)
 
-    def set_zoom(self, delta_zoom):
-        # TODO: FIGURE OUT HOW TO ADJUST THE OFFSET FOR THE OBJECTS WITHIN VIEW
+    def set_zoom(self, delta_zoom: int):
         old_zoom = self.zoom
         self.zoom += delta_zoom
-        if self.zoom < 20:
-            self.zoom = 20
-        elif self.zoom > 200:
-            self.zoom = 200
+        # TODO: FIGURE OUT HOW TO ADJUSTS THE ZOOM SO IT CAN NEVER EXCEED THE WORLD LIMITS
+        self.zoom = np.clip(self.zoom, 55, 200)
+        print("zoom: " + str(self.zoom))
+        print("view:" + str(self.view.x))
+        self.view.scale(old_zoom / self.zoom)
         #
         # self.position.scale(- (self.zoom / old_zoom / 2))
-        # self.limit_to_bounds()
-        self.view.scale(2.1 - self.zoom / old_zoom / 2)
+        self.limit_to_bounds()
+        # self.view.scale(2.1 - self.zoom / old_zoom / 2)
         self.bottom_right = Vector.add_new(self.position, self.view)
-        pass
+
+    def map_to_camera(self, to_map: Vector):
+        offset_pos = Vector.subtract_new(to_map, self.position)
+        x = np.interp(offset_pos.x, [0, self.view.x], [0, self.default_view.x])
+        y = np.interp(offset_pos.y, [0, self.view.y], [0, self.default_view.y])
+        return Vector(x, y)
 
     def limit_to_bounds(self):
         # limit out of bounds width

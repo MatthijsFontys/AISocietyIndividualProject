@@ -20,7 +20,7 @@ class SurvivorPainter:
             l2 = Vector.subtract_new(survivor.position, self.offset)
             r2 = Vector.add_new(l2, self.size)
             if self.camera.is_in_view(l2, r2):
-                offset_position = Vector.subtract_new(survivor.position, self.camera.position)
+                offset_position = self.camera.map_to_camera(survivor.position)
                 pygame.draw.circle(
                     self.window,
                     pygame.Color(58, 103, 176),

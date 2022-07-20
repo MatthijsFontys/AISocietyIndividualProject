@@ -77,7 +77,7 @@ def main():
 
     # drawing objects
     # TODO: CAN'T GET THE ZOOM TO WORK IT IS DIFFICULT
-    zoom_speed = 0  # 10 or something when not testing or when zoom isn't broken anymore
+    zoom_speed = 5  # 10 or something when not testing or when zoom isn't broken anymore
     camera = Camera(PLAYER_SPEED, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
     grid_painter = GridPainter(WINDOW, camera, collision_grid)
     survivor_painter = SurvivorPainter(WINDOW, camera, population)

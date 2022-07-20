@@ -21,6 +21,6 @@ class GridPainter:
                     x = i * size
                     y = j * size
                     if self.camera.is_in_view(Vector(x, y), Vector(x + size, y + size)):
-                        offset_position = Vector.subtract_new(Vector(x, y), self.camera.position)
+                        offset_position = self.camera.map_to_camera(Vector(x, y))
                         grid_rect = pygame.Rect(offset_position.x, offset_position.y, size, size)
                         pygame.draw.rect(self.window, pygame.Color(255, 255, 255), grid_rect, 1)

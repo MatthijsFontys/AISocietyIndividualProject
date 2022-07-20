@@ -21,7 +21,7 @@ class TreePainter:
             r2 = Vector.add_new(l2, Vector(tree_size, tree_size))
             if self.camera.is_in_view(l2, r2):
                 draw_counter += 1
-                offset_position = Vector.subtract_new(tree.position, self.camera.position)
+                offset_position = self.camera.map_to_camera(tree.position)
                 offset_x = offset_position.x - tree_size / 2
                 offset_y = offset_position.y - tree_size / 2
                 tree_rect = pygame.Rect(offset_x, offset_y, tree_size, tree_size)
@@ -38,3 +38,4 @@ class TreePainter:
                     text_rect = text.get_rect()
                     text_rect.center = tree_rect.center
                     self.window.blit(text, text_rect)
+

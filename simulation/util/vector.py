@@ -34,6 +34,10 @@ class Vector:
     def copy(self):
         return Vector(self.x, self.y)
 
+    def set(self, x, y):
+        self.x = x
+        self.y = y
+
     # TODO: THINK OF A BETTER NAME FOR THE STATIC VARIANTS
     @staticmethod
     def add_new(vector_a, vector_b):
