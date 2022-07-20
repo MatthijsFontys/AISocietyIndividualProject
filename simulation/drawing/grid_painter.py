@@ -15,7 +15,7 @@ class GridPainter:
     def paint(self, should_paint=True):
         if should_paint:
             # GRID
-            size = self.grid.cell_size
+            size = self.camera.apply_zoom(self.grid.cell_size)
             for i in range(self.grid.width):
                 for j in range(self.grid.height):
                     x = i * size

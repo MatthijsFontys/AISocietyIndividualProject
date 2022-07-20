@@ -38,4 +38,3 @@ class TreePainter:
                     text_rect = text.get_rect()
                     text_rect.center = tree_rect.center
                     self.window.blit(text, text_rect)
-

@@ -7,8 +7,10 @@ class Camera:
 
     def __init__(self, speed, view_width, view_height, world_width, world_height):
         self.zoom = 100
+        self.interp_padding = 80
         self.position = Vector(0, 0)  # aka top left
         self.view = Vector(view_width, view_height)
+        self.default_view = Vector(view_width, view_height)
         self.bottom_right = Vector.add_new(self.position, self.view)
         self.world_width = world_width
         self.world_height = world_height
@@ -19,11 +21,6 @@ class Camera:
             Dir.LEFT: Vector(-speed, 0),
             Dir.RIGHT: Vector(speed, 0)
         }
-
-        # for debugging purposes
-        print("zoom: " + str(self.zoom))
-        print("view:" + str(self.view.x))
-        self.default_view = Vector(view_width, view_height)
 
     def is_in_view(self, l2, r2):
         angles = [l2, r2, Vector(r2.x, l2.y), Vector(l2.x, r2.y)]
@@ -53,22 +50,20 @@ class Camera:
         self.zoom += delta_zoom
         # TODO: FIGURE OUT HOW TO ADJUSTS THE ZOOM SO IT CAN NEVER EXCEED THE WORLD LIMITS
         self.zoom = np.clip(self.zoom, 55, 200)
-        print("zoom: " + str(self.zoom))
-        print("view:" + str(self.view.x))
         self.view.scale(old_zoom / self.zoom)
-        #
-        # self.position.scale(- (self.zoom / old_zoom / 2))
         self.limit_to_bounds()
-        # self.view.scale(2.1 - self.zoom / old_zoom / 2)
         self.bottom_right = Vector.add_new(self.position, self.view)
 
     def map_to_camera(self, to_map: Vector):
+        size = self.interp_padding
+        zoomed_size = self.apply_zoom(size)
         offset_pos = Vector.subtract_new(to_map, self.position)
-        x = np.interp(offset_pos.x, [0, self.view.x], [0, self.default_view.x])
-        y = np.interp(offset_pos.y, [0, self.view.y], [0, self.default_view.y])
+        x = np.interp(offset_pos.x, [-size, self.view.x + size], [-zoomed_size, self.default_view.x + zoomed_size])
+        y = np.interp(offset_pos.y, [-size, self.view.y + size], [-zoomed_size, self.default_view.y + zoomed_size])
         return Vector(x, y)
 
     def limit_to_bounds(self):
+        # todo: this limits the boundaries but not the view range when zooming
         # limit out of bounds width
         self.position.x = min(self.position.x, self.world_width - self.view.x)
         self.position.x = max(self.position.x, 0)
@@ -76,4 +71,3 @@ class Camera:
         # limit out of bounds height
         self.position.y = min(self.position.y, self.world_height - self.view.y)
         self.position.y = max(self.position.y, 0)
-

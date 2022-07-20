@@ -16,7 +16,6 @@ class Layer:
             self.weights.append([])
             for j in range(input_count):
                 self.weights[i].append(random.uniform(-1, 1))
-        #print(self.weights)
         # self.bias = []  # idk about this yet
 
     def activate(self, values):
