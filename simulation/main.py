@@ -50,7 +50,7 @@ def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
     WINDOW.fill(pygame.Color(106, 148, 106))
 
     tree_painter.paint(survivor_painter.survivor_radius, False)
-    #survivor_painter.paint()
+    survivor_painter.paint()
     grid_painter.paint(False)
 
     pygame.display.update()
@@ -60,13 +60,13 @@ def main():
     population = []
     if PLAYABLE_CHAR:
         population.append(Survivor(Vector(400, 400)))
-    for i in range(10):
+    for i in range(50):
         population.append(Survivor(
             Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
         ))
 
     trees = []
-    for i in range(3):
+    for i in range(15):
         trees.append(Tree(
             Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
         ))
