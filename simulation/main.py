@@ -1,4 +1,7 @@
+import math
+
 import pygame
+from math import pi, tau
 from random import randrange
 
 # my imports
@@ -30,6 +33,7 @@ pygame.display.set_caption("Survival")
 # Allow a playable character for debugging
 PLAYABLE_CHAR = False
 PLAYER_SPEED = 3
+MOUSE_SPEED = 10
 PLAYER_MAP = {
     pygame.K_UP: [0, -PLAYER_SPEED],
     pygame.K_DOWN: [0, PLAYER_SPEED],
@@ -51,6 +55,7 @@ def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
 
     tree_painter.paint(survivor_painter.survivor_radius, False)
     survivor_painter.paint()
+    # todo: fix drawing the grid, the zoom broke it
     grid_painter.paint(False)
 
     pygame.display.update()
@@ -66,6 +71,7 @@ def main():
         ))
 
     trees = []
+
     for i in range(15):
         trees.append(Tree(
             Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
@@ -76,9 +82,7 @@ def main():
     collision_grid = CollisionGrid(200, WORLD_SIZE, WORLD_SIZE, trees)
 
     # drawing objects
-    # TODO: CAN'T GET THE ZOOM TO WORK IT IS DIFFICULT
-    zoom_speed = 5  # 10 or something when not testing or when zoom isn't broken anymore
-    camera = Camera(PLAYER_SPEED, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
+    camera = Camera(MOUSE_SPEED, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
     grid_painter = GridPainter(WINDOW, camera, collision_grid)
     survivor_painter = SurvivorPainter(WINDOW, camera, population)
     tree_painter = TreePainter(WINDOW, camera, trees)
@@ -94,10 +98,11 @@ def main():
             if event.type == pygame.QUIT:
                 should_run = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
                 if event.button == 4:
-                    camera.set_zoom(zoom_speed)
+                    camera.set_zoom(True, *mouse_pos)
                 elif event.button == 5:
-                    camera.set_zoom(-zoom_speed)
+                    camera.set_zoom(False, *mouse_pos)
 
         # Player and camera movement
         keys = pygame.key.get_pressed()
@@ -153,7 +158,6 @@ def do_survivor_actions(population, grid: CollisionGrid):
         survivor.move(action_index + 1)
         if tree is not None:
             tree.try_forage_food(survivor)
-
 
 if __name__ == "__main__":
     main()
