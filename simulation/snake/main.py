@@ -66,6 +66,8 @@ def main():
 
             if best_game.get_score() > 2000:
                 fps_cap = 10
+            else:
+                fps_cap = 100
 
         draw(best_game)
 
@@ -78,11 +80,12 @@ def main():
                 parent_a = None
                 parent_b = None
                 while parent_a == parent_b:
-                    parent_a = choice(best_games).brain
-                    parent_b = choice(best_games).brain
+                    parent_a = choice(best_games)
+                    parent_b = choice(best_games)
 
                 offspring = Game(WIN_SIZE, GRID_SIZE)
-                offspring.brain.cross_over(parent_a, parent_b)
+                offspring.brain.cross_over(parent_a.brain, parent_b.brain)
+                offspring.food_brain.cross_over(parent_a.food_brain, parent_b.food_brain)
                 new_population.append(offspring)
 
             generation += 1

@@ -1,12 +1,14 @@
 from random import randrange
 from math import floor
 from dna import Dna
+from food_dna import FoodDna
 
 
 class Game:
 
     def __init__(self, win_size, grid_size):
         self.brain = Dna(grid_size)
+        self.food_brain = FoodDna(grid_size)
         self.WIN_SIZE = win_size
         self.GRID_SIZE = grid_size
         self.speed = 1
@@ -51,7 +53,8 @@ class Game:
 
     def try_eat_food(self):
         if self.snake[0][0] == self.food_location[0] and self.snake[0][1] == self.food_location[1]:
-            self.food_location = self.get_random_no_snake_location()
+            #self.food_location = self.get_random_no_snake_location()
+            self.food_location = self.food_brain.predict()
             self.snake.append([0, 0])
 
     def is_game_over(self):
@@ -86,5 +89,6 @@ class Game:
         return [randrange(floor(self.WIN_SIZE / self.GRID_SIZE)), randrange(floor(self.WIN_SIZE / self.GRID_SIZE))]
 
     def get_score(self):
-        return len(self.snake) * 0 + self.time_alive
+        snake_len = max(0, len(self.snake) - 3)
+        return snake_len * 1000 + self.time_alive * 1
 
