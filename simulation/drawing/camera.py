@@ -46,31 +46,24 @@ class Camera:
         return num_to_scale * (self.zoom / 100)
 
     def set_zoom(self, zoom_in: bool, mouse_x, mouse_y):
+        old_view = Vector(self.view.x, self.view.y)
         old_zoom = self.zoom
         self.zoom += self.speed
         if not zoom_in:
             self.zoom -= self.speed * 2
-        # TODO: FIGURE OUT HOW TO ADJUSTS THE ZOOM SO IT CAN NEVER EXCEED THE WORLD LIMITS
         self.zoom = np.clip(self.zoom, 55, 200)
         self.view.scale(old_zoom / self.zoom)
-        # adjust position to the mouse x and y
-        # TODO; figure out how I can make the zoom to the mouse more smooth
-        # scalar = 100
-        # x_off = (mouse_x - (self.default_view.x / 2))
-        # y_off = (mouse_y - (self.default_view.y / 2))
-        # if x_off < 50:
-        #     x_off = 0
-        # if y_off < 50:
-        #     y_off = 0
-        #
-        # x_off *= scalar * abs(x_off / self.default_view.x)
-        # y_off *= scalar * abs(y_off / self.default_view.y)
-        #
-        # self.position.add(Vector(x_off, y_off))
-        self.position.scale(old_zoom / self.zoom)
-        # vel = self.apply_zoom(self.speed)
-        # self.position.add(Vector(vel, vel))
-        #self.limit_to_bounds()
+        # adjusting position to the mouse x and y
+        mouse_x_world = np.interp(mouse_x, [0, self.default_view.x], [0, self.world_width])
+        mouse_y_world = np.interp(mouse_y, [0, self.default_view.y], [0, self.world_height])
+        mouse_before = Vector(mouse_x_world, mouse_y_world)
+        mouse_before.subtract(self.position)
+        new_x = np.interp(mouse_before.x, [0, old_view.x], [0, self.view.x])
+        new_y = np.interp(mouse_before.y, [0, old_view.y], [0, self.view.y])
+        mouse_after = Vector(new_x, new_y)
+        mouse_after.subtract(mouse_before)
+        self.position.subtract(mouse_after)
+        self.limit_to_bounds()
         self.bottom_right = Vector.add_new(self.position, self.view)
 
     def map_to_camera(self, to_map: Vector):
