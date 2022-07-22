@@ -2,7 +2,7 @@ import numpy as np
 from util.vector import Vector
 from util.util_enums import Direction as Dir
 
-
+# TODO: fix it being able to zoom further than the world size
 class Camera:
 
     def __init__(self, speed, view_width, view_height, world_width, world_height):
@@ -34,13 +34,11 @@ class Camera:
 
     def move(self, direction):
         self.position.add(self.movement[direction])
-        self.limit_to_bounds()
-        self.bottom_right = Vector.add_new(self.position, self.view)
+        self.update_bottom_right()
 
     def follow_player(self, player_position):
         self.position = Vector(player_position.x - self.view.x / 2, player_position.y - self.view.y / 2)
-        self.limit_to_bounds()
-        self.bottom_right = Vector.add_new(self.position, self.view)
+        self.update_bottom_right()
 
     def apply_zoom(self, num_to_scale):
         return num_to_scale * (self.zoom / 100)
@@ -54,17 +52,9 @@ class Camera:
         self.zoom = np.clip(self.zoom, 55, 200)
         self.view.scale(old_zoom / self.zoom)
         # adjusting position to the mouse x and y
-        mouse_x_world = np.interp(mouse_x, [0, self.default_view.x], [0, self.world_width])
-        mouse_y_world = np.interp(mouse_y, [0, self.default_view.y], [0, self.world_height])
-        mouse_before = Vector(mouse_x_world, mouse_y_world)
-        mouse_before.subtract(self.position)
-        new_x = np.interp(mouse_before.x, [0, old_view.x], [0, self.view.x])
-        new_y = np.interp(mouse_before.y, [0, old_view.y], [0, self.view.y])
-        mouse_after = Vector(new_x, new_y)
-        mouse_after.subtract(mouse_before)
-        self.position.subtract(mouse_after)
-        self.limit_to_bounds()
-        self.bottom_right = Vector.add_new(self.position, self.view)
+        delta_mouse = self.get_delta_mouse(old_view, mouse_x, mouse_y)
+        self.position.subtract(delta_mouse)
+        self.update_bottom_right()
 
     def map_to_camera(self, to_map: Vector):
         size = self.interp_padding
@@ -83,3 +73,19 @@ class Camera:
         # limit out of bounds height
         self.position.y = min(self.position.y, self.world_height - self.view.y)
         self.position.y = max(self.position.y, 0)
+
+    # gets the delta in mouse position after zooming
+    def get_delta_mouse(self, old_view, mouse_x, mouse_y):
+        mouse_x_world = np.interp(mouse_x, [0, self.default_view.x], [0, self.world_width])
+        mouse_y_world = np.interp(mouse_y, [0, self.default_view.y], [0, self.world_height])
+        mouse_before = Vector(mouse_x_world, mouse_y_world)
+        mouse_before.subtract(self.position)
+        new_x = np.interp(mouse_before.x, [0, old_view.x], [0, self.view.x])
+        new_y = np.interp(mouse_before.y, [0, old_view.y], [0, self.view.y])
+        mouse_after = Vector(new_x, new_y)
+        mouse_after.subtract(mouse_before)
+        return mouse_after
+
+    def update_bottom_right(self):
+        self.limit_to_bounds()
+        self.bottom_right = Vector.add_new(self.position, self.view)
