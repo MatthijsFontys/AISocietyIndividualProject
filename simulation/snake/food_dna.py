@@ -1,5 +1,6 @@
 import random
 
+
 # TODO: inherit almost everything from the existing dna class
 class FoodDna:
 
@@ -28,4 +29,3 @@ class FoodDna:
             return [random.randint(0, self.grid_size), random.randint(0, self.grid_size - 1)]
         else:
             return start_value
-

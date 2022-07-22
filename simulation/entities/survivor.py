@@ -11,9 +11,7 @@ class Survivor:
         self.position = position  # vector.Vector()
         self.velocity = Vector()
 
-        # TODO: REMOVE AFTER TESTING IS DONE
         self.speed = 2
-        # self.velocity_arr = [Vector(), Vector(0, self.speed), Vector(0, -self.speed), Vector(self.speed, 0), Vector(-self.speed, 0)]
         self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(0, self.speed), Vector(-self.speed, 0),
                              Vector(self.speed, 0)]
 
@@ -44,7 +42,6 @@ class Survivor:
         self.fullness += 20
         self.fullness = min(self.fullness, 100)
 
-    # TODO: See if I need acceleration
     def move(self, index):
         if not self.is_dead():
             # self.position.add(self.velocity)

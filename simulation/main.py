@@ -159,5 +159,6 @@ def do_survivor_actions(population, grid: CollisionGrid):
         if tree is not None:
             tree.try_forage_food(survivor)
 
+
 if __name__ == "__main__":
     main()
