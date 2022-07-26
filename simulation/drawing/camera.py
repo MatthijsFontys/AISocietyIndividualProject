@@ -49,30 +49,33 @@ class Camera:
         self.zoom += self.speed
         if not zoom_in:
             self.zoom -= self.speed * 2
-        self.zoom = np.clip(self.zoom, 55, 200)
+        min_zoom_val = min(self.default_view.x / self.world_width * 100, self.default_view.y / self.world_height * 100)
+        self.zoom = np.clip(self.zoom, min_zoom_val, 200)
         self.view.scale(old_zoom / self.zoom)
         # adjusting position to the mouse x and y
         delta_mouse = self.get_delta_mouse(old_view, mouse_x, mouse_y)
         self.position.subtract(delta_mouse)
         self.update_bottom_right()
 
+    # vector needs to be the center position of the object to draw
+    # should only be called after checked if the element is in camera
     def map_to_camera(self, to_map: Vector):
         size = self.interp_padding
         zoomed_size = self.apply_zoom(size)
+        # size = 0
+        # zoomed_size = 0
         offset_pos = Vector.subtract_new(to_map, self.position)
         x = np.interp(offset_pos.x, [-size, self.view.x + size], [-zoomed_size, self.default_view.x + zoomed_size])
         y = np.interp(offset_pos.y, [-size, self.view.y + size], [-zoomed_size, self.default_view.y + zoomed_size])
+        # x = offset_pos.x
+        # y = offset_pos.y
         return Vector(x, y)
 
     def limit_to_bounds(self):
         # todo: this limits the boundaries but not the view range when zooming
         # limit out of bounds width
-        self.position.x = min(self.position.x, self.world_width - self.view.x)
-        self.position.x = max(self.position.x, 0)
-
-        # limit out of bounds height
-        self.position.y = min(self.position.y, self.world_height - self.view.y)
-        self.position.y = max(self.position.y, 0)
+        self.position.x = np.clip(self.position.x, 0, self.world_width - self.view.x)
+        self.position.y = np.clip(self.position.y, 0, self.world_height - self.view.y)
 
     # gets the delta in mouse position after zooming
     def get_delta_mouse(self, old_view, mouse_x, mouse_y):
