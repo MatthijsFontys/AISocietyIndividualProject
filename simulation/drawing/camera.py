@@ -62,13 +62,10 @@ class Camera:
     def map_to_camera(self, to_map: Vector):
         size = self.interp_padding
         zoomed_size = self.apply_zoom(size)
-        # size = 0
-        # zoomed_size = 0
         offset_pos = Vector.subtract_new(to_map, self.position)
+        # Todo: somehow this interp messes up the grid positions, but I have no idea why
         x = np.interp(offset_pos.x, [-size, self.view.x + size], [-zoomed_size, self.default_view.x + zoomed_size])
         y = np.interp(offset_pos.y, [-size, self.view.y + size], [-zoomed_size, self.default_view.y + zoomed_size])
-        # x = offset_pos.x
-        # y = offset_pos.y
         return Vector(x, y)
 
     def limit_to_bounds(self):

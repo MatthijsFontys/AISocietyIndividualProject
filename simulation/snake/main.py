@@ -1,7 +1,10 @@
 import pygame
+import numpy as np
 from random import randrange, randint, choice
 from math import floor
 from game import Game
+from data_collector import DataCollector
+
 
 # Game setup
 WIN_SIZE = 300
@@ -31,11 +34,16 @@ def main():
     fps_cap = 100
     # Snake setup
     generation = 1
-    snake_games = []
-    new_population = []
+    snake_games = []  # all games
+    genetic_population = []  # only games with genetic dna
+    new_population = []  # new genetic generation prep
+    rand_population = []  # only games with random DNA
+    data_collector = DataCollector()
 
     for i in range(POPULATION):
-        snake_games.append(Game(WIN_SIZE, GRID_SIZE))
+        genetic_population.append(Game(WIN_SIZE, GRID_SIZE))
+        rand_population.append(Game(WIN_SIZE, GRID_SIZE))
+        snake_games = np.concatenate((genetic_population, rand_population))
 
     best_game = snake_games[0]
 
@@ -47,7 +55,7 @@ def main():
             if event.type == pygame.QUIT:
                 should_run = False
 
-        alive_counter = POPULATION
+        alive_counter = len(snake_games)
 
         for game in snake_games:
             if not game.is_alive:
@@ -73,10 +81,13 @@ def main():
 
         # all games died so do cross-over and mutation and make a new population
         if alive_counter == 0:
-            snake_games.sort(key=lambda x: x.get_score(), reverse=True)
-            best_games = snake_games[:floor(POPULATION / 10)]
+            data_collector.collect_data(rand_population, genetic_population)
+            rand_population = []
+            genetic_population.sort(key=lambda x: x.get_score(), reverse=True)
+            best_games = genetic_population[:floor(POPULATION / 10)]
             print('Best score of generation: {}'.format(best_games[0].get_score()))
             for i in range(POPULATION):
+                rand_population.append(Game(WIN_SIZE, GRID_SIZE))
                 parent_a = None
                 parent_b = None
                 while parent_a == parent_b:
@@ -88,10 +99,13 @@ def main():
                 offspring.food_brain.cross_over(parent_a.food_brain, parent_b.food_brain)
                 new_population.append(offspring)
 
+            if generation % 10 == 0:
+                data_collector.save_data(generation)
             generation += 1
             print('created generation: {}'.format(generation))
-            snake_games = new_population
+            genetic_population = new_population
             new_population = []
+            snake_games = np.concatenate((genetic_population, rand_population))
             alive_counter = POPULATION
 
     pygame.quit()

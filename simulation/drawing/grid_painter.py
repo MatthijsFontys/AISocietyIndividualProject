@@ -31,6 +31,7 @@ class GridPainter:
                         grid_rect = pygame.Rect(offset_position.x, offset_position.y, size, size)
                         pygame.draw.rect(self.window, pygame.Color(255, 255, 255), grid_rect, 1)
 
+                        # todo: Make a class for drawing, because I can't keep creating this font every time (DRY)
                         # drawing grid index for debugging
                         # main_font = pygame.font.SysFont("arial", math.floor(self.camera.apply_zoom(48)))
                         # text = main_font.render(str(i + j * self.grid.width), True, 'white')
