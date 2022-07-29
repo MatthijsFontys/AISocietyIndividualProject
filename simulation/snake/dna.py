@@ -23,7 +23,7 @@ class Dna:
             self.data[i] = self.get_mutated_value(self.data[i])
 
     def get_mutated_value(self, start_value):
-        if random.random() < 0.02:
+        if random.random() < 0.01:
             return random.randint(0, 3)
         else:
             return start_value

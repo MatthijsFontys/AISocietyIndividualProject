@@ -45,6 +45,13 @@ def main():
         rand_population.append(Game(WIN_SIZE, GRID_SIZE))
         snake_games = np.concatenate((genetic_population, rand_population))
 
+    food_locations = []
+    for i in range(20):
+        food_locations.append(snake_games[0].get_random_location())
+
+    for game in snake_games:
+        game.set_initial_food(food_locations)
+
     best_game = snake_games[0]
 
     clock = pygame.time.Clock()
@@ -62,7 +69,7 @@ def main():
                 # todo: try find alternative for this alive counter
                 alive_counter -= 1
                 continue
-            game.try_eat_food()
+            game.try_eat_food(food_locations)
             game.time_alive += 1
             direction = game.choose_direction_index()
             game.move_in_direction(direction)
@@ -73,7 +80,7 @@ def main():
                 best_game = game
 
             if best_game.get_score() > 2000:
-                fps_cap = 10
+                fps_cap = 100 #10
             else:
                 fps_cap = 100
 
@@ -106,7 +113,6 @@ def main():
             genetic_population = new_population
             new_population = []
             snake_games = np.concatenate((genetic_population, rand_population))
-            alive_counter = POPULATION
 
     pygame.quit()
 

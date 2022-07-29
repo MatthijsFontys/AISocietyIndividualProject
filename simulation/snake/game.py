@@ -51,10 +51,11 @@ class Game:
                 segment[0] += direction[0]
                 segment[1] += direction[1]
 
-    def try_eat_food(self):
+    def try_eat_food(self, food_locations):
         if self.snake[0][0] == self.food_location[0] and self.snake[0][1] == self.food_location[1]:
             #self.food_location = self.get_random_no_snake_location()
-            self.food_location = self.food_brain.predict()
+            # self.food_location = self.food_brain.predict()
+            self.food_location = food_locations[len(self.snake) % len(food_locations)]
             self.snake.append([0, 0])
 
     def is_game_over(self):
@@ -86,9 +87,13 @@ class Game:
         return location
 
     def get_random_location(self):
-        return [randrange(floor(self.WIN_SIZE / self.GRID_SIZE)), randrange(floor(self.WIN_SIZE / self.GRID_SIZE))]
+        # todo: remove the -1 and +2 when neural network is added so the food can spawn near the edges again
+        return [randrange(floor(self.WIN_SIZE / self.GRID_SIZE - 2)) + 1, randrange(floor(self.WIN_SIZE / self.GRID_SIZE - 2)) + 1]
 
     def get_score(self):
         snake_len = max(0, len(self.snake) - 3)
         return snake_len * 1000 + self.time_alive * 1
 
+    # TODO: remove later when dna is neural network and food is random again
+    def set_initial_food(self, food_locations):
+        self.food_location = food_locations[0]
