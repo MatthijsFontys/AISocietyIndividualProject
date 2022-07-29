@@ -92,7 +92,7 @@ class Game:
 
     def get_score(self):
         snake_len = max(0, len(self.snake) - 3)
-        return snake_len * 1000 + self.time_alive * 1
+        return pow(snake_len * 1000 + self.time_alive * 1, 4)
 
     # TODO: remove later when dna is neural network and food is random again
     def set_initial_food(self, food_locations):

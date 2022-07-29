@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-from random import randrange, randint, choice
+import random
 from math import floor
 from game import Game
 from data_collector import DataCollector
@@ -88,18 +88,23 @@ def main():
 
         # all games died so do cross-over and mutation and make a new population
         if alive_counter == 0:
+            # collect data of the current generation before creating the new one
             data_collector.collect_data(rand_population, genetic_population)
             rand_population = []
-            genetic_population.sort(key=lambda x: x.get_score(), reverse=True)
-            best_games = genetic_population[:floor(POPULATION / 10)]
-            print('Best score of generation: {}'.format(best_games[0].get_score()))
+
+            summed_score = 0
+            for game in genetic_population:
+                summed_score += game.get_score()
+
             for i in range(POPULATION):
                 rand_population.append(Game(WIN_SIZE, GRID_SIZE))
-                parent_a = None
-                parent_b = None
-                while parent_a == parent_b:
-                    parent_a = choice(best_games)
-                    parent_b = choice(best_games)
+                parent_a = pick_parent(genetic_population, summed_score)
+                parent_b = pick_parent(genetic_population, summed_score)
+                # parent_a = None
+                # parent_b = None
+                # while parent_a == parent_b:
+                #     parent_a = pick_parent(genetic_population, summed_score)
+                #     parent_b = pick_parent(genetic_population, summed_score)
 
                 offspring = Game(WIN_SIZE, GRID_SIZE)
                 offspring.brain.cross_over(parent_a.brain, parent_b.brain)
@@ -115,6 +120,16 @@ def main():
             snake_games = np.concatenate((genetic_population, rand_population))
 
     pygame.quit()
+
+
+def pick_parent(population, summed_score):
+    rand = random.random()
+    for member in population:
+        rand -= member.get_score() / summed_score
+        if rand <= 0:
+            return member
+    print('No parent found!')
+    return random.choice(population)
 
 
 if __name__ == "__main__":
