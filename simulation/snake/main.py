@@ -7,7 +7,7 @@ from data_collector import DataCollector
 
 
 # Game setup
-WIN_SIZE = 300
+WIN_SIZE = 260
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Snake")
 
@@ -16,7 +16,7 @@ GRID_SIZE = 20  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD A
 SPEED = 1
 
 # Genetic stuff
-POPULATION = 200
+POPULATION = 300
 
 def location_to_rect(arr):
     return pygame.Rect(arr[0] * GRID_SIZE, arr[1] * GRID_SIZE, GRID_SIZE, GRID_SIZE)
@@ -31,7 +31,7 @@ def draw(game):
 
 
 def main():
-    fps_cap = 100
+    fps_cap = 1000
     # Snake setup
     generation = 1
     snake_games = []  # all games
@@ -43,7 +43,8 @@ def main():
     for i in range(POPULATION):
         genetic_population.append(Game(WIN_SIZE, GRID_SIZE))
         rand_population.append(Game(WIN_SIZE, GRID_SIZE))
-        snake_games = np.concatenate((genetic_population, rand_population))
+        # snake_games = np.concatenate((genetic_population, rand_population))
+        snake_games = genetic_population
 
     food_locations = []
     for i in range(20):
@@ -79,27 +80,34 @@ def main():
             elif not best_game.is_alive:
                 best_game = game
 
-            if best_game.get_score() > 2000:
-                fps_cap = 100 #10
+            if generation > 1000:
+                fps_cap = 10
             else:
-                fps_cap = 100
+                fps_cap = 10
 
         draw(best_game)
 
         # all games died so do cross-over and mutation and make a new population
         if alive_counter == 0:
             # collect data of the current generation before creating the new one
-            data_collector.collect_data(rand_population, genetic_population)
+            #data_collector.collect_data(rand_population, genetic_population)
             rand_population = []
 
             summed_score = 0
+            record_len = 1
             for game in genetic_population:
                 summed_score += game.get_score()
+                if len(game.snake) > record_len:
+                    record_len = len(game.snake)
+
+            print('Best snake {}'.format(record_len))
 
             for i in range(POPULATION):
                 rand_population.append(Game(WIN_SIZE, GRID_SIZE))
                 parent_a = pick_parent(genetic_population, summed_score)
                 parent_b = pick_parent(genetic_population, summed_score)
+                while parent_a == parent_b:
+                    parent_b = pick_parent(genetic_population, summed_score)
                 # parent_a = None
                 # parent_b = None
                 # while parent_a == parent_b:
@@ -111,13 +119,14 @@ def main():
                 offspring.food_brain.cross_over(parent_a.food_brain, parent_b.food_brain)
                 new_population.append(offspring)
 
-            if generation % 10 == 0:
+            if generation % 10 == 0 and False:
                 data_collector.save_data(generation)
             generation += 1
             print('created generation: {}'.format(generation))
             genetic_population = new_population
             new_population = []
-            snake_games = np.concatenate((genetic_population, rand_population))
+            # snake_games = np.concatenate((genetic_population, rand_population))
+            snake_games = genetic_population
 
     pygame.quit()
 
