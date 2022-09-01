@@ -9,13 +9,14 @@ class SurvivorPainter:
     def __init__(self, window, camera: Camera, population: list[Survivor]):
         self.camera = camera
         self.window = window
-        self.survivor_radius = self.camera.apply_zoom(20)
+        self.survivor_radius = 20
+        self.zoomed_survivor_radius = self.camera.apply_zoom(self.survivor_radius)
         self.population = population
-        self.offset = Vector(self.survivor_radius, self.survivor_radius)
-        self.size = Vector(self.survivor_radius * 2, self.survivor_radius * 2)
+        self.offset = Vector(self.zoomed_survivor_radius, self.zoomed_survivor_radius)
+        self.size = Vector(self.zoomed_survivor_radius * 2, self.zoomed_survivor_radius * 2)
 
     def paint(self):
-        self.survivor_radius = self.camera.apply_zoom(20)
+        self.zoomed_survivor_radius = self.camera.apply_zoom(self.survivor_radius)
         for survivor in self.population:  # AKA survivor
             l2 = Vector.subtract_new(survivor.position, self.offset)
             r2 = Vector.add_new(l2, self.size)
@@ -25,5 +26,5 @@ class SurvivorPainter:
                     self.window,
                     pygame.Color(58, 103, 176),
                     (offset_position.x, offset_position.y),
-                    self.survivor_radius
+                    self.zoomed_survivor_radius
                 )

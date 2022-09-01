@@ -26,7 +26,7 @@ class TreePainter:
                 offset_y = offset_position.y - tree_size / 2
                 tree_rect = pygame.Rect(offset_x, offset_y, tree_size, tree_size)
 
-                # TODO: Figure out why this range isn't increasing / decreasing when zooming at the same rate as the trees
+                # TODO: Fix it so it doesnt have to calculate the range size for every tree in the loop
                 if show_range:
                     range_size = self.camera.apply_zoom(tree.forage_range - survivor_radius)
                     pygame.draw.circle(self.window, pygame.Color(148, 22, 37), (offset_position.x, offset_position.y), range_size)
