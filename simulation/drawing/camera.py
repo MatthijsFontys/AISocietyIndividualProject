@@ -7,7 +7,7 @@ class Camera:
 
     def __init__(self, speed, view_width, view_height, world_width, world_height):
         self.zoom = 100
-        self.interp_padding = 80
+        self.interp_padding = 200
         self.position = Vector(0, 0)  # aka top left
         self.view = Vector(view_width, view_height)
         self.default_view = Vector(view_width, view_height)
@@ -60,12 +60,14 @@ class Camera:
     # vector needs to be the center position of the object to draw
     # should only be called after checked if the element is in camera
     def map_to_camera(self, to_map: Vector):
-        size = self.interp_padding
-        zoomed_size = self.apply_zoom(size)
+        padding = self.interp_padding
+        # padding = 0  # just for debugging
+        z_padding = self.apply_zoom(padding)  # zoomed padding
         offset_pos = Vector.subtract_new(to_map, self.position)
-        # Todo: somehow this interp messes up the grid positions, but I have no idea why
-        x = np.interp(offset_pos.x, [-size, self.view.x + size], [-zoomed_size, self.default_view.x + zoomed_size])
-        y = np.interp(offset_pos.y, [-size, self.view.y + size], [-zoomed_size, self.default_view.y + zoomed_size])
+        # Todo: this interp messes up the grid positions even if padding is 0, but idk why
+        # padding is for dealing with entities that are only partially on screen
+        x = np.interp(offset_pos.x, [-padding, self.view.x + padding], [-z_padding, self.default_view.x + z_padding])
+        y = np.interp(offset_pos.y, [-padding, self.view.y + padding], [-z_padding, self.default_view.y + z_padding])
         return Vector(x, y)
 
     def limit_to_bounds(self):
