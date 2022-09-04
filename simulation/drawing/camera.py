@@ -61,10 +61,8 @@ class Camera:
     # should only be called after checked if the element is in camera
     def map_to_camera(self, to_map: Vector):
         padding = self.interp_padding
-        # padding = 0  # just for debugging
         z_padding = self.apply_zoom(padding)  # zoomed padding
         offset_pos = Vector.subtract_new(to_map, self.position)
-        # Todo: this interp messes up the grid positions even if padding is 0, but idk why
         # padding is for dealing with entities that are only partially on screen
         x = np.interp(offset_pos.x, [-padding, self.view.x + padding], [-z_padding, self.default_view.x + z_padding])
         y = np.interp(offset_pos.y, [-padding, self.view.y + padding], [-z_padding, self.default_view.y + z_padding])
