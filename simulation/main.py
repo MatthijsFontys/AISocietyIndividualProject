@@ -18,9 +18,6 @@ from drawing.grid_painter import GridPainter
 from drawing.tree_painter import TreePainter
 from drawing.survivor_painter import SurvivorPainter
 
-# Neural network
-from ai.neuralnetwork import NeuralNetwork
-
 pygame.init()
 
 # Game setup
@@ -56,7 +53,7 @@ def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
     tree_painter.paint(survivor_painter.survivor_radius, False)
     survivor_painter.paint()
     # todo: fix drawing the grid, the zoom broke it
-    grid_painter.paint(True)
+    grid_painter.paint(True, False)
 
     pygame.display.update()
 
