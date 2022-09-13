@@ -44,9 +44,9 @@ class NeuralNetwork:
 
     def get_mutated_value(self, start_value):
         sine = [1, -1]
-        if random.random() < 0.015:
+        if random.random() < 0.03:
             #return start_value + random.uniform(-0.3, 0.3)
-            # return  start_value + ((random.random() * 2 - 1) / 3)
-            return start_value + (random.random() / 2 * random.choice(sine))
+            return start_value + ((random.random() * 2 - 1) / 3)
+            #return start_value + (random.random() / 2 * random.choice(sine))
         else:
             return start_value
