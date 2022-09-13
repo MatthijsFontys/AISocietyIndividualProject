@@ -7,7 +7,7 @@ from data_collector import DataCollector
 
 
 # Game setup
-WIN_SIZE = 260
+WIN_SIZE = 240
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Snake")
 
@@ -24,7 +24,7 @@ def location_to_rect(arr):
 
 def draw(game):
     WINDOW.fill("black")
-    pygame.draw.rect(WINDOW, "red", location_to_rect(game.food_location))
+    #pygame.draw.rect(WINDOW, "red", location_to_rect(game.food_location))
     for segment in game.snake:
         pygame.draw.rect(WINDOW, "green", location_to_rect(segment))
     pygame.display.update()
@@ -80,10 +80,10 @@ def main():
             elif not best_game.is_alive:
                 best_game = game
 
-            if generation > 1000:
+            if generation > 300:
                 fps_cap = 10
             else:
-                fps_cap = 10
+                fps_cap = 1000
 
         draw(best_game)
 
@@ -100,7 +100,8 @@ def main():
                 if len(game.snake) > record_len:
                     record_len = len(game.snake)
 
-            print('Best snake {}'.format(record_len))
+            # ('Best snake {}'.format(record_len))
+            print('Best snake {}'.format(game.get_score()))
 
             for i in range(POPULATION):
                 rand_population.append(Game(WIN_SIZE, GRID_SIZE))

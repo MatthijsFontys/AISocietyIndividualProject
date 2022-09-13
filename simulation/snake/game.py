@@ -9,7 +9,7 @@ class Game:
 
     def __init__(self, win_size, grid_size):
         #self.brain = Dna(grid_size)
-        self.brain = NeuralNetwork(3, 4).add_layer(8).add_output_layer()
+        self.brain = NeuralNetwork(2, 4).add_layer(8).add_output_layer()
         self.food_brain = FoodDna(grid_size)
         self.WIN_SIZE = win_size
         self.GRID_SIZE = grid_size
@@ -23,12 +23,15 @@ class Game:
         self.time_alive = 0
         self.movement_index = 0
         self.food_location = self.get_random_no_snake_location()
+        self.exploration_score = 0
 
     def choose_direction_index(self):
         inputs = [
-                  (self.movement_index + 1) / 4,
-                  abs(self.snake[0][0] / self.COLS),
-                  abs(self.snake[0][1] / self.COLS),
+                  #(self.movement_index + 1) / 4,
+                  # self.snake[0][0] / (self.COLS - 1),
+                  # self.snake[0][1] / (self.COLS - 1),
+                  self.snake[0][0],
+                  self.snake[0][1]
                   # (self.food_location[0] - self.snake[0][0]) / self.COLS,
                   # (self.food_location[1] - self.snake[0][1]) / self.COLS
                   ]
@@ -36,6 +39,8 @@ class Game:
         outputs = self.brain.feed_forward(inputs)
         # get the highest output as the direction index
         highest = max(outputs)
+        #print(inputs, outputs, outputs.index(highest))
+        #print(self.snake[0][0], self.snake[0][1]) # from 0 to 12
         return outputs.index(highest)
 
     def move_in_direction(self, movement_index):
@@ -44,6 +49,7 @@ class Game:
         movement_sum = self.movement_index + movement_index
         if 1 < movement_sum < 4:
             self.movement_index = movement_index
+            self.exploration_score += 1
 
         # update snake position
         direction = self.MOVEMENT[self.movement_index]
@@ -61,13 +67,13 @@ class Game:
             #self.food_location = self.get_random_no_snake_location()
             # self.food_location = self.food_brain.predict()
             self.food_location = food_locations[len(self.snake) % len(food_locations)]
-            self.snake.append([0, 0])
+            #self.snake.append([0, 0])
 
     def is_game_over(self):
-        is_out_of_bounds = self.snake[0][0] * self.GRID_SIZE > self.WIN_SIZE or \
-                           self.snake[0][0] < 0 or \
-                           self.snake[0][1] * self.GRID_SIZE > self.WIN_SIZE or \
-                           self.snake[0][1] < 0
+        is_out_of_bounds = self.snake[0][0] >= self.COLS or \
+                           self.snake[0][0] <= 0 or \
+                           self.snake[0][1] >= self.COLS or \
+                           self.snake[0][1] <= 0
         does_overlap = False
         for i in range(1, len(self.snake)):
             segment = self.snake[i]
@@ -100,7 +106,9 @@ class Game:
         # snake_len = max(0, len(self.snake) - 1)
         # return pow(snake_len * 1000 + self.time_alive * 1, 2)
         # return pow(len(self.snake), 3)
-        return self.time_alive * self.time_alive
+        return self.exploration_score
+        # return self.time_alive * self.time_alive + self.exploration_score
+
 
     # TODO: remove later when dna is neural network and food is random again
     def set_initial_food(self, food_locations):
