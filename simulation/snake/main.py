@@ -4,10 +4,10 @@ import random
 from math import floor
 from game import Game
 from data_collector import DataCollector
-
+from ai.genetic_nl import GeneticNeurolab
 
 # Game setup
-WIN_SIZE = 240
+WIN_SIZE = 520
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Snake")
 
@@ -16,7 +16,7 @@ GRID_SIZE = 20  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD A
 SPEED = 1
 
 # Genetic stuff
-POPULATION = 300
+POPULATION = 500
 
 def location_to_rect(arr):
     return pygame.Rect(arr[0] * GRID_SIZE, arr[1] * GRID_SIZE, GRID_SIZE, GRID_SIZE)
@@ -24,7 +24,7 @@ def location_to_rect(arr):
 
 def draw(game):
     WINDOW.fill("black")
-    #pygame.draw.rect(WINDOW, "red", location_to_rect(game.food_location))
+    pygame.draw.rect(WINDOW, "red", location_to_rect(game.food_location))
     for segment in game.snake:
         pygame.draw.rect(WINDOW, "green", location_to_rect(segment))
     pygame.display.update()
@@ -32,6 +32,7 @@ def draw(game):
 
 def main():
     fps_cap = 1000
+    slow_down = False
     # Snake setup
     generation = 1
     snake_games = []  # all games
@@ -42,7 +43,7 @@ def main():
 
     for i in range(POPULATION):
         genetic_population.append(Game(WIN_SIZE, GRID_SIZE))
-        rand_population.append(Game(WIN_SIZE, GRID_SIZE))
+        # rand_population.append(Game(WIN_SIZE, GRID_SIZE))
         # snake_games = np.concatenate((genetic_population, rand_population))
         snake_games = genetic_population
 
@@ -62,6 +63,8 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 should_run = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                slow_down = not slow_down
 
         alive_counter = len(snake_games)
 
@@ -75,13 +78,15 @@ def main():
             direction = game.choose_direction_index()
             game.move_in_direction(direction)
             # todo: fix that this game over thing is a method and a property, but the method does set the property, this is not going to be readable later
-            if not game.is_game_over() and game.get_score() > best_game.get_score():
-                best_game = game
-            elif not best_game.is_alive:
+            # if not game.is_game_over() and game.get_score() > best_game.get_score():
+            #     best_game = game
+            # elif not best_game.is_alive:
+            #     best_game = game
+            if best_game.is_game_over():
                 best_game = game
 
-            if generation > 300:
-                fps_cap = 10
+            if slow_down:
+                fps_cap = 20
             else:
                 fps_cap = 1000
 
@@ -95,20 +100,25 @@ def main():
 
             summed_score = 0
             record_len = 1
+            record_score = 0
             for game in genetic_population:
                 summed_score += game.get_score()
+                if game.get_score() > record_score:
+                    record_score = game.get_score()
                 if len(game.snake) > record_len:
                     record_len = len(game.snake)
 
-            # ('Best snake {}'.format(record_len))
-            print('Best snake {}'.format(game.get_score()))
+            print('Best snake {}'.format(record_len))
+            #print('Best snake {}'.format(record_score))
 
             for i in range(POPULATION):
-                rand_population.append(Game(WIN_SIZE, GRID_SIZE))
+                # rand_population.append(Game(WIN_SIZE, GRID_SIZE))
                 parent_a = pick_parent(genetic_population, summed_score)
                 parent_b = pick_parent(genetic_population, summed_score)
-                while parent_a == parent_b:
-                    parent_b = pick_parent(genetic_population, summed_score)
+
+                # How in the world am I picking parents with a score of 8!!! that should be nearly impossible when I only have 5 duplicates
+                # while parent_a == parent_b:
+                #     parent_b = pick_parent(genetic_population, summed_score)
                 # parent_a = None
                 # parent_b = None
                 # while parent_a == parent_b:
@@ -116,12 +126,14 @@ def main():
                 #     parent_b = pick_parent(genetic_population, summed_score)
 
                 offspring = Game(WIN_SIZE, GRID_SIZE)
-                offspring.brain.cross_over(parent_a.brain, parent_b.brain)
-                offspring.food_brain.cross_over(parent_a.food_brain, parent_b.food_brain)
+                offspring.brain = GeneticNeurolab.cross_over(parent_a.brain, parent_b.brain)
+                # print('Parent score: ', parent_a.get_score())
+                # print('Parent score: ', parent_b.get_score())
+                # offspring.food_brain.cross_over(parent_a.food_brain, parent_b.food_brain)
                 new_population.append(offspring)
 
-            if generation % 10 == 0 and False:
-                data_collector.save_data(generation)
+            # if generation % 10 == 0:
+            #     data_collector.save_data(generation)
             generation += 1
             print('created generation: {}'.format(generation))
             genetic_population = new_population
@@ -131,7 +143,7 @@ def main():
 
     pygame.quit()
 
-
+# Best snake and parents scores don't match up that is so weird, try and figure this out
 def pick_parent(population, summed_score):
     rand = random.random()
     for member in population:
