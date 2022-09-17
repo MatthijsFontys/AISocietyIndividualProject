@@ -31,6 +31,9 @@ class Vector:
     def get_distance(self, vector):
         return Vector.subtract_new(vector, self).get_magnitude()
 
+    def equals(self, vector):
+        return self.x == vector.x and self.y == vector.y
+
     def copy(self):
         return Vector(self.x, self.y)
 

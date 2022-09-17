@@ -14,4 +14,4 @@ class GenerationInfo:
             if game.snake.size() > self.record_len:
                 self.record_len = game.snake.size()
         if log_info:
-            print('Best snake_ai {} | {}'.format(self.record_len, self.record_score))
+            print('Best snake {} | {}'.format(self.record_len, self.record_score))

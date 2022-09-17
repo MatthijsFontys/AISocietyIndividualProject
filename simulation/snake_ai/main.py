@@ -1,19 +1,22 @@
 import pygame
 import random
+import neurolab as nl
 from math import floor
 from game import Game
 from ai.genetic_nl import GeneticNeurolab
 from gen_info import GenerationInfo
 
 # Game setup
-WIN_SIZE = 340
-GRID_SIZE = 20  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
+WIN_SIZE = 1000
+GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
 COLS = floor(WIN_SIZE / GRID_SIZE)
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Snake")
 
 # Snake setup
-POPULATION_SIZE = 200
+CINEMA_MODE = True
+LOAD_PREVIOUS = False
+POPULATION_SIZE = 1 if CINEMA_MODE else 250
 
 
 def draw(game):
@@ -21,7 +24,7 @@ def draw(game):
     pygame.draw.rect(WINDOW, "red", pos_to_rect(game.food))  # todo: actual location here
     # print(game.snake.pos.x)
     # print(game.snake.pos.y)
-    pygame.draw.rect(WINDOW, "green", pos_to_rect(game.snake.pos))  # todo: actual location here
+    pygame.draw.rect(WINDOW, "cyan", pos_to_rect(game.snake.pos))  # todo: actual location here
     for segment in game.snake.segments:
         pygame.draw.rect(WINDOW, "green", pos_to_rect(segment))  # todo: actual location here
     pygame.display.update()
@@ -29,12 +32,23 @@ def draw(game):
 
 def main():
     # Game speed
-    fps_cap = 1000
+    fps_cap = 10 if CINEMA_MODE else 1000
     slow_down = False
 
     # Population setup
     generation = 1
-    population = [Game(COLS) for _ in range(POPULATION_SIZE)]
+    population = []
+    if CINEMA_MODE:
+        game = Game(COLS)
+        game.brain = nl.load(f'nets/brain_{random.randint(0, 249)}.net')
+        population.append(game)
+    elif LOAD_PREVIOUS:
+        for i in range(POPULATION_SIZE):
+            game = Game(COLS)
+            game.brain = nl.load(f'nets/brain_{i}.net')
+            population.append(game)
+    else:
+        population = [Game(COLS) for _ in range(POPULATION_SIZE)]
 
     # Pygame loop
     clock = pygame.time.Clock()
@@ -45,18 +59,28 @@ def main():
             if event.type == pygame.QUIT:
                 should_run = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                slow_down = not slow_down
-                fps_cap = 20 if slow_down else 1000
+                # 1 - left click, 2 - middle click, 3 - right click, 4 - scroll up, 5 - scroll down
+                if event.button == 1:
+                    slow_down = not slow_down
+                    fps_cap = 10 if slow_down else 1000
+                elif event.button == 3:
+                    for i, game in enumerate(population):
+                        game.brain.save(f'nets/brain_{i}.net')
 
         best_game, alive_counter = play_games(population)
         draw(best_game)
 
         # all games died so time to create a new generation
         if alive_counter == 0:
-            gen_info = GenerationInfo(population)
-            population = repopulate(population, gen_info)
-            generation += 1
-            print('Starting generation: {}'.format(generation))
+            if CINEMA_MODE:
+                game = Game(COLS)
+                game.brain = nl.load(f'nets/brain_{random.randint(0, 249)}.net')
+                population[0] = game
+            else:
+                gen_info = GenerationInfo(population)
+                population = repopulate(population, gen_info)
+                generation += 1
+                print('Starting generation: {}'.format(generation))
 
     pygame.quit()
 

@@ -24,7 +24,7 @@ class GeneticNeurolab:
                 for j in range(shape[1]):
                     if random.random() < 0.5:
                         layer.np['w'][i, j] = net_b.layers[layer_index].np['w'][i, j]
-                        layer.np['w'][i, j] = GeneticNeurolab.get_mutated_value(layer.np['w'][i, j])
+                    layer.np['w'][i, j] = GeneticNeurolab.get_mutated_value(layer.np['w'][i, j])
             for b in range(layer.np['b'].shape[0]):
                 if random.random() < 0.5 and False:
                     layer.np['b'][b] = net_b.layers[layer_index].np['b'][b]
@@ -41,7 +41,7 @@ class GeneticNeurolab:
     @staticmethod
     def get_mutated_value(value):
         sine = [1, -1]
-        if random.random() < 0.03:
-            delta = random.random() * random.choice(sine)
+        if random.random() < 0.02:
+            delta = (random.random() + 0.1) * random.choice(sine)
             value += delta
         return value

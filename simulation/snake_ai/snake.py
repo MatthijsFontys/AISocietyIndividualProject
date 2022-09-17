@@ -48,4 +48,5 @@ class Snake:
             if self.MOVEMENT[next_index].x != self.MOVEMENT[prev_index].x:
                 is_allowed = False
 
-        return is_allowed
+        return True
+       # return is_allowed
