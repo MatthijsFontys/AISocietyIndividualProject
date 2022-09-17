@@ -41,7 +41,7 @@ class GeneticNeurolab:
     @staticmethod
     def get_mutated_value(value):
         sine = [1, -1]
-        if random.random() < 0.01:
+        if random.random() < 0.03:
             delta = random.random() * random.choice(sine)
             value += delta
         return value
