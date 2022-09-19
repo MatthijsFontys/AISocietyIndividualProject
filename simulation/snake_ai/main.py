@@ -14,19 +14,19 @@ WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Snake")
 
 # Snake setup
-CINEMA_MODE = True
-LOAD_PREVIOUS = False
+CINEMA_MODE = False
+LOAD_PREVIOUS = not CINEMA_MODE
 POPULATION_SIZE = 1 if CINEMA_MODE else 250
 
 
 def draw(game):
     WINDOW.fill("black")
-    pygame.draw.rect(WINDOW, "red", pos_to_rect(game.food))  # todo: actual location here
-    # print(game.snake.pos.x)
-    # print(game.snake.pos.y)
-    pygame.draw.rect(WINDOW, "cyan", pos_to_rect(game.snake.pos))  # todo: actual location here
     for segment in game.snake.segments:
-        pygame.draw.rect(WINDOW, "green", pos_to_rect(segment))  # todo: actual location here
+        pygame.draw.rect(WINDOW, "green", pos_to_rect(segment))
+
+    pygame.draw.rect(WINDOW, "red", pos_to_rect(game.food))
+    pygame.draw.rect(WINDOW, "cyan", pos_to_rect(game.snake.pos))
+
     pygame.display.update()
 
 

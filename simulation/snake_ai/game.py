@@ -84,7 +84,7 @@ class Game:
         return not (is_out_of_bounds or self.is_stuck > 2)  # Todo re-add overlap when the learning is working better # and add stuck when not in cinema mode
 
     def get_random_location(self):
-        return Vector(randint(3, self.COLS - 3), randint(3, self.COLS - 3)) # Todo make this 0, self.COLS - 1 again when the snake is trained better
+        return Vector(randint(0, self.COLS - 1), randint(0, self.COLS - 1)) # Todo make this 0, self.COLS - 1 again when the snake is trained better
 
     def get_score(self):
         snake_len = max(self.snake.size() - 2, 0)
