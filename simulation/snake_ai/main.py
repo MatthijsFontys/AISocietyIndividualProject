@@ -7,7 +7,7 @@ from ai.genetic_nl import GeneticNeurolab
 from gen_info import GenerationInfo
 
 # Game setup
-WIN_SIZE = 1000
+WIN_SIZE = 720
 GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
 COLS = floor(WIN_SIZE / GRID_SIZE)
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
@@ -15,7 +15,7 @@ pygame.display.set_caption("Snake")
 
 # Snake setup
 CINEMA_MODE = False
-LOAD_PREVIOUS = not CINEMA_MODE
+LOAD_PREVIOUS = True # not CINEMA_MODE
 POPULATION_SIZE = 1 if CINEMA_MODE else 250
 
 
