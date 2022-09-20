@@ -19,12 +19,10 @@ class Layer:
             self.biases.append(random.random() * 2 - 1)
             for j in range(input_count):
                 self.weights[i].append(random.random() * 2 - 1)
-        # self.bias = []  # idk about this yet
 
     def activate(self, values):
         # sigmoid
         return list(map(lambda x: 1 / (1 + math.exp(-x)), values))
-        #return list(values)
 
     def feed_forward(self, inputs):
         values = np.matmul(self.weights, inputs)

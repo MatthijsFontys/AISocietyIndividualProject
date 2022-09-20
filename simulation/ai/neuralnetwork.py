@@ -1,4 +1,5 @@
 import random
+import pickle
 from ai.layer import Layer
 
 
@@ -16,7 +17,7 @@ class NeuralNetwork:
         self.layers.append(Layer(input_count, node_count))
         return self
 
-    def add_output_layer(self):
+    def build(self):
         self.layers.append(Layer(self.layers[-1].node_count, self.output_count))
         return self
 
@@ -45,8 +46,16 @@ class NeuralNetwork:
     def get_mutated_value(self, start_value):
         sine = [1, -1]
         if random.random() < 0.03:
-            #return start_value + random.uniform(-0.3, 0.3)
-            return start_value + ((random.random() * 2 - 1) / 3)
-            #return start_value + (random.random() / 2 * random.choice(sine))
-        else:
-            return start_value
+            delta = (random.random() + 0.1) * random.choice(sine)
+            start_value += delta
+        return start_value
+
+    def save(self, name):
+        with open(f'nets/my_neuralnetwork/{name}.net', 'wb') as save_file:
+            pickle.dump(self, save_file)
+
+    @staticmethod
+    def load(name):
+        with open(f'nets/my_neuralnetwork/{name}.net', 'rb') as save_file:
+            net: NeuralNetwork = pickle.load(save_file)
+            return net

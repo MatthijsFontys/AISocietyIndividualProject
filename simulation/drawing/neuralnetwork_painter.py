@@ -12,7 +12,7 @@ class NeuralNetworkPainter:
         self.camera = camera
         self.window = window
         self.default_radius = 40
-        self.dna = NeuralNetwork(2, 4).add_layer(3).add_output_layer()
+        self.dna = NeuralNetwork(2, 4).add_layer(3).build()
         self.origin = Vector(500, 500)
 
     def paint(self):

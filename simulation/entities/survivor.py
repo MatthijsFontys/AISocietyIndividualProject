@@ -16,7 +16,7 @@ class Survivor:
                              Vector(self.speed, 0)]
 
         # GeneticAlgorithm stuff
-        self.brain = NeuralNetwork(6, 4).add_layer(8).add_layer(8).add_output_layer()
+        self.brain = NeuralNetwork(6, 4).add_layer(8).add_layer(8).build()
 
         self.fitness = 0
         self.fitness_increment = 1

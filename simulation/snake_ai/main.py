@@ -6,6 +6,8 @@ from game import Game
 from ai.genetic_nl import GeneticNeurolab
 from gen_info import GenerationInfo
 
+from ai.neuralnetwork import NeuralNetwork
+
 # Game setup
 WIN_SIZE = 720
 GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
@@ -15,7 +17,7 @@ pygame.display.set_caption("Snake")
 
 # Snake setup
 CINEMA_MODE = False
-LOAD_PREVIOUS = True # not CINEMA_MODE
+LOAD_PREVIOUS = True  # not CINEMA_MODE
 POPULATION_SIZE = 1 if CINEMA_MODE else 250
 
 
@@ -31,6 +33,19 @@ def draw(game):
 
 
 def main():
+    #
+    # net = NeuralNetwork(4, 4)\
+    #       .add_layer(10)\
+    #       .add_layer(10)\
+    #       .build()
+    #
+    # net.save('Testing')
+
+    # net = NeuralNetwork.load('Testing')
+    # print(net.layers[0].weights)
+    #
+    # return
+
     # Game speed
     fps_cap = 10 if CINEMA_MODE else 1000
     slow_down = False
@@ -45,7 +60,8 @@ def main():
     elif LOAD_PREVIOUS:
         for i in range(POPULATION_SIZE):
             game = Game(COLS)
-            game.brain = nl.load(f'nets/brain_{i}.net')
+            # game.brain = nl.load(f'nets/brain_{i}.net')
+            game.brain = NeuralNetwork.load(f'brain_{i}')
             population.append(game)
     else:
         population = [Game(COLS) for _ in range(POPULATION_SIZE)]
@@ -65,7 +81,8 @@ def main():
                     fps_cap = 10 if slow_down else 1000
                 elif event.button == 3:
                     for i, game in enumerate(population):
-                        game.brain.save(f'nets/brain_{i}.net')
+                        #game.brain.save(f'nets/brain_{i}.net')
+                        game.brain.save(f'brain_{i}')
 
         best_game, alive_counter = play_games(population)
         draw(best_game)
@@ -74,7 +91,8 @@ def main():
         if alive_counter == 0:
             if CINEMA_MODE:
                 game = Game(COLS)
-                game.brain = nl.load(f'nets/brain_{random.randint(0, 249)}.net')
+                #game.brain = nl.load(f'nets/brain_{random.randint(0, 249)}.net')
+                game.brain = NeuralNetwork.load(f'brain_{random.randint(0, 249)}')
                 population[0] = game
             else:
                 gen_info = GenerationInfo(population)
@@ -116,7 +134,8 @@ def repopulate(population, info):
             parent_b = pick_parent(population, info.summed_score)
 
         offspring = Game(COLS)
-        offspring.brain = GeneticNeurolab.cross_over(parent_a.brain, parent_b.brain)
+        #offspring.brain = GeneticNeurolab.cross_over(parent_a.brain, parent_b.brain)
+        offspring.brain.cross_over(parent_a.brain, parent_b.brain)
         new_population.append(offspring)
     return new_population
 

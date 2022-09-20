@@ -2,7 +2,7 @@ from random import randint
 from math import floor
 from snake import Snake
 from util.vector import Vector
-
+from ai.neuralnetwork import NeuralNetwork
 # actual FeedForward library
 import neurolab as nl
 
@@ -13,7 +13,8 @@ class Game:
         self.COLS = cols
         #self.REGION_MAP = [[1, 3], [2, 4]]
         inputs = 4
-        self.brain = nl.net.newff([[0, 1], [0, 1], [0, 1], [-1, 1], [-1, 1]], [10, 10, 4])
+        #self.brain = nl.net.newff([[0, 1], [0, 1], [0, 1], [-1, 1], [-1, 1]], [10, 10, 4])
+        self.brain = NeuralNetwork(7, 4).add_layer(10).add_layer(10).build()
         self.snake = Snake(floor(self.COLS / 2), floor(self.COLS / 2))
         self.food = self.get_random_location()
         # scoring
@@ -26,21 +27,31 @@ class Game:
         self.banned_path = []
 
     def choose_direction_index(self):
+        # inputs = [
+        #           (self.snake.movement_index / 3),
+        #           self.snake.pos.x / (self.COLS - 1),
+        #           self.snake.pos.y / (self.COLS - 1),
+        #           (self.food.x - self.snake.pos.x) / (self.COLS - 1),
+        #           (self.food.y - self.snake.pos.y) / (self.COLS - 1)
+        #           ]
+
         inputs = [
                   (self.snake.movement_index / 3),
                   self.snake.pos.x / (self.COLS - 1),
                   self.snake.pos.y / (self.COLS - 1),
-                  (self.food.x - self.snake.pos.x) / (self.COLS - 1),
-                  (self.food.y - self.snake.pos.y) / (self.COLS - 1)
+                  max(self.snake.pos.y - self.food.y, 0) / (self.COLS - 1),
+                  max(self.food.y - self.snake.pos.y, 0),
+                  max(self.food.x - self.snake.pos.x, 0),
+                  max(self.snake.pos.x - self.food.x, 0)
                   ]
 
         # running the neural network
-        outputs = self.brain.sim([inputs])
+        #outputs = self.brain.sim([inputs])
+        outputs = self.brain.feed_forward(inputs)
 
         # get the highest output as the direction index
-        outputs = outputs.tolist()[0]
+        #outputs = outputs.tolist()[0]
         highest = max(outputs)
-
         return outputs.index(highest)
 
     def move_in_direction(self, movement_index):
@@ -58,7 +69,6 @@ class Game:
         if index != -1 and len(self.path) > 2:
             self.banned_path = self.path[index:]
             self.path = []
-
 
     def try_eat_food(self):
         if self.snake.pos.equals(self.food):
@@ -87,11 +97,16 @@ class Game:
         return Vector(randint(0, self.COLS - 1), randint(0, self.COLS - 1)) # Todo make this 0, self.COLS - 1 again when the snake is trained better
 
     def get_score(self):
+        score = self.get_normalized_score()
+        return score * score * score + 1
+        #return max(score, 1)
+
+    def get_normalized_score(self):
         snake_len = max(self.snake.size() - 2, 0)
-        score = snake_len * 100 + floor(0 * self.food_proximity_score)
+        score = snake_len * 100 + floor(20 * self.food_proximity_score)
         if self.is_stuck > 2:
             score /= 5
-        return score * score * score + 1
+        return score
 
     def get_path_index(self, vector: Vector):
         for i, pos in enumerate(self.path):
