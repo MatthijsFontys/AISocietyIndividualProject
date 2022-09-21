@@ -1,10 +1,7 @@
 import pygame
 import random
-import neurolab as nl
 from math import floor
-from game import Game
-from ai.genetic_nl import GeneticNeurolab
-from gen_info import GenerationInfo
+from agent import Agent
 
 from ai.neuralnetwork import NeuralNetwork
 
@@ -16,9 +13,7 @@ WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Snake")
 
 # Snake setup
-CINEMA_MODE = False
-LOAD_PREVIOUS = True  # not CINEMA_MODE
-POPULATION_SIZE = 1 if CINEMA_MODE else 250
+POPULATION_SIZE = 300
 
 
 def draw(game):
@@ -34,24 +29,16 @@ def draw(game):
 
 def main():
     # Game speed
-    fps_cap = 10 if CINEMA_MODE else 1000
+    fps_cap = 10
     slow_down = False
 
     # Population setup
     generation = 1
     population = []
-    if CINEMA_MODE:
-        game = Game(COLS)
-        game.brain = nl.load(f'nets/brain_{random.randint(0, 249)}.net')
+
+    for i in range(POPULATION_SIZE):
+        game = Agent(COLS)
         population.append(game)
-    elif LOAD_PREVIOUS:
-        for i in range(POPULATION_SIZE):
-            game = Game(COLS)
-            # game.brain = nl.load(f'nets/brain_{i}.net')
-            game.brain = NeuralNetwork.load(f'brain_{i}')
-            population.append(game)
-    else:
-        population = [Game(COLS) for _ in range(POPULATION_SIZE)]
 
     # Pygame loop
     clock = pygame.time.Clock()
@@ -76,16 +63,10 @@ def main():
 
         # all games died so time to create a new generation
         if alive_counter == 0:
-            if CINEMA_MODE:
-                game = Game(COLS)
-                #game.brain = nl.load(f'nets/brain_{random.randint(0, 249)}.net')
-                game.brain = NeuralNetwork.load(f'brain_{random.randint(0, 249)}')
-                population[0] = game
-            else:
-                gen_info = GenerationInfo(population)
-                population = repopulate(population, gen_info)
-                generation += 1
-                print('Starting generation: {}'.format(generation))
+            gen_info = GenerationInfo(population)
+            population = repopulate(population, gen_info)
+            generation += 1
+            print('Starting generation: {}'.format(generation))
 
     pygame.quit()
 
@@ -120,7 +101,7 @@ def repopulate(population, info):
         while parent_a == parent_b:
             parent_b = pick_parent(population, info.summed_score)
 
-        offspring = Game(COLS)
+        offspring = Agent(COLS)
         #offspring.brain = GeneticNeurolab.cross_over(parent_a.brain, parent_b.brain)
         offspring.brain.cross_over(parent_a.brain, parent_b.brain)
         new_population.append(offspring)
