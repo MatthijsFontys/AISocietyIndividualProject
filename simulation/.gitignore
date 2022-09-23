@@ -283,4 +283,5 @@ cython_debug/
 
 # Saved neural networks
 /snake_ai/nets/**/*.net
+/snake_ai/nets/**/*.zip
 !/snake_ai/nets/trained/*
