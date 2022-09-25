@@ -5,40 +5,40 @@ from math import floor
 from agent import Agent
 from util.vector import Vector
 
-from ai.neuralnetwork import NeuralNetwork
-
 # Game setup
 WIN_SIZE = 720
 GRID_SIZE = 90  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
 COLS = floor(WIN_SIZE / GRID_SIZE)
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
-pygame.display.set_caption("Snake")
+pygame.display.set_caption("Genetic algorithm")
+box = pygame.transform.scale(pygame.image.load('assets/box.svg').convert(), (GRID_SIZE, GRID_SIZE))
 
 # Snake setup
 POPULATION_SIZE = 300
 
 
 def draw(best_path, record_index, grid, grid_entry, grid_exit):
-    WINDOW.fill("black")
+    WINDOW.fill("#292929")
 
-    pygame.draw.rect(WINDOW, "cyan", pos_to_rect(grid_entry))
-    pygame.draw.rect(WINDOW, "green", pos_to_rect(grid_exit))
+    pygame.draw.rect(WINDOW, "#496daf", pos_to_rect(grid_entry))
+    pygame.draw.rect(WINDOW, "#49af9f", pos_to_rect(grid_exit))
 
     # Draw path
     pos = grid_entry.copy()
     for i in range(record_index):
         movement = best_path[i]
+        pygame.draw.line(WINDOW, "#e63e3e", *pos_to_path_line(pos, movement))
         pos.add(movement)
-        #pygame.draw.line(WINDOW, "red", *pos_to_path_line(pos, movement))
-        pygame.draw.rect(WINDOW, "red", pos_to_path_rect(pos))
+        pygame.draw.rect(WINDOW, "#e63e3e", pos_to_path_rect(pos))
 
     # Draw grid
     for x in range(COLS):
         for y in range(COLS):
             if grid[x][y]:
-                pygame.draw.rect(WINDOW, "#ffffff", pos_to_rect(Vector(x, y)))
+                #pygame.draw.rect(WINDOW, "#cdcdcd", pos_to_rect(Vector(x, y)))
+                WINDOW.blit(box, pos_to_rect(Vector(x, y)))
             else:
-                pygame.draw.rect(WINDOW, "#ffffff", pos_to_rect(Vector(x, y)), 1)
+                pygame.draw.rect(WINDOW, "#cdcdcd", pos_to_rect(Vector(x, y)), 1)
 
     pygame.display.update()
 
@@ -97,7 +97,7 @@ def main():
 
         best_agent = max(population, key=lambda a: a.get_score())
         if best_agent.get_score() > best_all_time_score:
-            best_all_time_score = best_agent.score
+            best_all_time_score = best_agent.get_score()
             best_all_time_path = best_agent.dna.data
             record_index = best_agent.dna.index
         draw(best_all_time_path, record_index, grid, grid_entry, grid_exit)

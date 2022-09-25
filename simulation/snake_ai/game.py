@@ -1,5 +1,8 @@
 from random import randint
 from math import floor
+
+import numpy as np
+
 from snake import Snake
 from util.vector import Vector
 from ai.neuralnetwork import NeuralNetwork
@@ -14,7 +17,9 @@ class Game:
         #self.REGION_MAP = [[1, 3], [2, 4]]
         inputs = 4
         #self.brain = nl.net.newff([[0, 1], [0, 1], [0, 1], [-1, 1], [-1, 1]], [10, 10, 4])
-        self.brain = NeuralNetwork(11, 4).add_layer(12).add_layer(12).build()
+        # Input count = cols - 1 * cols - 1 + 1 for the direction
+        input_count = cols * cols + 7
+        self.brain = NeuralNetwork(input_count, 4).add_layer(15).add_layer(16).build()
         self.snake = Snake(floor(self.COLS / 2), floor(self.COLS / 2))
         self.food = self.get_random_no_snake_location()
         # scoring
@@ -40,14 +45,7 @@ class Game:
                   max(self.food.x - self.snake.pos.x, 0),
                   max(self.snake.pos.x - self.food.x, 0),
                   # Rest of body position
-                  # Left (x is lower, y is the same) pos.x - segment.x | positive
-                  segment_inputs[0],
-                  # Right (x is higher, y is the same) pos.x - segment.x | negative
-                  segment_inputs[1],
-                  # Up (y is lower, x is the same) pos.y - segment.y | positive
-                  segment_inputs[2],
-                  # Down (y is higher, x is the same) pos.y - segment.y | negative
-                  segment_inputs[3],
+                  *self.get_grid_inputs()
                   ]
 
         # running the neural network
@@ -59,8 +57,14 @@ class Game:
         highest = max(outputs)
         return outputs.index(highest)
 
+    def get_grid_inputs(self):
+        grid = np.zeros(self.COLS * self.COLS).tolist()
+        for segment in self.snake.segments:
+            grid[self.COLS * segment.y + segment.x] = 1
+        return grid
 
-    # Todo: if i stick with this method, find a better name
+
+        # Todo: if i stick with this method, find a better name
     def get_segment_inputs(self):
         left_record = right_record = up_record = down_record = self.COLS - 1
         for segment in self.snake.segments:
@@ -86,7 +90,7 @@ class Game:
         delta = Vector.subtract_new(self.snake.pos, self.food)
         proximity_score -= abs(delta.x) / (self.COLS - 1)
         proximity_score -= abs(delta.y) / (self.COLS - 1)
-        # self.food_proximity_score += proximity_score
+        self.food_proximity_score += proximity_score
         index = self.get_path_index(self.snake.pos)
         self.path.append(self.snake.pos.copy())
         if self.is_banned_path():
@@ -134,10 +138,10 @@ class Game:
 
     def get_normalized_score(self):
         snake_len = max(self.snake.size() - 2, 0)
-        score = snake_len * 1 + floor(0 * self.food_proximity_score)
+        score = snake_len * 100 + floor(1 * self.food_proximity_score)
         if self.is_stuck > 2:
             score /= 5
-        return score
+        return max(1, score)
 
     def get_path_index(self, vector: Vector):
         for i, pos in enumerate(self.path):

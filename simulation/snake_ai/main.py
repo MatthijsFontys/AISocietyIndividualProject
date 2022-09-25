@@ -17,8 +17,8 @@ pygame.display.set_caption("Snake")
 
 # Snake setup
 CINEMA_MODE = False
-LOAD_PREVIOUS = True  # not CINEMA_MODE
-POPULATION_SIZE = 1 if CINEMA_MODE else 250
+LOAD_PREVIOUS = False  # not CINEMA_MODE
+POPULATION_SIZE = 1 if CINEMA_MODE else 100
 
 
 def draw(game):
@@ -115,10 +115,12 @@ def play_games(population):
 def repopulate(population, info):
     new_population = []
     for _ in enumerate(population):
+        try_counter = 0
         parent_a = pick_parent(population, info.summed_score)
         parent_b = pick_parent(population, info.summed_score)
-        while parent_a == parent_b:
+        while parent_a == parent_b and try_counter < 1000:
             parent_b = pick_parent(population, info.summed_score)
+            try_counter += 1
 
         offspring = Game(COLS)
         #offspring.brain = GeneticNeurolab.cross_over(parent_a.brain, parent_b.brain)

@@ -12,7 +12,7 @@ class Agent:
         self.dna = AgentDna(cols * cols)
         self.moves_left = cols * cols
         # scoring
-        self.finish = grid_exit.copy()
+        self.finish: Vector = grid_exit.copy()
         self.score = 100
 
     def move(self):
@@ -20,15 +20,14 @@ class Agent:
             self.pos.add(self.dna.next())
 
     def get_score(self):
-        return self.get_normalized_score()
+        return self.get_normalized_score() * self.get_normalized_score()
 
     def get_normalized_score(self):
-        distance = abs((self.finish.x - self.pos.x)) + abs((self.finish.y - self.pos.y))
-        score = 1 - distance / 100
         if self.reached_finish():
-            score += 100
-            score += 10 * self.dna.get_moves_remaining()
-        return score
+            return 100 + 10 * self.dna.get_moves_remaining()
+        else:
+            distance = self.finish.get_distance(self.pos)
+            return max(1, 20 - distance)
 
     def reached_finish(self):
         return self.pos.equals(self.finish)
