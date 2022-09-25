@@ -22,12 +22,13 @@ POPULATION_SIZE = 1 if CINEMA_MODE else 100
 
 
 def draw(game):
-    WINDOW.fill("black")
+    WINDOW.fill("#292929")
     for segment in game.snake.segments:
-        pygame.draw.rect(WINDOW, "green", pos_to_rect(segment))
+        pygame.draw.rect(WINDOW, "#49af9f", pos_to_rect(segment))
 
-    pygame.draw.rect(WINDOW, "red", pos_to_rect(game.food))
-    pygame.draw.rect(WINDOW, "cyan", pos_to_rect(game.snake.pos))
+    pygame.draw.rect(WINDOW, "#e63e3e", pos_to_rect(game.food))
+    #pygame.draw.rect(WINDOW, "#496daf", pos_to_rect(game.snake.pos))
+    pygame.draw.rect(WINDOW, "#49af9f", pos_to_rect(game.snake.pos))
 
     pygame.display.update()
 
