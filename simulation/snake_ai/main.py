@@ -17,18 +17,17 @@ pygame.display.set_caption("Snake")
 
 # Snake setup
 CINEMA_MODE = False
-LOAD_PREVIOUS = False  # not CINEMA_MODE
+LOAD_PREVIOUS = True  # not CINEMA_MODE
 POPULATION_SIZE = 1 if CINEMA_MODE else 100
 
 
 def draw(game):
     WINDOW.fill("#292929")
     for segment in game.snake.segments:
-        pygame.draw.rect(WINDOW, "#49af9f", pos_to_rect(segment))
+        pygame.draw.rect(WINDOW, "#34DDC4", pos_to_rect(segment))
 
-    pygame.draw.rect(WINDOW, "#e63e3e", pos_to_rect(game.food))
-    #pygame.draw.rect(WINDOW, "#496daf", pos_to_rect(game.snake.pos))
-    pygame.draw.rect(WINDOW, "#49af9f", pos_to_rect(game.snake.pos))
+    pygame.draw.rect(WINDOW, "#DC1111", pos_to_rect(game.food))
+    pygame.draw.rect(WINDOW, "#34DDC4", pos_to_rect(game.snake.pos))
 
     pygame.display.update()
 
@@ -49,6 +48,7 @@ def main():
         for i in range(POPULATION_SIZE):
             game = Game(COLS)
             # game.brain = nl.load(f'nets/brain_{i}.net')
+            #game.brain = NeuralNetwork.load(f'brain_{i}')
             game.brain = NeuralNetwork.load(f'brain_{i}')
             population.append(game)
     else:
