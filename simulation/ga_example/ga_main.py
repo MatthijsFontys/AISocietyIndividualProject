@@ -55,6 +55,7 @@ def main():
     best_all_time_path = []
     best_all_time_score = 0
     record_index = 0
+    screenshot_counter = 0
 
     # Grid has false if no box, true if box
     grid_entry = Vector(0, 0)
@@ -100,6 +101,9 @@ def main():
             best_all_time_score = best_agent.get_score()
             best_all_time_path = best_agent.dna.data
             record_index = best_agent.dna.index
+            # Screenshot for gif
+            #pygame.image.save(WINDOW, f"gif/screenshot_{screenshot_counter}.png")
+            screenshot_counter += 1
         draw(best_all_time_path, record_index, grid, grid_entry, grid_exit)
 
     pygame.quit()
@@ -175,8 +179,6 @@ def pos_to_path_line(pos, movement):
     start_pos = pos.x * GRID_SIZE + (GRID_SIZE / 2), pos.y * GRID_SIZE + (GRID_SIZE / 2)
     end_pos = start_pos[0] + GRID_SIZE * movement.x, start_pos[1] + GRID_SIZE * movement.y
     return start_pos, end_pos, width
-
-
 
 
 if __name__ == "__main__":
