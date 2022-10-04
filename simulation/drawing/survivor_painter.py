@@ -2,11 +2,13 @@ import pygame
 from drawing.camera import Camera
 from entities.survivor import Survivor
 from util.vector import Vector
+from util.vector_pool import VectorPool
 
 
 class SurvivorPainter:
 
     def __init__(self, window, camera: Camera, population: list[Survivor]):
+        self.vector_pool = VectorPool()
         self.camera = camera
         self.window = window
         self.survivor_radius = 20
@@ -18,13 +20,15 @@ class SurvivorPainter:
     def paint(self):
         self.zoomed_survivor_radius = self.camera.apply_zoom(self.survivor_radius)
         for survivor in self.population:  # AKA survivor
-            l2 = Vector.subtract_new(survivor.position, self.offset)
-            r2 = Vector.add_new(l2, self.size)
+            l2 = self.vector_pool.subtract(survivor.position, self.offset)
+            r2 = self.vector_pool.add(l2, self.size)
             if self.camera.is_in_view(l2, r2):
-                offset_position = self.camera.map_to_camera(survivor.position)
+                offset_position = self.camera.map_to_camera(survivor.position, self.vector_pool.acquire())
                 pygame.draw.circle(
                     self.window,
                     pygame.Color(58, 103, 176),
                     (offset_position.x, offset_position.y),
                     self.zoomed_survivor_radius
                 )
+                self.vector_pool.release(offset_position)
+            self.vector_pool.release(l2, r2)

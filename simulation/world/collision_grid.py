@@ -1,5 +1,5 @@
 import math
-from util.vector import Vector
+from util.vector_pool import VectorPool
 
 
 class CollisionGrid:
@@ -10,6 +10,7 @@ class CollisionGrid:
         self.cell_size = cell_size
         self.grid = [[[] for x in range(self.width)] for y in range(self.height)]
         self.nearby_directions = []
+        self.vector_pool = VectorPool()
         for i in range(-1, 2):
             for j in range(-1, 2):
                 self.nearby_directions.append([i, j])
@@ -34,7 +35,7 @@ class CollisionGrid:
         return nearby_trees
 
     def get_closest_tree(self, x, y):
-        position = Vector(x, y)
+        position = self.vector_pool.acquire(x, y)
         record_distance = 1000_000
         record_tree = None
 
@@ -44,6 +45,7 @@ class CollisionGrid:
                 record_distance = distance
                 record_tree = tree
 
+        self.vector_pool.release(position)
         return record_tree
 
     # helper methods

@@ -8,6 +8,7 @@ from random import randrange
 from entities.survivor import Survivor
 from entities.tree import Tree
 from util.vector import Vector
+from util.vector_pool import VectorPool
 from world.game_tick_manager import GameTickManager
 from util.util_enums import Direction as Dir
 from drawing.camera import Camera
@@ -19,6 +20,8 @@ from drawing.tree_painter import TreePainter
 from drawing.survivor_painter import SurvivorPainter
 
 pygame.init()
+
+VECTOR_POOL = VectorPool()
 
 # Game setup
 FPS_CAP = 60  # CAMERA WASN'T SMOOTH BECAUSE FPS CAP WAS SO LOW FROM MAKING SNAKE
@@ -108,8 +111,8 @@ def main():
                 if PLAYABLE_CHAR:
                     player_dir = PLAYER_MAP[key]
                     player = population[0]
-                    player.position.add(Vector(player_dir[0], player_dir[1]))
-                    camera.follow_player(player.position)
+                    player.position.add(VECTOR_POOL.lend(player_dir[0], player_dir[1]))
+                    camera.follow_position(player.position)
                 else:
                     camera.move(MOVEMENT_MAP[key])
 

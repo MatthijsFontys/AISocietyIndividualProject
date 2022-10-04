@@ -1,6 +1,6 @@
 import pygame
 import math
-from util.vector import Vector
+from util.vector_pool import VectorPool
 from drawing.camera import Camera
 from entities.tree import Tree
 
@@ -8,6 +8,7 @@ from entities.tree import Tree
 class TreePainter:
 
     def __init__(self, window, camera: Camera, trees: list[Tree]):
+        self.vector_pool = VectorPool()
         self.camera = camera
         self.trees = trees
         self.window = window
@@ -17,11 +18,11 @@ class TreePainter:
         tree_size = self.camera.apply_zoom(80)
 
         for tree in self.trees:  # AKA tree
-            l2 = Vector(tree.position.x - tree_size / 2, tree.position.y - tree_size / 2)
-            r2 = Vector.add_new(l2, Vector(tree_size, tree_size))
+            l2 = self.vector_pool.acquire(tree.position.x - tree_size / 2, tree.position.y - tree_size / 2)
+            r2 = self.vector_pool.add(l2, self.vector_pool.lend(tree_size, tree_size))
             if self.camera.is_in_view(l2, r2):
                 draw_counter += 1
-                offset_position = self.camera.map_to_camera(tree.position)
+                offset_position = self.camera.map_to_camera(tree.position, self.vector_pool.acquire())
                 offset_x = offset_position.x - tree_size / 2
                 offset_y = offset_position.y - tree_size / 2
                 tree_rect = pygame.Rect(offset_x, offset_y, tree_size, tree_size)
@@ -39,3 +40,5 @@ class TreePainter:
                     text_rect = text.get_rect()
                     text_rect.center = tree_rect.center
                     self.window.blit(text, text_rect)
+                self.vector_pool.release(offset_position)
+            self.vector_pool.release(l2, r2)

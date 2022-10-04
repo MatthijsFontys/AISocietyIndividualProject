@@ -1,14 +1,14 @@
 import pygame
 import math
-import random
 from drawing.camera import Camera
 from world.collision_grid import CollisionGrid
-from util.vector import Vector
+from util.vector_pool import VectorPool
 
 
 class GridPainter:
 
     def __init__(self, window, camera: Camera, grid: CollisionGrid):
+        self.vector_pool = VectorPool()
         self.camera = camera
         self.window = window
         self.grid = grid
@@ -21,9 +21,9 @@ class GridPainter:
                 for j in range(self.grid.height):
                     x = i * self.grid.cell_size
                     y = j * self.grid.cell_size
-                    pos = Vector(x, y)
-                    if self.camera.is_in_view(pos, Vector(x + size, y + size)):
-                        pos = self.camera.map_to_camera(pos)
+                    pos = self.vector_pool.acquire(x, y)
+                    if self.camera.is_in_view(pos, self.vector_pool.lend(x + size, y + size)):
+                        pos = self.camera.map_to_camera(pos, pos)
                         grid_rect = pygame.Rect(pos.x, pos.y, size, size)
                         pygame.draw.rect(self.window, pygame.Color(255, 255, 255), grid_rect, 1)
 
@@ -35,3 +35,4 @@ class GridPainter:
                             text_rect = text.get_rect()
                             text_rect.center = grid_rect.center
                             self.window.blit(text, text_rect)
+                    self.vector_pool.release(pos)
