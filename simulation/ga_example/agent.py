@@ -26,8 +26,8 @@ class Agent:
         if self.reached_finish():
             return 100 + 10 * self.dna.get_moves_remaining()
         else:
-            distance = self.finish.get_distance(self.pos)
-            return max(1, 20 - distance)
+            distance = self.finish.get_distance_squared(self.pos)
+            return max(1, 400 - distance)
 
     def reached_finish(self):
         return self.pos.equals(self.finish)

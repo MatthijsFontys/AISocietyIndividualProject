@@ -40,7 +40,7 @@ class CollisionGrid:
         record_tree = None
 
         for tree in self.get_nearby_trees(x, y):
-            distance = tree.position.get_distance(position)
+            distance = tree.position.get_distance_squared(position, self.vector_pool.lend())
             if distance < record_distance:
                 record_distance = distance
                 record_tree = tree

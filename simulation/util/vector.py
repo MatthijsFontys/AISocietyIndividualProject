@@ -29,8 +29,14 @@ class Vector:
         b_squared = self.y ** 2
         return math.sqrt(a_squared + b_squared)
 
-    def get_distance(self, vector):
-        return Vector.subtract_new(vector, self).get_magnitude()
+    def get_distance(self, vector, to_set=None):
+        return Vector.subtract_new(vector, self, to_set).get_magnitude()
+
+    def get_distance_squared(self, vector, to_set=None):
+        dist = Vector.subtract_new(vector, self, to_set)
+        a_squared = dist.x ** 2
+        b_squared = dist.y ** 2
+        return a_squared + b_squared
 
     def equals(self, vector):
         return self.x == vector.x and self.y == vector.y
