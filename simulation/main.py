@@ -5,6 +5,7 @@ from math import pi, tau
 from random import randrange
 
 # my imports
+from entities.entity_enums import EntityType
 from entities.survivor import Survivor
 from entities.tree import Tree
 from util.vector import Vector
@@ -131,7 +132,7 @@ def main():
 def do_survivor_actions(population, grid: CollisionGrid):
     for survivor in population:
         # getting the inputs for the neural network and performing the chosen action
-        tree = grid.get_closest_tree(survivor.position.x, survivor.position.y)
+        tree = grid.get_closest_entity(survivor.position.x, survivor.position.y, EntityType.TREE)
         tree_x_dist = 1
         tree_y_dist = 1
         tree_fruit_count = 0
