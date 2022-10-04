@@ -4,11 +4,11 @@ import neurolab as nl
 from math import floor
 from game import Game
 from ai.genetic_nl import GeneticNeurolab
-from gen_info import GenerationInfo
-
 from ai.neuralnetwork import NeuralNetwork
 
 # Game setup
+from snake_ai.gen_info import GenerationInfo
+
 WIN_SIZE = 720
 GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
 COLS = floor(WIN_SIZE / GRID_SIZE)
