@@ -20,14 +20,15 @@ class MyDefaultStrat:
         return NeuralNetwork(11, 4).add_layer(12).add_layer(12).build()
 
     def save_population(self, population):
-        for i, game in enumerate(population):
-            game.brain.save(f'{self.SIGNATURE}_brain_{i}')
+        pass
+        # for i, game in enumerate(population):
+        #     game.brain.save(f'{self.SIGNATURE}_brain_{i}')
 
     def get_saved_population(self):
-        toReturn = [Game(self.COLS, self.create_brain()) for i in range(self.population_size)]
-        for i, game in enumerate(toReturn):
-            game.brain = NeuralNetwork.load(f'location_input_no_collision/brain_{i}')
-            return toReturn
+        to_return = [Game(self.COLS, self.create_brain()) for _ in range(self.population_size)]
+        for i, game in enumerate(to_return):
+            game.brain = NeuralNetwork.load(f'brain_{i}')
+            return to_return
 
     def get_initial_population(self):
         if self.start_new:
