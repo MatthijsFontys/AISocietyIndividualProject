@@ -1,4 +1,3 @@
-import numpy as np
 import random
 from ai.neuralnetwork import NeuralNetwork
 from snake_ai.game import Game
@@ -25,8 +24,10 @@ class MyDefaultStrat:
             game.brain.save(f'{self.SIGNATURE}_brain_{i}')
 
     def get_saved_population(self):
-        #return [Game(self.COLS, NeuralNetwork.load(f'location_input_no_collision/{self.SIGNATURE}_brain_{i}')) for i in range(self.population_size)]
-        return [Game(self.COLS, NeuralNetwork.load(f'location_input_no_collision/brain_{i}')) for i in range(self.population_size)]
+        toReturn = [Game(self.COLS, self.create_brain()) for i in range(self.population_size)]
+        for i, game in enumerate(toReturn):
+            game.brain = NeuralNetwork.load(f'location_input_no_collision/brain_{i}')
+            return toReturn
 
     def get_initial_population(self):
         if self.start_new:
@@ -59,6 +60,7 @@ class MyDefaultStrat:
 
     # would be private methods - not part of every strategy
     def get_inputs(self, game):
+        segment_inputs = self.get_segment_inputs(game)
         inputs = [
                   # Snake direction
                   (game.snake.movement_index / 3),
@@ -71,7 +73,14 @@ class MyDefaultStrat:
                   max(game.food.x - game.snake.pos.x, 0),
                   max(game.snake.pos.x - game.food.x, 0),
                   # Rest of body position
-                  *self.get_segment_inputs(game)
+                  # Left (x is lower, y is the same) pos.x - segment.x | positive
+                  segment_inputs[0],
+                  # Right (x is higher, y is the same) pos.x - segment.x | negative
+                  segment_inputs[1],
+                  # Up (y is lower, x is the same) pos.y - segment.y | positive
+                  segment_inputs[2],
+                  # Down (y is higher, x is the same) pos.y - segment.y | negative
+                  segment_inputs[3],
                   ]
         return inputs
 

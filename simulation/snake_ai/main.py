@@ -34,14 +34,14 @@ def draw(game):
 
 
 def main():
-    strat: MyDefaultStrat = MyDefaultStrat(COLS, start_new=False)
+    strat: MyDefaultStrat = MyDefaultStrat(COLS)
     # Game speed
     fps_cap = strat.min_fps
     slow_down = False
 
     # Population setup
     generation = 1
-    population = strat.get_initial_population()
+    population = strat.get_saved_population()
 
     clock = pygame.time.Clock()
     should_run = True
