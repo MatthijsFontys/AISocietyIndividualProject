@@ -8,7 +8,9 @@ from ai.neuralnetwork import NeuralNetwork
 
 # Game setup
 from snake_ai.gen_info import GenerationInfo
+from snake_ai.strategy.mycinema_strat import MyCinemaStrat
 from snake_ai.strategy.mydefault_strat import MyDefaultStrat
+from snake_ai.strategy.mypixelinput_strat import MyPixelInputStrat
 
 WIN_SIZE = 720
 GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
@@ -34,7 +36,8 @@ def draw(game):
 
 
 def main():
-    strat: MyDefaultStrat = MyDefaultStrat(COLS)
+    strats = [MyDefaultStrat(COLS), MyPixelInputStrat(COLS), MyCinemaStrat(COLS)]
+    strat: MyDefaultStrat = strats[2]
     # Game speed
     fps_cap = strat.min_fps
     slow_down = False
@@ -64,6 +67,7 @@ def main():
         # all games died so time to create a new generation
         if alive_counter == 0:
             population = strat.repopulate(population)
+            generation += 1
             print('Starting generation: {}'.format(generation))
 
     pygame.quit()

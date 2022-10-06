@@ -26,7 +26,7 @@ class MyPixelInputStrat:
             game.brain.save(f'{self.SIGNATURE}_brain_{i}')
 
     def get_saved_population(self):
-        return [Game(self.COLS, NeuralNetwork.load(f'pixel_input_no_collision/{self.SIGNATURE}_brain_{i}')) for i in range(self.population_size)]
+        return [Game(self.COLS, NeuralNetwork.load(f'brain_{i}')) for i in range(self.population_size)]
 
     def get_initial_population(self):
         if self.start_new:
