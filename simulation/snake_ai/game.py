@@ -14,10 +14,8 @@ class Game:
 
     def __init__(self, cols, brain):
         self.COLS = cols
-        #self.REGION_MAP = [[1, 3], [2, 4]]
-        #inputs = 4
-        self.brain = brain #nl.net.newff([[0, 1], [0, 1], [0, 1], [-1, 1], [-1, 1]], [10, 10, 4])
-        # Input count = cols - 1 * cols - 1 + 1 for the direction
+        self.brain = brain
+        #nl.net.newff([[0, 1], [0, 1], [0, 1], [-1, 1], [-1, 1]], [10, 10, 4])
         input_count = cols * cols + 7
         self.brain = NeuralNetwork(input_count, 4).add_layer(15).add_layer(16).build()
         self.snake = Snake(floor(self.COLS / 2), floor(self.COLS / 2))
@@ -30,59 +28,6 @@ class Game:
         # Preventing looping snakes
         self.path = []
         self.banned_path = []
-
-    def choose_direction_index(self):
-        segment_inputs = self.get_segment_inputs()
-        inputs = [
-                  # Snake direction
-                  (self.snake.movement_index / 3),
-                  # Snake head position
-                  self.snake.pos.x / (self.COLS - 1),
-                  self.snake.pos.y / (self.COLS - 1),
-                  # Food position
-                  max(self.snake.pos.y - self.food.y, 0) / (self.COLS - 1),
-                  max(self.food.y - self.snake.pos.y, 0),
-                  max(self.food.x - self.snake.pos.x, 0),
-                  max(self.snake.pos.x - self.food.x, 0),
-                  # Rest of body position
-                  *self.get_grid_inputs()
-                  ]
-
-        # running the neural network
-        #outputs = self.brain.sim([inputs])
-        outputs = self.brain.feed_forward(inputs)
-
-        # get the highest output as the direction index
-        #outputs = outputs.tolist()[0]
-        highest = max(outputs)
-        return outputs.index(highest)
-
-    def get_grid_inputs(self):
-        grid = np.zeros(self.COLS * self.COLS).tolist()
-        for segment in self.snake.segments:
-            grid[self.COLS * segment.y + segment.x] = 1
-        return grid
-
-
-        # Todo: if i stick with this method, find a better name
-    def get_segment_inputs(self):
-        left_record = right_record = up_record = down_record = self.COLS - 1
-        for segment in self.snake.segments:
-            if segment.y == self.snake.pos.y:
-                delta = self.snake.pos.x - segment.x
-                if delta > 0:
-                    left_record = min(delta, left_record)
-                else:
-                    right_record = min(abs(delta), right_record)
-            elif segment.x == self.snake.pos.x:
-                delta = self.snake.pos.y - segment.y
-                if delta > 0:
-                    up_record = min(delta, up_record)
-                else:
-                    down_record = min(abs(delta), down_record)
-        output = map(lambda x: x / (self.COLS - 1), [left_record, right_record, up_record, down_record])
-        return list(output)
-
 
     def move_in_direction(self, movement_index):
         self.snake.move(movement_index)

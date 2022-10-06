@@ -25,10 +25,7 @@ class MyDefaultStrat:
         #     game.brain.save(f'{self.SIGNATURE}_brain_{i}')
 
     def get_saved_population(self):
-        to_return = [Game(self.COLS, self.create_brain()) for _ in range(self.population_size)]
-        for i, game in enumerate(to_return):
-            game.brain = NeuralNetwork.load(f'brain_{i}')
-            return to_return
+        return [Game(self.COLS, NeuralNetwork.load(f'location_input_no_collision/brain_{i}')) for i in range(self.population_size)]
 
     def get_initial_population(self):
         if self.start_new:
@@ -83,6 +80,7 @@ class MyDefaultStrat:
                   # Down (y is higher, x is the same) pos.y - segment.y | negative
                   segment_inputs[3],
                   ]
+        print(len(inputs))
         return inputs
 
     def get_segment_inputs(self, game):

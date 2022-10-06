@@ -81,7 +81,7 @@ def play_games(population, strat: MyDefaultStrat):
             alive_counter -= 1
             continue
         game.time_alive += 1
-        direction = game.choose_direction_index()
+        direction = strat.feed_forward(game)
         game.move_in_direction(direction)
         game.try_eat_food()
 
