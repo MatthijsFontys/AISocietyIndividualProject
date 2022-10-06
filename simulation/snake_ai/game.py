@@ -12,11 +12,11 @@ import neurolab as nl
 
 class Game:
 
-    def __init__(self, cols):
+    def __init__(self, cols, brain):
         self.COLS = cols
         #self.REGION_MAP = [[1, 3], [2, 4]]
-        inputs = 4
-        #self.brain = nl.net.newff([[0, 1], [0, 1], [0, 1], [-1, 1], [-1, 1]], [10, 10, 4])
+        #inputs = 4
+        self.brain = brain #nl.net.newff([[0, 1], [0, 1], [0, 1], [-1, 1], [-1, 1]], [10, 10, 4])
         # Input count = cols - 1 * cols - 1 + 1 for the direction
         input_count = cols * cols + 7
         self.brain = NeuralNetwork(input_count, 4).add_layer(15).add_layer(16).build()

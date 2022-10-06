@@ -8,6 +8,7 @@ from ai.neuralnetwork import NeuralNetwork
 
 # Game setup
 from snake_ai.gen_info import GenerationInfo
+from snake_ai.strategy.mydefault_strat import MyDefaultStrat
 
 WIN_SIZE = 720
 GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
@@ -18,7 +19,7 @@ pygame.display.set_caption("Snake")
 # Snake setup
 CINEMA_MODE = False
 LOAD_PREVIOUS = True  # not CINEMA_MODE
-POPULATION_SIZE = 1 if CINEMA_MODE else 100
+# POPULATION_SIZE = 1 if CINEMA_MODE else 100
 
 
 def draw(game):
@@ -33,28 +34,15 @@ def draw(game):
 
 
 def main():
+    strat: MyDefaultStrat = MyDefaultStrat(COLS, start_new=False)
     # Game speed
-    fps_cap = 10 if CINEMA_MODE else 1000
+    fps_cap = strat.min_fps
     slow_down = False
 
     # Population setup
     generation = 1
-    population = []
-    if CINEMA_MODE:
-        game = Game(COLS)
-        game.brain = nl.load(f'nets/brain_{random.randint(0, 249)}.net')
-        population.append(game)
-    elif LOAD_PREVIOUS:
-        for i in range(POPULATION_SIZE):
-            game = Game(COLS)
-            # game.brain = nl.load(f'nets/brain_{i}.net')
-            #game.brain = NeuralNetwork.load(f'brain_{i}')
-            game.brain = NeuralNetwork.load(f'brain_{i}')
-            population.append(game)
-    else:
-        population = [Game(COLS) for _ in range(POPULATION_SIZE)]
+    population = strat.get_initial_population()
 
-    # Pygame loop
     clock = pygame.time.Clock()
     should_run = True
     while should_run:
@@ -66,35 +54,25 @@ def main():
                 # 1 - left click, 2 - middle click, 3 - right click, 4 - scroll up, 5 - scroll down
                 if event.button == 1:
                     slow_down = not slow_down
-                    fps_cap = 10 if slow_down else 1000
+                    fps_cap = strat.min_fps if slow_down else strat.max_fps
                 elif event.button == 3:
-                    for i, game in enumerate(population):
-                        #game.brain.save(f'nets/brain_{i}.net')
-                        game.brain.save(f'brain_{i}')
+                    strat.save_population(population)
 
-        best_game, alive_counter = play_games(population)
+        best_game, alive_counter = play_games(population, strat)
         draw(best_game)
 
         # all games died so time to create a new generation
         if alive_counter == 0:
-            if CINEMA_MODE:
-                game = Game(COLS)
-                #game.brain = nl.load(f'nets/brain_{random.randint(0, 249)}.net')
-                game.brain = NeuralNetwork.load(f'brain_{random.randint(0, 249)}')
-                population[0] = game
-            else:
-                gen_info = GenerationInfo(population)
-                population = repopulate(population, gen_info)
-                generation += 1
-                print('Starting generation: {}'.format(generation))
+            population = strat.repopulate(population)
+            print('Starting generation: {}'.format(generation))
 
     pygame.quit()
 
 
 # Plays games with the use of their neural network
 # returns the best game to be drawn by PyGame and the alive counter for a new generation check
-def play_games(population):
-    alive_counter = POPULATION_SIZE
+def play_games(population, strat: MyDefaultStrat):
+    alive_counter = strat.population_size
     best_game = population[0]
 
     # Controlling all games in the population
@@ -111,33 +89,6 @@ def play_games(population):
             best_game = game
 
     return best_game, alive_counter
-
-
-def repopulate(population, info):
-    new_population = []
-    for _ in enumerate(population):
-        try_counter = 0
-        parent_a = pick_parent(population, info.summed_score)
-        parent_b = pick_parent(population, info.summed_score)
-        while parent_a == parent_b and try_counter < 1000:
-            parent_b = pick_parent(population, info.summed_score)
-            try_counter += 1
-
-        offspring = Game(COLS)
-        #offspring.brain = GeneticNeurolab.cross_over(parent_a.brain, parent_b.brain)
-        offspring.brain.cross_over(parent_a.brain, parent_b.brain)
-        new_population.append(offspring)
-    return new_population
-
-
-def pick_parent(population, summed_score):
-    rand = random.random()
-    for member in population:
-        rand -= member.get_score() / summed_score
-        if rand <= 0:
-            return member
-    print('No parent found!')
-    return random.choice(population)
 
 
 def pos_to_rect(pos):
