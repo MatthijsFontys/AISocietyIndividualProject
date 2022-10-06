@@ -17,7 +17,7 @@ class Game:
         self.brain = brain
         #nl.net.newff([[0, 1], [0, 1], [0, 1], [-1, 1], [-1, 1]], [10, 10, 4])
         input_count = cols * cols + 7
-        self.brain = NeuralNetwork(input_count, 4).add_layer(15).add_layer(16).build()
+        self.brain = brain
         self.snake = Snake(floor(self.COLS / 2), floor(self.COLS / 2))
         self.food = self.get_random_no_snake_location()
         # scoring
