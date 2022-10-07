@@ -13,13 +13,10 @@ class SurvivorSprite(pygame.sprite.Sprite):
         self.image_speed = 20
         self.walk_animation = []
         self.walk_paths = glob("assets/survivor*.svg")
-        self.load_images()
+        self.walk_animation = [self.load_image(x) for x in self.walk_paths]
 
     def load_image(self, filename):
         return pygame.image.load(filename).convert_alpha()
-
-    def load_images(self):
-        self.walk_animation = [self.load_image(x) for x in self.walk_paths]
 
     # TODO: Might need to create a cache for the scaled images if it becomes slow
     def get_image(self, scale):
