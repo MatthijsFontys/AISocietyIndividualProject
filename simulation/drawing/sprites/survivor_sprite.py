@@ -11,19 +11,19 @@ class SurvivorSprite(pygame.sprite.Sprite):
         self.image_index = 0
         self.index_appender = 0
         self.image_speed = 20
-        self.idle_animation = []
-        self.idle_paths = glob("assets/survivor*.svg")
+        self.walk_animation = []
+        self.walk_paths = glob("assets/survivor*.svg")
         self.load_images()
 
     def load_image(self, filename):
         return pygame.image.load(filename).convert_alpha()
 
     def load_images(self):
-        self.idle_animation = [self.load_image(x) for x in self.idle_paths]
+        self.walk_animation = [self.load_image(x) for x in self.walk_paths]
 
     # TODO: Might need to create a cache for the scaled images if it becomes slow
     def get_image(self, scale):
-        to_return = pygame.transform.scale(self.idle_animation[self.image_index], (scale, scale))
+        to_return = pygame.transform.scale(self.walk_animation[self.image_index], (scale, scale))
         to_return = pygame.transform.rotate(to_return, self.rotation)
         return to_return
 
@@ -35,6 +35,6 @@ class SurvivorSprite(pygame.sprite.Sprite):
             self.index_appender = 0
         # self.rotation += 90
         # self.rotation = self.rotation % 360
-        if self.image_index >= len(self.idle_animation):
+        if self.image_index >= len(self.walk_animation):
             self.image_index = 0
 
