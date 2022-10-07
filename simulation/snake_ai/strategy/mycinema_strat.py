@@ -91,4 +91,4 @@ class MyCinemaStrat:
                     down_record = min(abs(delta), down_record)
         output = map(lambda x: x / (self.COLS - 1), [left_record, right_record, up_record, down_record])
         return list(output)
-    
+

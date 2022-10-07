@@ -9,7 +9,6 @@ class Survivor:
     def __init__(self, position):
         # movement
         self.position = position  # vector.Vector()
-        self.velocity = Vector()
 
         self.speed = 2
         self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(0, self.speed), Vector(-self.speed, 0),
