@@ -15,15 +15,12 @@ from snake_ai.strategy.mypixelinput_strat import MyPixelInputStrat
 WIN_SIZE = 720
 GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
 COLS = floor(WIN_SIZE / GRID_SIZE)
-WINDOW = None
-pygame.display.set_caption("Snake")
+WINDOW: pygame.surface.Surface
+pygame.display.set_caption("Snake AI")
 
 # Snake setup
 CINEMA_MODE = False
 LOAD_PREVIOUS = True  # not CINEMA_MODE
-
-
-# POPULATION_SIZE = 1 if CINEMA_MODE else 100
 
 
 def draw(game):
@@ -47,6 +44,7 @@ def main():
     # Population setup
     generation = 1
     no_pygame_save_interval = 500
+    pygame_threshold = 5
     population = strat.get_saved_population()
 
     clock = pygame.time.Clock()
@@ -60,6 +58,8 @@ def main():
             print('Starting generation: {}'.format(generation))
             if generation % no_pygame_save_interval == 0:
                 strat.save_population(population)
+            if generation == pygame_threshold:
+                should_run_pygame = True
 
     init_window()
     while should_run_pygame:
