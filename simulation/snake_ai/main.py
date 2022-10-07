@@ -15,12 +15,14 @@ from snake_ai.strategy.mypixelinput_strat import MyPixelInputStrat
 WIN_SIZE = 720
 GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
 COLS = floor(WIN_SIZE / GRID_SIZE)
-WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
+WINDOW = None
 pygame.display.set_caption("Snake")
 
 # Snake setup
 CINEMA_MODE = False
 LOAD_PREVIOUS = True  # not CINEMA_MODE
+
+
 # POPULATION_SIZE = 1 if CINEMA_MODE else 100
 
 
@@ -37,22 +39,34 @@ def draw(game):
 
 def main():
     strats = [MyDefaultStrat(COLS), MyPixelInputStrat(COLS), MyCinemaStrat(COLS)]
-    strat: MyDefaultStrat = strats[2]
+    strat: MyDefaultStrat = strats[0]
     # Game speed
     fps_cap = strat.min_fps
     slow_down = False
 
     # Population setup
     generation = 1
+    no_pygame_save_interval = 500
     population = strat.get_saved_population()
 
     clock = pygame.time.Clock()
-    should_run = True
-    while should_run:
+    should_run_pygame = False
+
+    while not should_run_pygame:
+        _, alive_counter = play_games(population, strat)
+        if alive_counter == 0:
+            population = strat.repopulate(population)
+            generation += 1
+            print('Starting generation: {}'.format(generation))
+            if generation % no_pygame_save_interval == 0:
+                strat.save_population(population)
+
+    init_window()
+    while should_run_pygame:
         clock.tick(fps_cap)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                should_run = False
+                should_run_pygame = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # 1 - left click, 2 - middle click, 3 - right click, 4 - scroll up, 5 - scroll down
                 if event.button == 1:
@@ -97,6 +111,11 @@ def play_games(population, strat: MyDefaultStrat):
 
 def pos_to_rect(pos):
     return pygame.Rect(pos.x * GRID_SIZE, pos.y * GRID_SIZE, GRID_SIZE, GRID_SIZE)
+
+
+def init_window():
+    global WINDOW
+    WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 
 
 if __name__ == "__main__":

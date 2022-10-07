@@ -80,7 +80,6 @@ class MyDefaultStrat:
                   # Down (y is higher, x is the same) pos.y - segment.y | negative
                   segment_inputs[3],
                   ]
-        print(len(inputs))
         return inputs
 
     def get_segment_inputs(self, game):
