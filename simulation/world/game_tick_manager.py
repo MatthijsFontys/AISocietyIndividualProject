@@ -5,6 +5,7 @@
 import random
 from entities.survivor import Survivor
 from util.vector import Vector
+from drawing.survivor_painter import SurvivorSprite
 
 
 class GameTickManager:

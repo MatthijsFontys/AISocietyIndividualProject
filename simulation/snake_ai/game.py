@@ -12,7 +12,7 @@ import neurolab as nl
 
 class Game:
 
-    def __init__(self, cols, brain):
+    def __init__(self, cols, brain, genome=None):
         self.COLS = cols
         self.brain = brain
         #nl.net.newff([[0, 1], [0, 1], [0, 1], [-1, 1], [-1, 1]], [10, 10, 4])
@@ -28,6 +28,9 @@ class Game:
         # Preventing looping snakes
         self.path = []
         self.banned_path = []
+
+        # Neat
+        self.genome = genome
 
     def move_in_direction(self, movement_index):
         self.snake.move(movement_index)
@@ -79,7 +82,7 @@ class Game:
 
     def get_score(self):
         score = self.get_normalized_score()
-        return score * score * score
+        return score ** 2
 
     def get_normalized_score(self):
         snake_len = max(self.snake.size() - 2, 0)

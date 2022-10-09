@@ -8,6 +8,7 @@ from entities.tree import Tree
 class TreePainter:
 
     def __init__(self, window, camera: Camera, trees: list[Tree]):
+        self.image_store = {}
         self.vector_pool = VectorPool()
         self.camera = camera
         self.trees = trees
@@ -32,13 +33,14 @@ class TreePainter:
                     range_size = self.camera.apply_zoom(tree.forage_range - survivor_radius)
                     pygame.draw.circle(self.window, pygame.Color(148, 22, 37), (offset_position.x, offset_position.y), range_size)
 
-                pygame.draw.rect(self.window, pygame.Color(13, 56, 13), tree_rect)
-
-                if show_fruit_count:
-                    main_font = pygame.font.SysFont("arial", math.floor(self.camera.apply_zoom(48)))
-                    text = main_font.render(str(tree.food_count), True, 'white')
-                    text_rect = text.get_rect()
-                    text_rect.center = tree_rect.center
-                    self.window.blit(text, text_rect)
+                #pygame.draw.rect(self.window, pygame.Color(13, 56, 13), tree_rect)
+                self.window.blit(tree.get_sprite(self).get_image(tree_size),
+                                 (offset_position.x, offset_position.y))
+                # if show_fruit_count:
+                #     main_font = pygame.font.SysFont("arial", math.floor(self.camera.apply_zoom(48)))
+                #     text = main_font.render(str(tree.food_count), True, 'white')
+                #     text_rect = text.get_rect()
+                #     text_rect.center = tree_rect.center
+                #     self.window.blit(text, text_rect)
                 self.vector_pool.release(offset_position)
             self.vector_pool.release(l2, r2)

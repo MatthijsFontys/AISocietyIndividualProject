@@ -9,6 +9,7 @@ from util.vector_pool import VectorPool
 class SurvivorPainter:
 
     def __init__(self, window, camera: Camera, population: list[Survivor]):
+        self.image_store = {}
         self.vector_pool = VectorPool()
         self.camera = camera
         self.window = window
@@ -17,8 +18,6 @@ class SurvivorPainter:
         self.population = population
         self.offset = Vector(self.zoomed_survivor_radius, self.zoomed_survivor_radius)
         self.size = Vector(self.zoomed_survivor_radius * 2, self.zoomed_survivor_radius * 2)
-
-        self.spr = SurvivorSprite()
 
     def paint(self):
         self.zoomed_survivor_radius = self.camera.apply_zoom(self.survivor_radius)
@@ -33,7 +32,6 @@ class SurvivorPainter:
                 #     (offset_position.x, offset_position.y),
                 #     self.zoomed_survivor_radius
                 # )
-                self.window.blit(self.spr.get_image(self.zoomed_survivor_radius * 2.5), (offset_position.x, offset_position.y))
-                self.spr.update()
+                self.window.blit(survivor.get_sprite(self).get_image(self.zoomed_survivor_radius * 2.5), (offset_position.x, offset_position.y))
                 self.vector_pool.release(offset_position)
             self.vector_pool.release(l2, r2)

@@ -1,16 +1,14 @@
 import pygame
-import random
+import os
+import neat
 import neurolab as nl
 from math import floor
-from game import Game
-from ai.genetic_nl import GeneticNeurolab
-from ai.neuralnetwork import NeuralNetwork
 
 # Game setup
-from snake_ai.gen_info import GenerationInfo
 from snake_ai.strategy.mycinema_strat import MyCinemaStrat
 from snake_ai.strategy.mydefault_strat import MyDefaultStrat
 from snake_ai.strategy.mypixelinput_strat import MyPixelInputStrat
+from snake_ai.strategy.neat_strat import NeatStrat
 
 WIN_SIZE = 720
 GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
@@ -35,8 +33,9 @@ def draw(game):
 
 
 def main():
-    strats = [MyDefaultStrat(COLS), MyPixelInputStrat(COLS), MyCinemaStrat(COLS)]
-    strat: MyDefaultStrat = strats[0]
+    strats = [MyDefaultStrat(COLS, start_new=False), MyPixelInputStrat(COLS), MyCinemaStrat(COLS), NeatStrat(COLS)]
+    #strat: MyDefaultStrat = strats[0]
+    strat = strats[-1]
     # Game speed
     fps_cap = strat.min_fps
     slow_down = False
@@ -45,10 +44,18 @@ def main():
     generation = 1
     no_pygame_save_interval = 500
     pygame_threshold = 5
-    population = strat.get_saved_population()
+    population = []
 
     clock = pygame.time.Clock()
-    should_run_pygame = False
+    # Todo: put these values in the strats instead
+    should_run_pygame = True
+    should_run_neat = True
+
+    if should_run_neat:
+        winner: neat.genome.DefaultGenome = strat.neat_population.run(lambda genomes, config: run_neat(strat, genomes))
+        population = strat.get_initial_population([(1, winner)])
+    else:
+        population = strat.get_initial_population()
 
     while not should_run_pygame:
         _, alive_counter = play_games(population, strat)
@@ -87,10 +94,19 @@ def main():
     pygame.quit()
 
 
+def run_neat(strat, genomes):
+    population = strat.get_initial_population(genomes)
+    alive_counter = len(population)
+    while alive_counter > 0:
+        _, alive_counter = play_games(population, strat)
+        if alive_counter == 0:
+            strat.score_genomes(population)
+
+
 # Plays games with the use of their neural network
 # returns the best game to be drawn by PyGame and the alive counter for a new generation check
 def play_games(population, strat: MyDefaultStrat):
-    alive_counter = strat.population_size
+    alive_counter = len(population)
     best_game = population[0]
 
     # Controlling all games in the population

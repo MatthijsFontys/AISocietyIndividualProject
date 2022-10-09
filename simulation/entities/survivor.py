@@ -1,5 +1,6 @@
 import random
 from ai.neuralnetwork import NeuralNetwork
+from drawing.sprites.survivor_sprite import SurvivorSprite
 
 from util.vector import Vector
 
@@ -11,7 +12,7 @@ class Survivor:
         self.position = position  # vector.Vector()
 
         self.speed = 2
-        self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(0, self.speed), Vector(-self.speed, 0),
+        self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(-self.speed, 0), Vector(0, self.speed),
                              Vector(self.speed, 0)]
 
         # GeneticAlgorithm stuff
@@ -26,6 +27,9 @@ class Survivor:
         # inventory (not used yet. it eats the food it finds immediately)
         self.food_count = 0
         self.food_limit = 2
+
+        # drawing
+        self.sprite = None
 
     def increase_fitness(self):
         self.fitness += self.fitness_increment
@@ -46,3 +50,10 @@ class Survivor:
             # self.position.add(self.velocity)
             # self.position.add(random.choice(self.velocity_arr))
             self.position.add(self.velocity_arr[index])
+            if self.sprite is not None:
+                self.sprite.notify(index)
+
+    def get_sprite(self, survivor_painter):
+        if self.sprite is None:
+            self.sprite = SurvivorSprite(survivor_painter.image_store)
+        return self.sprite

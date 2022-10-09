@@ -53,11 +53,10 @@ MOVEMENT_MAP = {
 
 def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
     WINDOW.fill(pygame.Color(106, 148, 106))
-
     tree_painter.paint(survivor_painter.survivor_radius, False)
     survivor_painter.paint()
     # todo: fix drawing the grid, the zoom broke it
-    grid_painter.paint(True, False)
+    #grid_painter.paint(True, False)
 
     pygame.display.update()
 
