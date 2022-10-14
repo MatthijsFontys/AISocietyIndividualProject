@@ -13,6 +13,9 @@ class MyDefaultStrat:
         self.min_fps = 10
         self.max_fps = 1000
 
+        self.should_run_pygame = False
+        self.should_run_neat = False
+
         self.population_size = population_size
         self.start_new = start_new
 

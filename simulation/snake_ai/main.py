@@ -1,3 +1,5 @@
+import pickle
+
 import pygame
 import os
 import neat
@@ -9,6 +11,7 @@ from snake_ai.strategy.mycinema_strat import MyCinemaStrat
 from snake_ai.strategy.mydefault_strat import MyDefaultStrat
 from snake_ai.strategy.mypixelinput_strat import MyPixelInputStrat
 from snake_ai.strategy.neat_strat import NeatStrat
+from snake_ai.strategy.neatcinema_strat import NeatCinemaStrat
 
 WIN_SIZE = 720
 GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
@@ -33,8 +36,8 @@ def draw(game):
 
 
 def main():
-    strats = [MyDefaultStrat(COLS, start_new=False), MyPixelInputStrat(COLS), MyCinemaStrat(COLS), NeatStrat(COLS)]
-    #strat: MyDefaultStrat = strats[0]
+    strats = [MyDefaultStrat(COLS, start_new=False), MyPixelInputStrat(COLS), MyCinemaStrat(COLS),
+              NeatStrat(COLS, start_new=True), NeatCinemaStrat(COLS)]
     strat = strats[-1]
     # Game speed
     fps_cap = strat.min_fps
@@ -49,15 +52,16 @@ def main():
     clock = pygame.time.Clock()
     # Todo: put these values in the strats instead
     should_run_pygame = True
-    should_run_neat = True
-
+    should_run_neat = False
     if should_run_neat:
         winner: neat.genome.DefaultGenome = strat.neat_population.run(lambda genomes, config: run_neat(strat, genomes))
         population = strat.get_initial_population([(1, winner)])
+        with open(f'nets/trained/snake_80mil_winner.pkl', 'wb') as save_file:
+            pickle.dump(winner, save_file)
     else:
         population = strat.get_initial_population()
 
-    while not should_run_pygame:
+    while not strat.should_run_pygame:
         _, alive_counter = play_games(population, strat)
         if alive_counter == 0:
             population = strat.repopulate(population)
@@ -66,14 +70,14 @@ def main():
             if generation % no_pygame_save_interval == 0:
                 strat.save_population(population)
             if generation == pygame_threshold:
-                should_run_pygame = True
+                strat.should_run_pygame = True
 
     init_window()
-    while should_run_pygame:
+    while strat.should_run_pygame:
         clock.tick(fps_cap)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                should_run_pygame = False
+                strat.should_run_pygame = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # 1 - left click, 2 - middle click, 3 - right click, 4 - scroll up, 5 - scroll down
                 if event.button == 1:

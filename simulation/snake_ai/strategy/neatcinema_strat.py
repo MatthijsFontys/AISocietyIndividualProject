@@ -1,52 +1,59 @@
+import pickle
 import random
+import neat
+import os
+
+import numpy as np
+
 from ai.neuralnetwork import NeuralNetwork
 from snake_ai.game import Game
 from snake_ai.gen_info import GenerationInfo
 
 
-class MyCinemaStrat:
+class NeatCinemaStrat:
 
-    def __init__(self, cols, population_size=10, start_new=False):
-        self.SIGNATURE = 'DEFAULT_INPUT'
+    def __init__(self, cols):
+        local_dir = os.path.dirname(__file__)
+        config_path = os.path.join(local_dir, 'neat-config')
+        self.CONFIG: neat.Config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
+                                               neat.DefaultStagnation, config_path)
+
+        self.SIGNATURE = 'NEAT_CINEMA'
         self.COLS = cols
+        self.population_size = 1
         self.data_collector = None
         self.min_fps = 10
         self.max_fps = 1000
+        self.start_new = False
+
         self.should_run_pygame = True
         self.should_run_neat = False
 
-        self.population_size = population_size
-        self.start_new = start_new
-        self.best_of_initial = None
-
-    def create_brain(self):
-        return NeuralNetwork(11, 4).add_layer(12).add_layer(12).build()
+    def create_brain(self, genome):
+        return neat.nn.FeedForwardNetwork.create(genome, self.CONFIG)
 
     def save_population(self, population):
         pass
-        # for i, game in enumerate(population):
-        #     game.brain.save(f'{self.SIGNATURE}_brain_{i}')
 
     def get_saved_population(self):
-        return [Game(self.COLS, NeuralNetwork.load(f'location_input_no_collision/brain_{i}')) for i in
-                range(self.population_size)]
+        return self.get_initial_population()
 
     def get_initial_population(self):
-        if self.start_new:
-            return [Game(self.COLS, self.create_brain()) for _ in range(self.population_size)]
-        else:
-            return self.get_saved_population()
+        with open(f'nets/trained/snake_60mil_winner.pkl', 'rb') as save_file:
+            genome = pickle.load(save_file)
+            return [Game(self.COLS,self.create_brain(genome), genome)]
+
+    def score_genomes(self, population):
+        for p in population:
+            p.genome.fitness = p.get_score()
 
     def repopulate(self, population):
-        if self.best_of_initial is None:
-            self.best_of_initial = sorted(population, key=lambda x: x.get_score(), reverse=True)[:5]
-
-        self.population_size = 1
-        return [Game(self.COLS, random.choice(self.best_of_initial).brain)]
+        genome = population[0].genome
+        return [Game(self.COLS,self.create_brain(genome), genome)]
 
     def feed_forward(self, game):
         inputs = self.get_inputs(game)
-        outputs = game.brain.feed_forward(inputs)
+        outputs = game.brain.activate(inputs)
         highest = max(outputs)
         return outputs.index(highest)
 
@@ -65,14 +72,8 @@ class MyCinemaStrat:
             max(game.food.x - game.snake.pos.x, 0),
             max(game.snake.pos.x - game.food.x, 0),
             # Rest of body position
-            # Left (x is lower, y is the same) pos.x - segment.x | positive
-            segment_inputs[0],
-            # Right (x is higher, y is the same) pos.x - segment.x | negative
-            segment_inputs[1],
-            # Up (y is lower, x is the same) pos.y - segment.y | positive
-            segment_inputs[2],
-            # Down (y is higher, x is the same) pos.y - segment.y | negative
-            segment_inputs[3],
+            *self.get_segment_inputs(game)
+            #*self.get_grid_inputs(game)
         ]
         return inputs
 
@@ -94,3 +95,17 @@ class MyCinemaStrat:
         output = map(lambda x: x / (self.COLS - 1), [left_record, right_record, up_record, down_record])
         return list(output)
 
+    def get_grid_inputs(self, game):
+        grid = np.zeros(self.COLS * self.COLS).tolist()
+        for segment in game.snake.segments:
+            grid[self.COLS * segment.y + segment.x] = 1
+        return grid
+
+    def pick_parent(self, population, gen_info):
+        rand = random.random()
+        for member in population:
+            rand -= member.get_score() / gen_info.summed_score
+            if rand <= 0:
+                return member
+        print('No parent found!')
+        return random.choice(population)

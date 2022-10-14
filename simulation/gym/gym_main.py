@@ -37,6 +37,7 @@ def run_neat(genomes, config, env, limit, runs):
                 action = 0 if output[0] > output[1] else 1
                 observation, reward, terminated, truncated, info = env.step(action)
                 g.fitness += reward
+
                 if runs > 1 and (abs(observation[0]) > 1 or g.fitness > limit * (i + 1)):
                     terminated = True
 

@@ -85,8 +85,7 @@ class Camera:
 
     # gets the delta in mouse position after zooming
     def get_delta_mouse(self, old_view, mouse_x, mouse_y, to_set: Vector = None):
-        mouse_x_world = np.interp(mouse_x, [0, self.default_view.x], [0, self.world_width])
-        mouse_y_world = np.interp(mouse_y, [0, self.default_view.y], [0, self.world_height])
+        mouse_x_world, mouse_y_world = self.get_mouse_world_pos(mouse_x, mouse_y, account_zoom=False)
         mouse_before = self.vector_pool.acquire(mouse_x_world, mouse_y_world)
         mouse_before.subtract(self.position)
         new_x = np.interp(mouse_before.x, [0, old_view.x], [0, self.view.x])
@@ -95,6 +94,16 @@ class Camera:
         mouse_after.subtract(mouse_before)
         self.vector_pool.release(mouse_before)
         return mouse_after
+
+    def get_mouse_world_pos(self, mouse_x, mouse_y, account_zoom=True):
+        if account_zoom:
+            mouse_x_world = np.interp(mouse_x, [0, 900], [self.position.x, self.position.x + self.view.x])
+            mouse_y_world = np.interp(mouse_y, [0, 900], [self.position.y, self.position.y + self.view.y])
+        else:
+            mouse_x_world = np.interp(mouse_x, [0, self.default_view.x], [0, self.world_width])
+            mouse_y_world = np.interp(mouse_y, [0, self.default_view.y], [0, self.world_height])
+
+        return mouse_x_world, mouse_y_world
 
     def update_bottom_right(self):
         self.limit_to_bounds()

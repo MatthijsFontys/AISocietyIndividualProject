@@ -1,6 +1,9 @@
 import random
 import neat
 import os
+
+import numpy as np
+
 from ai.neuralnetwork import NeuralNetwork
 from snake_ai.game import Game
 from snake_ai.gen_info import GenerationInfo
@@ -8,17 +11,21 @@ from snake_ai.gen_info import GenerationInfo
 
 class NeatStrat:
 
-    def __init__(self, cols, start_new=True):
+    def __init__(self, cols, start_new=False):
         local_dir = os.path.dirname(__file__)
         config_path = os.path.join(local_dir, 'neat-config')
         self.CONFIG: neat.Config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
                                                neat.DefaultStagnation, config_path)
-        # Add a stdout reporter to show progress in the terminal.
-        self.neat_population = neat.checkpoint.Checkpointer.restore_checkpoint('neat-checkpoint-7715') #neat.Population(self.CONFIG)
-        #self.neat_population = neat.Population(self.CONFIG)
+
+        self.checkpointer = neat.Checkpointer(10)
+        if start_new:
+            self.neat_population = neat.Population(self.CONFIG)
+        else:
+            self.neat_population = self.checkpointer.restore_checkpoint(filename='neat-checkpoint-3059')
+
         self.neat_population.add_reporter(neat.StdOutReporter(False))
         # self.neat_population.add_reporter(neat.StatisticsReporter())
-        self.neat_population.add_reporter(neat.Checkpointer(501))
+        self.neat_population.add_reporter(self.checkpointer)
 
         self.SIGNATURE = 'NEAT'
         self.COLS = cols
@@ -26,6 +33,9 @@ class NeatStrat:
         self.data_collector = None
         self.min_fps = 10
         self.max_fps = 1000
+
+        self.should_run_pygame = True
+        self.should_run_neat = True
 
         self.start_new = start_new
 
@@ -74,6 +84,7 @@ class NeatStrat:
             max(game.snake.pos.x - game.food.x, 0),
             # Rest of body position
             *self.get_segment_inputs(game)
+            #*self.get_grid_inputs(game)
         ]
         return inputs
 
@@ -94,6 +105,12 @@ class NeatStrat:
                     down_record = min(abs(delta), down_record)
         output = map(lambda x: x / (self.COLS - 1), [left_record, right_record, up_record, down_record])
         return list(output)
+
+    def get_grid_inputs(self, game):
+        grid = np.zeros(self.COLS * self.COLS).tolist()
+        for segment in game.snake.segments:
+            grid[self.COLS * segment.y + segment.x] = 1
+        return grid
 
     def pick_parent(self, population, gen_info):
         rand = random.random()
