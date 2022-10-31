@@ -1,4 +1,5 @@
 import math
+import pickle
 
 import pygame
 from math import pi, tau
@@ -8,6 +9,7 @@ from random import randrange
 from entities.entity_enums import EntityType
 from entities.survivor import Survivor
 from entities.tree import Tree
+from map_creator.map_save import MapSave
 from util.vector import Vector
 from util.vector_pool import VectorPool
 from world.game_tick_manager import GameTickManager
@@ -26,7 +28,9 @@ VECTOR_POOL = VectorPool()
 
 # Game setup
 FPS_CAP = 60  # CAMERA WASN'T SMOOTH BECAUSE FPS CAP WAS SO LOW FROM MAKING SNAKE
-WORLD_SIZE = 1600
+
+
+MAP: MapSave  # Todo: this is not going to be a map save, but instead a mapped model that holds more than the save can
 WIN_SIZE = 900
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Survival")
@@ -56,30 +60,32 @@ def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
     tree_painter.paint(survivor_painter.survivor_radius, False)
     survivor_painter.paint()
     # todo: fix drawing the grid, the zoom broke it
-    #grid_painter.paint(True, False)
+    # grid_painter.paint(True, False)
 
     pygame.display.update()
 
 
 def main():
     population = []
+    maps = ['HumbleBeginnings', 'LimitedTrees']
+    init_map(maps[0])
     if PLAYABLE_CHAR:
         population.append(Survivor(Vector(400, 400)))
     for i in range(50):
         population.append(Survivor(
-            Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
+            Vector(randrange(MAP.width), randrange(MAP.height))
         ))
 
-    trees = []
+    trees = [Tree(pos) for pos in MAP.get_entities(EntityType.TREE)]
 
-    for i in range(15):
-        trees.append(Tree(
-            Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
-        ))
+    # for i in range(15):
+    #     trees.append(Tree(
+    #         Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
+    #     ))
 
     # world managing objects
-    tick_manager = GameTickManager(trees, population)
-    collision_grid = CollisionGrid(200, WORLD_SIZE, WORLD_SIZE, trees)
+    tick_manager = GameTickManager(trees, population, MAP)
+    collision_grid = CollisionGrid(200, MAP.width, MAP.height, trees)
 
     # drawing objects
     camera = Camera(MOUSE_SPEED, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
@@ -158,6 +164,12 @@ def do_survivor_actions(population, grid: CollisionGrid):
         survivor.move(action_index + 1)
         if tree is not None:
             tree.try_forage_food(survivor)
+
+
+def init_map(name):
+    global WORLD_SIZE, MAP
+    MAP = MapSave.load(name)
+    WORLD_SIZE = MAP.width
 
 
 if __name__ == "__main__":

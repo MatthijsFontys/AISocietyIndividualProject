@@ -10,11 +10,12 @@ from drawing.survivor_painter import SurvivorSprite
 
 class GameTickManager:
 
-    def __init__(self, trees, survivors):
+    def __init__(self, trees, survivors, world):
         self.trees = trees
         self.survivors = survivors
         self.tick_interval = 10
         self.tick_counter = 0
+        self.map = world
 
     def tick(self):
 
@@ -36,8 +37,7 @@ class GameTickManager:
             # check and create offspring TODO: for now in this class, obviously should go into another class eventually (but still be managed by ticks)
             # todo: remove hardcoded world size
             if random.random() < 0.5:
-                world_size = 1600
-                offspring = Survivor(Vector(random.randrange(world_size), random.randrange(world_size)))
+                offspring = Survivor(Vector(random.randrange(self.map.width), random.randrange(self.map.height)))
                 parent_a = None
                 parent_b = None
                 best_survivors = sorted(self.survivors, key=lambda x: x.fitness, reverse=True)

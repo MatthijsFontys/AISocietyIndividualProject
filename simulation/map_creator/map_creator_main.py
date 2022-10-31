@@ -1,32 +1,19 @@
-import math
-
 import pygame
-from math import pi, tau
-from random import randrange
 
-# my imports
 from entities.entity_enums import EntityType
-from entities.survivor import Survivor
-from entities.tree import Tree
 from util.vector import Vector
 from util.vector_pool import VectorPool
-from world.game_tick_manager import GameTickManager
 from util.util_enums import Direction as Dir
 from drawing.camera import Camera
-from world.collision_grid import CollisionGrid
-
-# my drawing imports
-from drawing.grid_painter import GridPainter
-from drawing.tree_painter import TreePainter
-from drawing.survivor_painter import SurvivorPainter
+from map_save import MapSave
 
 pygame.init()
 
 VECTOR_POOL = VectorPool()
 
 # Game setup
+WORLD_MAP: MapSave = MapSave('LimitedTrees', 1600)
 FPS_CAP = 60  # CAMERA WASN'T SMOOTH BECAUSE FPS CAP WAS SO LOW FROM MAKING SNAKE
-WORLD_SIZE = 1600  # Todo: Make it so stuff like this is in world object
 WIN_SIZE = 900
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("Map creator for survival sim")
@@ -43,12 +30,12 @@ MOVEMENT_MAP = {
 }
 
 
-def draw(trees, tree_sprite, camera):
+def draw(tree_sprite, camera):
     WINDOW.fill(pygame.Color(106, 148, 106))
     tree_size = camera.apply_zoom(80)
     tree_sprite = pygame.transform.scale(tree_sprite, (tree_size, tree_size))
 
-    for tree in trees:
+    for tree in WORLD_MAP.get_entities(EntityType.TREE):
         l2 = VECTOR_POOL.acquire(tree.x - tree_size / 2, tree.y - tree_size / 2)
         r2 = VECTOR_POOL.acquire(tree.x + tree_size / 2, tree.y + tree_size / 2)
         if camera.is_in_view(l2, r2 or True):
@@ -72,11 +59,10 @@ def draw(trees, tree_sprite, camera):
 
 def main():
     tree_sprite = pygame.image.load('../assets/fruit_tree_3.svg')
-    trees = []
-
+    current_entity: EntityType = EntityType.TREE
     #collision_grid = CollisionGrid(200, WORLD_SIZE, WORLD_SIZE, trees)
     #tree_painter = TreePainter(WINDOW, camera, trees)
-    camera = Camera(MOUSE_SPEED, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
+    camera = Camera(MOUSE_SPEED, WIN_SIZE, WIN_SIZE, WORLD_MAP.width, WORLD_MAP.height)
 
     # pygame stuff
     clock = pygame.time.Clock()
@@ -103,11 +89,9 @@ def main():
                     mouse_world_x, mouse_world_y = camera.get_mouse_world_pos(mouse_pos[0], mouse_pos[1])
                     print(*mouse_pos)
                     print(mouse_world_x, mouse_world_y)
-                    trees.append(Vector(mouse_world_x, mouse_world_y))
+                    WORLD_MAP.add_entity(current_entity, Vector(mouse_world_x, mouse_world_y))
                 elif event.button == 3:
-                    # Left click place tree
-                    # Right click save ?
-                    pass
+                    WORLD_MAP.save()
 
         # Player and camera movement
         keys = pygame.key.get_pressed()
@@ -116,10 +100,9 @@ def main():
                 camera.move(MOVEMENT_MAP[key])
 
         # Drawing
-        draw(trees, tree_sprite, camera)
+        draw(tree_sprite, camera)
 
     pygame.quit()
-
 
 
 if __name__ == "__main__":

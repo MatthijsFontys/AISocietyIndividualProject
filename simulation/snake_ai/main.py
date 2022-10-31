@@ -13,8 +13,8 @@ from snake_ai.strategy.mypixelinput_strat import MyPixelInputStrat
 from snake_ai.strategy.neat_strat import NeatStrat
 from snake_ai.strategy.neatcinema_strat import NeatCinemaStrat
 
-WIN_SIZE = 720
-GRID_SIZE = 40  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
+WIN_SIZE = 960
+GRID_SIZE = 60  # 45 x 16 = 720  THERE IS A GRID BASED SYSTEM SO THAT THE FOOD AND THE SNAKE CAN REASONABLY ALIGN
 COLS = floor(WIN_SIZE / GRID_SIZE)
 WINDOW: pygame.surface.Surface
 pygame.display.set_caption("Snake AI")
@@ -27,7 +27,7 @@ LOAD_PREVIOUS = True  # not CINEMA_MODE
 def draw(game):
     WINDOW.fill("#292929")
     for segment in game.snake.segments:
-        pygame.draw.rect(WINDOW, "#34DDC4", pos_to_rect(segment))
+        pygame.draw.rect(WINDOW,  "#34DDC4", pos_to_rect(segment))
 
     pygame.draw.rect(WINDOW, "#DC1111", pos_to_rect(game.food))
     pygame.draw.rect(WINDOW, "#34DDC4", pos_to_rect(game.snake.pos))
@@ -36,8 +36,9 @@ def draw(game):
 
 
 def main():
-    strats = [MyDefaultStrat(COLS, start_new=False), MyPixelInputStrat(COLS), MyCinemaStrat(COLS),
+    strats = [MyDefaultStrat(COLS, start_new=True), MyPixelInputStrat(COLS), MyCinemaStrat(COLS),
               NeatStrat(COLS, start_new=True), NeatCinemaStrat(COLS)]
+    #strat = strats[-1]
     strat = strats[-1]
     # Game speed
     fps_cap = strat.min_fps
@@ -103,8 +104,7 @@ def run_neat(strat, genomes):
     alive_counter = len(population)
     while alive_counter > 0:
         _, alive_counter = play_games(population, strat)
-        if alive_counter == 0:
-            strat.score_genomes(population)
+    strat.score_genomes(population)
 
 
 # Plays games with the use of their neural network
@@ -136,6 +136,7 @@ def pos_to_rect(pos):
 def init_window():
     global WINDOW
     WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
+    #WINDOW =pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 
 if __name__ == "__main__":
