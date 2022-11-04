@@ -38,7 +38,6 @@ def draw(game):
 def main():
     strats = [MyDefaultStrat(COLS, start_new=True), MyPixelInputStrat(COLS), MyCinemaStrat(COLS),
               NeatStrat(COLS, start_new=True), NeatCinemaStrat(COLS)]
-    #strat = strats[-1]
     strat = strats[-1]
     # Game speed
     fps_cap = strat.min_fps
@@ -48,13 +47,9 @@ def main():
     generation = 1
     no_pygame_save_interval = 500
     pygame_threshold = 5
-    population = []
 
     clock = pygame.time.Clock()
-    # Todo: put these values in the strats instead
-    should_run_pygame = True
-    should_run_neat = False
-    if should_run_neat:
+    if strat.should_run_neat:
         winner: neat.genome.DefaultGenome = strat.neat_population.run(lambda genomes, config: run_neat(strat, genomes))
         population = strat.get_initial_population([(1, winner)])
         with open(f'nets/trained/snake_80mil_winner.pkl', 'wb') as save_file:
@@ -136,7 +131,6 @@ def pos_to_rect(pos):
 def init_window():
     global WINDOW
     WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
-    #WINDOW =pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 
 if __name__ == "__main__":

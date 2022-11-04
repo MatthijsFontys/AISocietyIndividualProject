@@ -6,30 +6,29 @@ import random
 from entities.survivor import Survivor
 from util.vector import Vector
 from drawing.survivor_painter import SurvivorSprite
+from world.world_map import WorldMap
 
 
 class GameTickManager:
 
-    def __init__(self, trees, survivors, world):
-        self.trees = trees
-        self.survivors = survivors
+    def __init__(self, world):
         self.tick_interval = 10
         self.tick_counter = 0
-        self.map = world
+        self.map: WorldMap = world
 
     def tick(self):
 
         self.tick_counter += 1
         if self.tick_counter >= self.tick_interval:
-            for tree in self.trees:
+            for tree in self.map.trees:
                 tree.tick()
 
             # reversed so that elements can be removed while looping through
-            for survivor in reversed(self.survivors):
+            for survivor in reversed(self.map.population):
                 survivor.increase_fitness()
                 survivor.decrease_fullness()
                 if survivor.is_dead():
-                    self.survivors.remove(survivor)
+                    self.map.population.remove(survivor)
 
             self.tick_counter = 0
 
@@ -37,10 +36,10 @@ class GameTickManager:
             # check and create offspring TODO: for now in this class, obviously should go into another class eventually (but still be managed by ticks)
             # todo: remove hardcoded world size
             if random.random() < 0.5:
-                offspring = Survivor(Vector(random.randrange(self.map.width), random.randrange(self.map.height)))
+                offspring = Survivor(Vector(random.randrange(self.map.WIDTH), random.randrange(self.map.HEIGHT)))
                 parent_a = None
                 parent_b = None
-                best_survivors = sorted(self.survivors, key=lambda x: x.fitness, reverse=True)
+                best_survivors = sorted(self.map.population, key=lambda x: x.fitness, reverse=True)
                 middle_index = len(best_survivors) // 2
                 best_survivors = best_survivors[:middle_index]
 
@@ -49,4 +48,4 @@ class GameTickManager:
                     parent_b = random.choice(best_survivors)
 
                 offspring.brain.cross_over(parent_a.brain, parent_b.brain)
-                self.survivors.append(offspring)
+                self.map.population.append(offspring)

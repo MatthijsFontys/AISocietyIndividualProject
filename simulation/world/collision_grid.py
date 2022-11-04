@@ -8,11 +8,15 @@ from entities.entity_enums import EntityType
 #
 #
 #
+from world.world_map import WorldMap
+
+
 class CollisionGrid:
 
-    def __init__(self, cell_size, world_width, world_height, trees):
-        self.width = math.floor(world_width / cell_size)
-        self.height = math.floor(world_height / cell_size)
+    def __init__(self, cell_size, world: WorldMap):
+        self.map = world
+        self.width = math.floor(self.map.WIDTH / cell_size)
+        self.height = math.floor(self.map.HEIGHT / cell_size)
         self.cell_size = cell_size
         self.grid = [[{t.name: [] for t in EntityType} for x in range(self.width)] for y in range(self.height)]
         self.nearby_directions = []
@@ -21,7 +25,7 @@ class CollisionGrid:
             for j in range(-1, 2):
                 self.nearby_directions.append([i, j])
 
-        for tree in trees:
+        for tree in self.map.trees:
             x_index = self.position_to_index(tree.position.x)
             y_index = self.position_to_index(tree.position.y)
             self.grid[x_index][y_index][EntityType.TREE.name].append(tree)

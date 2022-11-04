@@ -16,6 +16,7 @@ from world.game_tick_manager import GameTickManager
 from util.util_enums import Direction as Dir
 from drawing.camera import Camera
 from world.collision_grid import CollisionGrid
+from world.world_map import WorldMap
 
 # my drawing imports
 from drawing.grid_painter import GridPainter
@@ -29,11 +30,11 @@ VECTOR_POOL = VectorPool()
 # Game setup
 FPS_CAP = 60  # CAMERA WASN'T SMOOTH BECAUSE FPS CAP WAS SO LOW FROM MAKING SNAKE
 
-
-MAP: MapSave  # Todo: this is not going to be a map save, but instead a mapped model that holds more than the save can
+MAP: WorldMap
+WAITING_MAP: WorldMap
 WIN_SIZE = 900
 WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
-pygame.display.set_caption("Survival")
+pygame.display.set_caption("SurvAIvor")
 
 # Allow a playable character for debugging
 PLAYABLE_CHAR = False
@@ -66,32 +67,25 @@ def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
 
 
 def main():
-    population = []
     maps = ['HumbleBeginnings', 'LimitedTrees']
-    init_map(maps[0])
+    init_map(maps[0], 50)
     if PLAYABLE_CHAR:
-        population.append(Survivor(Vector(400, 400)))
-    for i in range(50):
-        population.append(Survivor(
-            Vector(randrange(MAP.width), randrange(MAP.height))
-        ))
-
-    trees = [Tree(pos) for pos in MAP.get_entities(EntityType.TREE)]
-
-    # for i in range(15):
-    #     trees.append(Tree(
-    #         Vector(randrange(WORLD_SIZE), randrange(WORLD_SIZE))
-    #     ))
+        MAP.population.append(Survivor(Vector(400, 400)))
 
     # world managing objects
-    tick_manager = GameTickManager(trees, population, MAP)
-    collision_grid = CollisionGrid(200, MAP.width, MAP.height, trees)
+    cell_size = 200
+    tick_manager = GameTickManager(MAP)
+    collision_grid = CollisionGrid(cell_size, MAP)
+
+    # world managing for waiting room
+    wait_tick_manager = GameTickManager(WAITING_MAP)
+    wait_collision_grid = CollisionGrid(cell_size, WAITING_MAP)
 
     # drawing objects
-    camera = Camera(MOUSE_SPEED, WIN_SIZE, WIN_SIZE, WORLD_SIZE, WORLD_SIZE)
+    camera = Camera(MOUSE_SPEED, WIN_SIZE, WIN_SIZE, MAP.WIDTH, MAP.HEIGHT)
     grid_painter = GridPainter(WINDOW, camera, collision_grid)
-    survivor_painter = SurvivorPainter(WINDOW, camera, population)
-    tree_painter = TreePainter(WINDOW, camera, trees)
+    survivor_painter = SurvivorPainter(WINDOW, camera, MAP.population)
+    tree_painter = TreePainter(WINDOW, camera, MAP.trees)
 
     # pygame stuff
     clock = pygame.time.Clock()
@@ -116,17 +110,21 @@ def main():
             if keys[key]:
                 if PLAYABLE_CHAR:
                     player_dir = PLAYER_MAP[key]
-                    player = population[0]
+                    player = MAP.population[0]
                     player.position.add(VECTOR_POOL.lend(player_dir[0], player_dir[1]))
                     camera.follow_position(player.position)
                 else:
                     camera.move(MOVEMENT_MAP[key])
 
         # Handling the game world
+        # Also handles the waiting queue, to allow new agents into the world
         tick_manager.tick()
-
         # Actions before drawing
-        do_survivor_actions(population, collision_grid)
+        do_survivor_actions(MAP.population, collision_grid)
+
+        wait_tick_manager.tick()
+        # Actions of survivors in waiting room
+        do_survivor_actions(WAITING_MAP.population, wait_collision_grid)
 
         # Drawing
         draw(tree_painter, survivor_painter, grid_painter)
@@ -134,7 +132,7 @@ def main():
     pygame.quit()
 
 
-def do_survivor_actions(population, grid: CollisionGrid):
+def do_survivor_actions(population: [Survivor], grid: CollisionGrid):
     for survivor in population:
         # getting the inputs for the neural network and performing the chosen action
         tree = grid.get_closest_entity(survivor.position.x, survivor.position.y, EntityType.TREE)
@@ -144,14 +142,14 @@ def do_survivor_actions(population, grid: CollisionGrid):
 
         # todo: make a nullable survivor and tree instead
         if tree is not None:
-            tree_x_dist = (survivor.position.x - tree.position.x) / WORLD_SIZE
-            tree_y_dist = (survivor.position.y - tree.position.y) / WORLD_SIZE
+            tree_x_dist = (survivor.position.x - tree.position.x) / MAP.WIDTH
+            tree_y_dist = (survivor.position.y - tree.position.y) / MAP.HEIGHT
             tree_fruit_count = tree.food_count / tree.max_food_count
 
         inputs = [
             survivor.fullness / 100,
-            survivor.position.x / WORLD_SIZE,
-            survivor.position.y / WORLD_SIZE,
+            survivor.position.x / MAP.WIDTH,
+            survivor.position.y / MAP.HEIGHT,
             tree_x_dist,
             tree_y_dist,
             tree_fruit_count
@@ -166,10 +164,10 @@ def do_survivor_actions(population, grid: CollisionGrid):
             tree.try_forage_food(survivor)
 
 
-def init_map(name):
-    global WORLD_SIZE, MAP
-    MAP = MapSave.load(name)
-    WORLD_SIZE = MAP.width
+def init_map(name, population_size):
+    global WAITING_MAP, MAP
+    MAP = WorldMap(MapSave.load(name), population_size)
+    WAITING_MAP = WorldMap(MapSave.load(name), population_size)
 
 
 if __name__ == "__main__":
