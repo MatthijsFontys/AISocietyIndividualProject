@@ -20,8 +20,7 @@ class WorldMap:
         self.time_perception = -1
         self.spawn_points = []
         # Entities
-        self.population = [Survivor(self.get_rand_position()) for _ in
-                           range(population_size)]
+        self.population = []
         self.saplings = []
         self.campfires = []
 

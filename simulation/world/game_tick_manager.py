@@ -35,7 +35,7 @@ class GameTickManager:
                     entity.tick(world.dto)
 
         # Chance to bring offspring from waiting room
-        if random.random() < 0.5:
+        if random.random() < 0.15:
             offspring = self.WAIT_MAP.dequeue()
             if offspring is not None:
                 self.MAP.population.append(offspring)

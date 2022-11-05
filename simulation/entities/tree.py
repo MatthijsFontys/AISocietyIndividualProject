@@ -10,8 +10,8 @@ class Tree:
         self.vector_pool = VectorPool()
         self.food_count = 3
         self.max_food_count = 3
-        self.grow_counter = TickCounter(30)
-        self.forage_counter = TickCounter(20)
+        self.grow_counter = TickCounter(80)
+        self.forage_counter = TickCounter(10)
         self.is_forageable = True
         self.forage_range = 80
         self.forage_range_squared = self.forage_range ** 2

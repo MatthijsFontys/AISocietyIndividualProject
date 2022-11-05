@@ -21,7 +21,6 @@ class TreeSprite(pygame.sprite.Sprite):
             self.image_store.update({filename: image})
         return image
 
-    # TODO: Might need to create a cache for the scaled images if it becomes slow
     def get_image(self, scale):
         # TODO: figure out why the scale isn't working properly with the new tree images, and why they look grainy even though they are svgs
         to_return = pygame.transform.scale(self.animation[self.image_index], (scale * 3, scale * 3))

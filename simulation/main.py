@@ -11,6 +11,7 @@ from util.vector_pool import VectorPool
 from world.game_tick_manager import GameTickManager
 from util.util_enums import Direction as Dir
 from world.collision_grid import CollisionGrid
+from world.map_dto import MapDto
 from world.overworld_map import OverworldMap
 from world.waiting_map import WaitingMap
 
@@ -19,7 +20,7 @@ pygame.init()
 VECTOR_POOL = VectorPool()
 
 # Game setup
-FPS_CAP = 60
+FPS_CAP = 10_000 #60
 
 MAP: OverworldMap
 WAITING_MAP: WaitingMap
@@ -59,20 +60,24 @@ def draw(draw_factory):
 def main():
 
     maps = ['HumbleBeginnings', 'LimitedTrees']
-    init_map(maps[0], 50)
+    init_map(maps[0], NEAT.population_size)
 
     # drawing objects
     draw_factory = DrawFactory(WINDOW, MAP)
     tick_manager = GameTickManager(MAP, WAITING_MAP)
-    #NEAT.neat_population.run(lambda genomes, config: run_neat(genomes, draw_factory))
 
-    if PLAYABLE_CHAR:
-        MAP.population.append(Survivor(Vector(400, 400)))
-
+    # if PLAYABLE_CHAR:
+    #     MAP.population.append(Survivor(Vector(400, 400)))
 
     # pygame stuff
     clock = pygame.time.Clock()
     should_run = True
+
+    while should_run:
+        winner = NEAT.neat_population.run(lambda genomes, config: run_neat(genomes, draw_factory, tick_manager, clock))
+
+    for i in range(10_000):
+        print('######################################### DONE ######################################')
 
     # Main loop and camera controls
     while should_run:
@@ -103,9 +108,9 @@ def main():
         # Also handles the waiting queue, to allow new agents into the world
         # Actions before drawing
         tick_manager.tick()
-        do_survivor_actions(MAP.population, MAP.collision_grid)
+        do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto)
         # Actions of survivors in waiting room
-        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid)
+        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto)
 
         # Drawing
         draw(draw_factory)
@@ -113,7 +118,7 @@ def main():
     pygame.quit()
 
 
-def do_survivor_actions(population: [Survivor], grid: CollisionGrid):
+def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto):
     for survivor in population:
         # getting the inputs for the neural network and performing the chosen action
         tree = grid.get_closest_entity(survivor.position.x, survivor.position.y, EntityType.TREE)
@@ -136,32 +141,39 @@ def do_survivor_actions(population: [Survivor], grid: CollisionGrid):
             tree_fruit_count
         ]
 
-        outputs = survivor.brain.feed_forward(inputs)
-        action_index = outputs.index(max(outputs))
-
-        # do stuff as survivor
-        survivor.move(action_index + 1)
+        action_index = NEAT.feed_forward(survivor, inputs)
+        survivor.move(action_index, dto)
         if tree is not None:
             tree.try_forage_food(survivor)
 
 
-def run_neat(genomes, draw_factory):
-    # Problem, im going to need so much stuff in this method
-    # Ticker + Wait ticker, Collision + Wait Collision > could be in maps
-    # The camera > could be in overworld map
-    # All the drawing tools > IDK yet create a factory or something
-    # The data collector ? idk the world could hold this as well
-
-    # Clear out the waiting room for the new generation
-    WAITING_MAP.repopulate(genomes)
+def run_neat(genomes, draw_factory, tick_manager, clock):
+    is_first_gen = MAP.try_populate(genomes, NEAT)
+    if not is_first_gen:
+        WAITING_MAP.repopulate(genomes, NEAT)
 
     # While generation alive > threshold
     # Or time passed
-    while True:
-        pass
-        # Do the game loop here
-    # Everything gets scored automatically so I don't need to worry about that after, but I do need all the objects
-    # For the game loop which sux
+    while WAITING_MAP.get_percent_alive() >= 0.3 or (is_first_gen and len(MAP.population) >= MAP.POPULATION_SIZE / 2):
+        clock.tick(FPS_CAP)
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if event.button == 4:
+                    draw_factory.camera.set_zoom(True, *mouse_pos)
+                elif event.button == 5:
+                    draw_factory.camera.set_zoom(False, *mouse_pos)
+
+        # Camera movement
+        keys = pygame.key.get_pressed()
+        for key in MOVEMENT_MAP.keys():
+            if keys[key]:
+                draw_factory.camera.move(MOVEMENT_MAP[key])
+
+        tick_manager.tick()
+        do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto)
+        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto)
+        draw(draw_factory)
 
 
 def init_map(name, population_size):

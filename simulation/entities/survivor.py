@@ -1,25 +1,35 @@
 import random
+import numpy as np
 from ai.neuralnetwork import NeuralNetwork
 from drawing.sprites.survivor_sprite import SurvivorSprite
-
 from util.vector import Vector
 from world.map_dto import MapDto
 
 
 class Survivor:
 
-    def __init__(self, position):
+    def __init__(self, position, genome, brain):
         # movement
         self.position = position  # vector.Vector()
 
         self.speed = 2
-        self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(-self.speed, 0), Vector(0, self.speed),
-                             Vector(self.speed, 0)]
+        self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(self.speed / 2, -self.speed / 2),
+                             Vector(self.speed, 0), Vector(self.speed / 2, self.speed / 2), Vector(0, self.speed),
+                             Vector(-self.speed / 2, self.speed / 2), Vector(-self.speed, 0),
+                             Vector(-self.speed / 2, -self.speed / 2)
+
+                             ]
+
+        # self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(-self.speed, 0), Vector(0, self.speed),
+        #                      Vector(self.speed, 0), Vector(self.speed / 2, self.speed / 2),
+        #                      Vector(self.speed / 2, -self.speed / 2), Vector(-self.speed / 2, -self.speed / 2),
+        #                      Vector(-self.speed / 2, self.speed / 2)
+        #                      ]
 
         # GeneticAlgorithm stuff
-        self.brain = NeuralNetwork(6, 4).add_layer(8).add_layer(8).build()
-        self.genome = None
-        self.fitness = 0
+        self.brain = brain
+        self.genome = genome
+        self.genome.fitness = 0
 
         # stats
         self.fullness = 100
@@ -28,7 +38,7 @@ class Survivor:
         self.sprite = None
 
     def tick(self, map_dto: MapDto):
-        #self.genome.fitness += 1
+        self.genome.fitness += 1
         self.fullness -= 0.5
         self.temperature -= 0.2
         if self.is_dead():
@@ -41,9 +51,11 @@ class Survivor:
         self.fullness += 20
         self.fullness = min(self.fullness, 100)
 
-    def move(self, index):
+    def move(self, index, world: MapDto):
         if not self.is_dead():
             self.position.add(self.velocity_arr[index])
+            self.position.x = np.clip(self.position.x, 0, world.WIDTH)
+            self.position.y = np.clip(self.position.y, 0, world.HEIGHT)
             if self.sprite is not None:
                 self.sprite.notify(index)
 
