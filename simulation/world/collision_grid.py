@@ -8,13 +8,12 @@ from entities.entity_enums import EntityType
 #
 #
 #
-from world.world_map import WorldMap
 
 
 class CollisionGrid:
 
-    def __init__(self, cell_size, world: WorldMap):
-        self.map = world
+    def __init__(self, cell_size, world_dto):
+        self.map = world_dto
         self.width = math.floor(self.map.WIDTH / cell_size)
         self.height = math.floor(self.map.HEIGHT / cell_size)
         self.cell_size = cell_size

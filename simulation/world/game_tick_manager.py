@@ -5,47 +5,44 @@
 import random
 from entities.survivor import Survivor
 from util.vector import Vector
-from drawing.survivor_painter import SurvivorSprite
-from world.world_map import WorldMap
+from world.overworld_map import OverworldMap
+from world.tick_counter import TickCounter
+from world.waiting_map import WaitingMap
+from entities.entity_enums import EntityType
 
 
 class GameTickManager:
 
-    def __init__(self, world):
-        self.tick_interval = 10
-        self.tick_counter = 0
-        self.map: WorldMap = world
+    def __init__(self, world: OverworldMap, wait_world: WaitingMap):
+        self.MAP = world
+        self.WAIT_MAP = wait_world
+        self.MAPS = [self.MAP, self.WAIT_MAP]
+
+        self.tick_counter = TickCounter(10)
+        self.day_counter = TickCounter(100)
+        self.day = 1
 
     def tick(self):
+        if not self.tick_counter.tick():
+            return
 
-        self.tick_counter += 1
-        if self.tick_counter >= self.tick_interval:
-            for tree in self.map.trees:
-                tree.tick()
+        if self.day_counter.tick():
+            self.day += 1
 
-            # reversed so that elements can be removed while looping through
-            for survivor in reversed(self.map.population):
-                survivor.increase_fitness()
-                survivor.decrease_fullness()
-                if survivor.is_dead():
-                    self.map.population.remove(survivor)
+        for world in self.MAPS:
+            for t in EntityType:
+                for entity in reversed(world.get_entities(t)):
+                    entity.tick(world.dto)
 
-            self.tick_counter = 0
+        # Chance to bring offspring from waiting room
+        if random.random() < 0.5:
+            offspring = self.WAIT_MAP.dequeue()
+            if offspring is not None:
+                self.MAP.population.append(offspring)
 
+    def get_day_percent(self):
+        return self.day_counter.get_percentage()
 
-            # check and create offspring TODO: for now in this class, obviously should go into another class eventually (but still be managed by ticks)
-            # todo: remove hardcoded world size
-            if random.random() < 0.5:
-                offspring = Survivor(Vector(random.randrange(self.map.WIDTH), random.randrange(self.map.HEIGHT)))
-                parent_a = None
-                parent_b = None
-                best_survivors = sorted(self.map.population, key=lambda x: x.fitness, reverse=True)
-                middle_index = len(best_survivors) // 2
-                best_survivors = best_survivors[:middle_index]
+    def get_days_precise(self):
+        return self.day + self.get_day_percent()
 
-                while parent_a == parent_b:
-                    parent_a = random.choice(best_survivors)
-                    parent_b = random.choice(best_survivors)
-
-                offspring.brain.cross_over(parent_a.brain, parent_b.brain)
-                self.map.population.append(offspring)

@@ -23,12 +23,10 @@ class SurvivorSprite(pygame.sprite.Sprite):
             self.image_store.update({filename: image})
         return image
 
-    # TODO: Might need to create a cache for the scaled images if it becomes slow
     def get_image(self, scale):
         to_return = pygame.transform.scale(self.walk_animation[self.image_index], (scale, scale))
         to_return = pygame.transform.rotate(to_return, self.rotation)
         return to_return
-
 
     def notify(self, index):
         # 0 - Idle, 1 - Up, 2 - Down, 3 - Left, 4 - Right

@@ -48,13 +48,13 @@ class Vector:
         self.x = x
         self.y = y
 
-    # TODO: THINK OF A BETTER NAME FOR THE STATIC VARIANTS
     @staticmethod
     def unpack_nullable(x=0, y=0, to_set=None):
         unpacked = to_set or Vector()
         unpacked.set(x, y)
         return unpacked
 
+    # TODO: THINK OF A BETTER NAME FOR THE STATIC VARIANTS
     # To be used with the vector pool, to reduce creation of new vectors every frame
     @staticmethod
     def add_new(vector_a, vector_b, to_set=None):

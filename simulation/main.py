@@ -1,45 +1,36 @@
-import math
-import pickle
-
 import pygame
-from math import pi, tau
-from random import randrange
 
 # my imports
+from ai.my_neat import MyNeat
+from drawing.draw_factory import DrawFactory
 from entities.entity_enums import EntityType
 from entities.survivor import Survivor
-from entities.tree import Tree
 from map_creator.map_save import MapSave
 from util.vector import Vector
 from util.vector_pool import VectorPool
 from world.game_tick_manager import GameTickManager
 from util.util_enums import Direction as Dir
-from drawing.camera import Camera
 from world.collision_grid import CollisionGrid
-from world.world_map import WorldMap
-
-# my drawing imports
-from drawing.grid_painter import GridPainter
-from drawing.tree_painter import TreePainter
-from drawing.survivor_painter import SurvivorPainter
+from world.overworld_map import OverworldMap
+from world.waiting_map import WaitingMap
 
 pygame.init()
 
 VECTOR_POOL = VectorPool()
 
 # Game setup
-FPS_CAP = 60  # CAMERA WASN'T SMOOTH BECAUSE FPS CAP WAS SO LOW FROM MAKING SNAKE
+FPS_CAP = 60
 
-MAP: WorldMap
-WAITING_MAP: WorldMap
+MAP: OverworldMap
+WAITING_MAP: WaitingMap
+NEAT: MyNeat = MyNeat()
 WIN_SIZE = 900
-WINDOW = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
+WINDOW: pygame.surface = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("SurvAIvor")
 
 # Allow a playable character for debugging
 PLAYABLE_CHAR = False
 PLAYER_SPEED = 3
-MOUSE_SPEED = 10
 PLAYER_MAP = {
     pygame.K_UP: [0, -PLAYER_SPEED],
     pygame.K_DOWN: [0, PLAYER_SPEED],
@@ -56,36 +47,28 @@ MOVEMENT_MAP = {
 }
 
 
-def draw(tree_painter: TreePainter, survivor_painter, grid_painter):
+def draw(draw_factory):
     WINDOW.fill(pygame.Color(106, 148, 106))
-    tree_painter.paint(survivor_painter.survivor_radius, False)
-    survivor_painter.paint()
-    # todo: fix drawing the grid, the zoom broke it
-    # grid_painter.paint(True, False)
+    draw_factory.tree_painter.paint(draw_factory.survivor_painter.survivor_radius, False)
+    draw_factory.survivor_painter.paint()
+    draw_factory.grid_painter.paint(True, False)
 
     pygame.display.update()
 
 
 def main():
+
     maps = ['HumbleBeginnings', 'LimitedTrees']
     init_map(maps[0], 50)
+
+    # drawing objects
+    draw_factory = DrawFactory(WINDOW, MAP)
+    tick_manager = GameTickManager(MAP, WAITING_MAP)
+    #NEAT.neat_population.run(lambda genomes, config: run_neat(genomes, draw_factory))
+
     if PLAYABLE_CHAR:
         MAP.population.append(Survivor(Vector(400, 400)))
 
-    # world managing objects
-    cell_size = 200
-    tick_manager = GameTickManager(MAP)
-    collision_grid = CollisionGrid(cell_size, MAP)
-
-    # world managing for waiting room
-    wait_tick_manager = GameTickManager(WAITING_MAP)
-    wait_collision_grid = CollisionGrid(cell_size, WAITING_MAP)
-
-    # drawing objects
-    camera = Camera(MOUSE_SPEED, WIN_SIZE, WIN_SIZE, MAP.WIDTH, MAP.HEIGHT)
-    grid_painter = GridPainter(WINDOW, camera, collision_grid)
-    survivor_painter = SurvivorPainter(WINDOW, camera, MAP.population)
-    tree_painter = TreePainter(WINDOW, camera, MAP.trees)
 
     # pygame stuff
     clock = pygame.time.Clock()
@@ -100,9 +83,9 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if event.button == 4:
-                    camera.set_zoom(True, *mouse_pos)
+                    draw_factory.camera.set_zoom(True, *mouse_pos)
                 elif event.button == 5:
-                    camera.set_zoom(False, *mouse_pos)
+                    draw_factory.camera.set_zoom(False, *mouse_pos)
 
         # Player and camera movement
         keys = pygame.key.get_pressed()
@@ -112,22 +95,20 @@ def main():
                     player_dir = PLAYER_MAP[key]
                     player = MAP.population[0]
                     player.position.add(VECTOR_POOL.lend(player_dir[0], player_dir[1]))
-                    camera.follow_position(player.position)
+                    draw_factory.camera.follow_position(player.position)
                 else:
-                    camera.move(MOVEMENT_MAP[key])
+                    draw_factory.camera.move(MOVEMENT_MAP[key])
 
         # Handling the game world
         # Also handles the waiting queue, to allow new agents into the world
-        tick_manager.tick()
         # Actions before drawing
-        do_survivor_actions(MAP.population, collision_grid)
-
-        wait_tick_manager.tick()
+        tick_manager.tick()
+        do_survivor_actions(MAP.population, MAP.collision_grid)
         # Actions of survivors in waiting room
-        do_survivor_actions(WAITING_MAP.population, wait_collision_grid)
+        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid)
 
         # Drawing
-        draw(tree_painter, survivor_painter, grid_painter)
+        draw(draw_factory)
 
     pygame.quit()
 
@@ -164,10 +145,31 @@ def do_survivor_actions(population: [Survivor], grid: CollisionGrid):
             tree.try_forage_food(survivor)
 
 
+def run_neat(genomes, draw_factory):
+    # Problem, im going to need so much stuff in this method
+    # Ticker + Wait ticker, Collision + Wait Collision > could be in maps
+    # The camera > could be in overworld map
+    # All the drawing tools > IDK yet create a factory or something
+    # The data collector ? idk the world could hold this as well
+
+    # Clear out the waiting room for the new generation
+    WAITING_MAP.repopulate(genomes)
+
+    # While generation alive > threshold
+    # Or time passed
+    while True:
+        pass
+        # Do the game loop here
+    # Everything gets scored automatically so I don't need to worry about that after, but I do need all the objects
+    # For the game loop which sux
+
+
 def init_map(name, population_size):
     global WAITING_MAP, MAP
-    MAP = WorldMap(MapSave.load(name), population_size)
-    WAITING_MAP = WorldMap(MapSave.load(name), population_size)
+    save: MapSave = MapSave.load(name)
+    cell_size = 200
+    MAP = OverworldMap(save, population_size, cell_size)
+    WAITING_MAP = WaitingMap(MapSave.load(name), population_size, cell_size)
 
 
 if __name__ == "__main__":
