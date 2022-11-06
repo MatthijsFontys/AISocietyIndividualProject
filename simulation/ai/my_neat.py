@@ -10,7 +10,7 @@ class MyNeat:
         self.CONFIG: neat.Config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
                                                neat.DefaultStagnation, config_path)
         self.start_new = start_new
-        self.checkpointer = neat.Checkpointer(10)
+        self.checkpointer = neat.Checkpointer(10, filename_prefix='checkpoints/neat-checkpoint-')
         if start_new:
             self.neat_population = neat.Population(self.CONFIG)
         else:

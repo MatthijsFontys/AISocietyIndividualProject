@@ -21,7 +21,6 @@ class Layer:
                 self.weights[i].append(random.random() * 2 - 1)
 
     def activate(self, values):
-        # Todo: figure out why exp is giving math overflow exception sometimes. very weird
         # sigmoid
         return list(map(lambda x: 1 / (1 + np.exp(-x)), values))
 

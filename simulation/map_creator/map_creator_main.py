@@ -42,7 +42,6 @@ def draw(tree_sprite, camera):
             pos = camera.map_to_camera(tree)
             # Why in the world does this need to be - half tree size? I thought I already translated it.
             # Todo: make something so that I have to stop translating so much because it causes bugs every single time
-            # Todo: figure out why the position is widly off when placing trees when not entirely zoomed out
             WINDOW.blit(tree_sprite, (pos.x - tree_size / 2, pos.y - tree_size / 2))
         VECTOR_POOL.release(l2, r2)
 

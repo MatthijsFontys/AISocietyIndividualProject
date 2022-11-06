@@ -7,7 +7,7 @@ from world.overworld_map import OverworldMap
 from drawing.camera import Camera
 
 
-class DrawFactory:
+class DrawWrapper:
 
     def __init__(self, window: pygame.Surface, world: OverworldMap):
         self.MAP = world

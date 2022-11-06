@@ -20,12 +20,6 @@ class Survivor:
 
                              ]
 
-        # self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(-self.speed, 0), Vector(0, self.speed),
-        #                      Vector(self.speed, 0), Vector(self.speed / 2, self.speed / 2),
-        #                      Vector(self.speed / 2, -self.speed / 2), Vector(-self.speed / 2, -self.speed / 2),
-        #                      Vector(-self.speed / 2, self.speed / 2)
-        #                      ]
-
         # GeneticAlgorithm stuff
         self.brain = brain
         self.genome = genome
@@ -54,8 +48,8 @@ class Survivor:
     def move(self, index, world: MapDto):
         if not self.is_dead():
             self.position.add(self.velocity_arr[index])
-            self.position.x = np.clip(self.position.x, 0, world.WIDTH)
-            self.position.y = np.clip(self.position.y, 0, world.HEIGHT)
+            self.position.x = np.clip(self.position.x, 0, world.WIDTH - 50)
+            self.position.y = np.clip(self.position.y, 0, world.HEIGHT - 50)
             if self.sprite is not None:
                 self.sprite.notify(index)
 

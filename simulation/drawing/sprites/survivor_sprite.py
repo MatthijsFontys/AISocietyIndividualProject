@@ -31,7 +31,6 @@ class SurvivorSprite(pygame.sprite.Sprite):
     def notify(self, index):
         # 0 - Idle, 1 - Up, 2 - Down, 3 - Left, 4 - Right
         if index > 0:
-            # Todo: fix this so it works with the diagonals as well
             self.rotation = (index - 1) * -45
             self.image_index = 0
         self.update()

@@ -287,4 +287,5 @@ cython_debug/
 !/snake_ai/nets/trained/*
 
 # Neat checkpoints
-/*/neat-checkpoint-*
+
+/**/neat-checkpoint-*

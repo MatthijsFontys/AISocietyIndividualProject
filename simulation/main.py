@@ -2,7 +2,7 @@ import pygame
 
 # my imports
 from ai.my_neat import MyNeat
-from drawing.draw_factory import DrawFactory
+from drawing.draw_wrapper import DrawWrapper
 from entities.entity_enums import EntityType
 from entities.survivor import Survivor
 from map_creator.map_save import MapSave
@@ -52,7 +52,7 @@ def draw(draw_factory):
     WINDOW.fill(pygame.Color(106, 148, 106))
     draw_factory.tree_painter.paint(draw_factory.survivor_painter.survivor_radius, False)
     draw_factory.survivor_painter.paint()
-    draw_factory.grid_painter.paint(True, False)
+    draw_factory.grid_painter.paint(False, False)
 
     pygame.display.update()
 
@@ -63,7 +63,7 @@ def main():
     init_map(maps[0], NEAT.population_size)
 
     # drawing objects
-    draw_factory = DrawFactory(WINDOW, MAP)
+    draw_factory = DrawWrapper(WINDOW, MAP)
     tick_manager = GameTickManager(MAP, WAITING_MAP)
 
     # if PLAYABLE_CHAR:
@@ -171,7 +171,9 @@ def run_neat(genomes, draw_factory, tick_manager, clock):
                 draw_factory.camera.move(MOVEMENT_MAP[key])
 
         tick_manager.tick()
+        MAP.collision_grid.rebuild()
         do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto)
+        WAITING_MAP.collision_grid.rebuild()
         do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto)
         draw(draw_factory)
 

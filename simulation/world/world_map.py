@@ -25,17 +25,17 @@ class WorldMap:
         self.campfires = []
 
         self.trees = [Tree(tree_pos) for tree_pos in save.get_entities(EntityType.TREE)]
-        self.dto = MapDto(
-                               self.trees, self.population, self.saplings, self.campfires,
-                               self.HEIGHT, self.WIDTH, self.POPULATION_SIZE
-                               )
-        self.collision_grid = CollisionGrid(cell_size, self.dto)
         self.entities = {
             EntityType.TREE.name: self.trees,
             EntityType.SAPLING.name: self.saplings,
             EntityType.CAMPFIRE.name: self.campfires,
             EntityType.SURVIVOR.name: self.population
         }
+        self.dto = MapDto(
+                           self.entities, self.trees, self.population, self.saplings, self.campfires,
+                           self.HEIGHT, self.WIDTH, self.POPULATION_SIZE
+                         )
+        self.collision_grid = CollisionGrid(cell_size, self.dto)
 
     def get_entities(self, t: EntityType):
         return self.entities.get(t.name)

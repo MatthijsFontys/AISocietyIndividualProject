@@ -17,11 +17,11 @@ class NeatStrat:
         self.CONFIG: neat.Config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
                                                neat.DefaultStagnation, config_path)
 
-        self.checkpointer = neat.Checkpointer(10)
+        self.checkpointer = neat.Checkpointer(10, filename_prefix='checkpoints/neat-checkpoint-')
         if start_new:
             self.neat_population = neat.Population(self.CONFIG)
         else:
-            self.neat_population = self.checkpointer.restore_checkpoint(filename='neat-checkpoint-3059')
+            self.neat_population = self.checkpointer.restore_checkpoint(filename='checkpoints/neat-checkpoint-3059')
 
         self.neat_population.add_reporter(neat.StdOutReporter(False))
         # self.neat_population.add_reporter(neat.StatisticsReporter())

@@ -2,32 +2,36 @@ import math
 from util.vector_pool import VectorPool
 from entities.entity_enums import EntityType
 
-
 # Grid datastructure
 # [x, y, {EntityType: [entities in grid cell]}]
-#
-#
-#
+from world.map_dto import MapDto
 
 
 class CollisionGrid:
 
-    def __init__(self, cell_size, world_dto):
+    def __init__(self, cell_size: int, world_dto: MapDto):
         self.map = world_dto
         self.width = math.floor(self.map.WIDTH / cell_size)
         self.height = math.floor(self.map.HEIGHT / cell_size)
         self.cell_size = cell_size
-        self.grid = [[{t.name: [] for t in EntityType} for x in range(self.width)] for y in range(self.height)]
+        self.grid = self.rebuild()
         self.nearby_directions = []
         self.vector_pool = VectorPool()
         for i in range(-1, 2):
             for j in range(-1, 2):
                 self.nearby_directions.append([i, j])
 
-        for tree in self.map.trees:
-            x_index = self.position_to_index(tree.position.x)
-            y_index = self.position_to_index(tree.position.y)
-            self.grid[x_index][y_index][EntityType.TREE.name].append(tree)
+    """
+    Rebuild the grid with updated positions
+    """
+    def rebuild(self):
+        grid = [[{t.name: [] for t in EntityType} for x in range(self.width)] for y in range(self.height)]
+        for t in EntityType:
+            for entity in self.map.get_entities(t):
+                x_index = self.position_to_index(entity.position.x)
+                y_index = self.position_to_index(entity.position.y)
+                grid[x_index][y_index][t.name].append(entity)
+        return grid
 
     def get_nearby_entities(self, x, y, entity_type):
         nearby_entities = []
