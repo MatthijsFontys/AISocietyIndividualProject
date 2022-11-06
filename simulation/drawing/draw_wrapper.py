@@ -1,6 +1,7 @@
 import pygame
 
 from drawing.grid_painter import GridPainter
+from drawing.survivor_info_painter import SurvivorInfoPainter
 from drawing.survivor_painter import SurvivorPainter
 from drawing.tree_painter import TreePainter
 from world.overworld_map import OverworldMap
@@ -18,4 +19,6 @@ class DrawWrapper:
         self.grid_painter = GridPainter(self.WINDOW, self.camera, self.MAP.collision_grid)
         self.survivor_painter = SurvivorPainter(self.WINDOW, self.camera, self.MAP.population)
         self.tree_painter = TreePainter(self.WINDOW, self.camera, self.MAP.trees)
+
+        self.survivor_info_painter = SurvivorInfoPainter(self.WINDOW, self.camera)
 

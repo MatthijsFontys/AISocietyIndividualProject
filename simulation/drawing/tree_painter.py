@@ -16,9 +16,9 @@ class TreePainter:
 
     def paint(self, survivor_radius, show_range=True, show_fruit_count=True):
         draw_counter = 0  # TODO: remove temp variable used for debugging the camera | or move the variable to the camera instead idk
-        tree_size = self.camera.apply_zoom(80)
+        tree_size = self.camera.apply_zoom(120)
 
-        for tree in self.trees:  # AKA tree
+        for tree in self.trees:
             l2 = self.vector_pool.acquire(tree.position.x - tree_size / 2, tree.position.y - tree_size / 2)
             r2 = self.vector_pool.add(l2, self.vector_pool.lend(tree_size, tree_size))
             if self.camera.is_in_view(l2, r2):

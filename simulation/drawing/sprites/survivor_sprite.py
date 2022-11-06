@@ -16,6 +16,7 @@ class SurvivorSprite(pygame.sprite.Sprite):
         self.walk_paths = glob("assets/survivor*.svg")
         self.walk_animation = [self.load_image(x) for x in self.walk_paths]
 
+    # Todo: make a class that does this instead
     def load_image(self, filename):
         image = self.image_store.get(filename)
         if image is None:

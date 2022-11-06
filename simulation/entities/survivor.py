@@ -10,7 +10,7 @@ class Survivor:
 
     def __init__(self, position, genome, brain):
         # movement
-        self.position = position  # vector.Vector()
+        self.position = position
 
         self.speed = 2
         self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(self.speed / 2, -self.speed / 2),

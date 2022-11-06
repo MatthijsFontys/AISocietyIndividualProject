@@ -86,8 +86,6 @@ def main():
                     camera.set_zoom(False, *mouse_pos)
                 elif event.button == 1:
                     mouse_world_x, mouse_world_y = camera.get_mouse_world_pos(mouse_pos[0], mouse_pos[1])
-                    print(*mouse_pos)
-                    print(mouse_world_x, mouse_world_y)
                     WORLD_MAP.add_entity(current_entity, Vector(mouse_world_x, mouse_world_y))
                 elif event.button == 3:
                     WORLD_MAP.save()

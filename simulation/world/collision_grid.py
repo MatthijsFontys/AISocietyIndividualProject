@@ -23,16 +23,18 @@ class CollisionGrid:
 
     """
     Rebuild the grid with updated positions
+    :return the built grid for better syntax in constructor
     """
     def rebuild(self):
-        grid = [[{t.name: [] for t in EntityType} for x in range(self.width)] for y in range(self.height)]
+        self.grid = [[{t.name: [] for t in EntityType} for x in range(self.width)] for y in range(self.height)]
         for t in EntityType:
             for entity in self.map.get_entities(t):
                 x_index = self.position_to_index(entity.position.x)
                 y_index = self.position_to_index(entity.position.y)
-                grid[x_index][y_index][t.name].append(entity)
-        return grid
+                self.grid[x_index][y_index][t.name].append(entity)
+        return self.grid
 
+    # Todo: fix what is going wrong here, why do I not find any survivors
     def get_nearby_entities(self, x, y, entity_type):
         nearby_entities = []
         start_x = self.position_to_index(x)
@@ -52,11 +54,11 @@ class CollisionGrid:
         record_distance = math.inf
         record_entity = None
 
-        for tree in self.get_nearby_entities(x, y, entity_type):
-            distance = tree.position.get_distance_squared(position, self.vector_pool.lend())
+        for entity in self.get_nearby_entities(x, y, entity_type):
+            distance = entity.position.get_distance_squared(position, self.vector_pool.lend())
             if distance < record_distance:
                 record_distance = distance
-                record_entity = tree
+                record_entity = entity
 
         self.vector_pool.release(position)
         return record_entity
