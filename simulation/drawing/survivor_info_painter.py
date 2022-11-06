@@ -17,17 +17,37 @@ class SurvivorInfoPainter:
         self.vector_pool = VectorPool()
         self.camera = camera
         self.window = window
-        self.info_surface = pygame.Surface((window.get_width() * 0.4, window.get_height() * 0.1), pygame.SRCALPHA)
+        self.info_surface = pygame.Surface((window.get_width() * 0.4, window.get_height() * 0.3), pygame.SRCALPHA)
         self.font = pygame.font.SysFont("arial", 24)
-        self.hunger_bar = HungerBarSprite(self.image_store, *self.info_surface.get_size())
-        #self.cold_bar = ColdBarSprite(self.image_store, *self.info_surface.get_size())
+        self.padding = 20
+        self.start_y = self.padding
+        self.hunger_bar = HungerBarSprite(self.image_store, self.info_surface.get_width())
+        self.cold_bar = ColdBarSprite(self.image_store, self.info_surface.get_width())
 
     def paint(self, clicked_survivor: Survivor):
         if clicked_survivor is not None:
+            self.start_y = self.padding
+
             self.info_surface.fill(pygame.Color(67, 67, 67, 178))
-            text = self.font.render(str(f'HUNGER: {clicked_survivor.fullness}'), True, 'white')
-            text_rect = text.get_rect()
-            text_rect.center = self.info_surface.get_rect().center
-            #self.info_surface.blit(text, text_rect)
-            self.info_surface.blit(self.hunger_bar.get_image(clicked_survivor.fullness), (0, 0))
+            w, h = self.info_surface.get_size()
+
+            # Age
+            age_text = self.font.render(f'AGE: 42 days', True, 'white')
+            self.info_surface.blit(age_text, (self.padding, self.start_y))
+            self.start_y += self.font.get_linesize() + self.padding
+
+            # Hunger bar
+            self.draw_stat_bar(self.hunger_bar, 'HUNGER:', clicked_survivor.fullness, w)
+            # Cold bar
+            self.draw_stat_bar(self.cold_bar, 'COLD:', 100, w)
+
+            # Blit surface holding all the info
             self.window.blit(self.info_surface, (0, 0))
+
+    def draw_stat_bar(self, bar, text, value, w):
+        text = self.font.render(text, True, 'white')
+        self.info_surface.blit(text, (self.padding, self.start_y))
+        self.start_y += self.font.get_linesize()
+        self.info_surface.blit(bar.get_image(value), (w*0.125, self.start_y))
+        self.start_y += bar.height + self.padding
+

@@ -54,6 +54,7 @@ def draw(draw_wrapper, clicked_survivor):
     draw_wrapper.survivor_painter.paint()
     draw_wrapper.grid_painter.paint(False, False)
     draw_wrapper.survivor_info_painter.paint(clicked_survivor)
+    draw_wrapper.day_painter.paint()
 
     pygame.display.update()
 
@@ -63,8 +64,8 @@ def main():
     init_map(maps[0], NEAT.population_size)
 
     # drawing objects
-    draw_wrapper = DrawWrapper(WINDOW, MAP)
     tick_manager = GameTickManager(MAP, WAITING_MAP)
+    draw_wrapper = DrawWrapper(WINDOW, MAP, tick_manager)
 
     # if PLAYABLE_CHAR:
     #     MAP.population.append(Survivor(Vector(400, 400)))
@@ -164,7 +165,6 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
                 if event.button == 1:
                     mouse_world = VECTOR_POOL.lend(*draw_wrapper.camera.get_mouse_world_pos(*mouse_pos))
                     clicked_survivor = MAP.collision_grid.get_closest_entity(mouse_world.x, mouse_world.y, EntityType.SURVIVOR)
-                    print(clicked_survivor.fullness)
                 elif event.button == 4:
                     draw_wrapper.camera.set_zoom(True, *mouse_pos)
                 elif event.button == 5:

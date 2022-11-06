@@ -1,11 +1,9 @@
-import pygame.sprite
+from drawing.sprites.stat_bar_base import StatBarBase
 
 
-class ColdBarSprite(pygame.sprite.Sprite):
+class ColdBarSprite(StatBarBase):
 
-    def __init__(self, image_store):
-        super(ColdBarSprite, self).__init__()
-        self.image_store = image_store
-        self.value = 100
-        self.images = ("assets/survivor*.svg")
+    def __init__(self, image_store, width):
+        super().__init__(image_store, width, 'assets/cold_bar*.svg')
+
 

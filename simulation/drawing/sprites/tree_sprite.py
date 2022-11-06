@@ -22,7 +22,7 @@ class TreeSprite(pygame.sprite.Sprite):
         return image
 
     def get_image(self, scale):
-        # TODO: figure out why the scale isn't working properly with the new tree images, and why they look grainy even though they are svgs
+        # TODO: figure out a way to fix the svg issue without having to import and export with figma
         to_return = pygame.transform.scale(self.animation[self.image_index], (scale, scale))
         return to_return
 

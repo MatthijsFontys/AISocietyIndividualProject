@@ -19,7 +19,7 @@ class GameTickManager:
         self.MAPS = [self.MAP, self.WAIT_MAP]
 
         self.tick_counter = TickCounter(10)
-        self.day_counter = TickCounter(100)
+        self.day_counter = TickCounter(50)
         self.day = 1
 
     def tick(self):
@@ -28,6 +28,7 @@ class GameTickManager:
 
         if self.day_counter.tick():
             self.day += 1
+            print('Day: ', self.day)
 
         for world in self.MAPS:
             for t in EntityType:
