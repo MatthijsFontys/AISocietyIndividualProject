@@ -8,11 +8,13 @@ from drawing.sprites.survivor_sprite import SurvivorSprite
 from entities.survivor import Survivor
 from util.vector import Vector
 from util.vector_pool import VectorPool
+from world.game_tick_manager import GameTickManager
 
 
 class SurvivorInfoPainter:
 
-    def __init__(self, window: pygame.Surface, camera: Camera):
+    def __init__(self, window: pygame.Surface, camera: Camera, tick_manager: GameTickManager):
+        self.tick_manager = tick_manager
         self.image_store = {}
         self.vector_pool = VectorPool()
         self.camera = camera
@@ -32,7 +34,7 @@ class SurvivorInfoPainter:
             w, h = self.info_surface.get_size()
 
             # Age
-            age_text = self.font.render(f'AGE: 42 days', True, 'white')
+            age_text = self.font.render(f'AGE: {self.tick_manager.day - clicked_survivor.birthday} days', True, 'white')
             self.info_surface.blit(age_text, (self.padding, self.start_y))
             self.start_y += self.font.get_linesize() + self.padding
 

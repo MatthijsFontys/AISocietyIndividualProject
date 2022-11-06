@@ -5,13 +5,14 @@ from drawing.grid_painter import GridPainter
 from drawing.survivor_info_painter import SurvivorInfoPainter
 from drawing.survivor_painter import SurvivorPainter
 from drawing.tree_painter import TreePainter
+from world.game_tick_manager import GameTickManager
 from world.overworld_map import OverworldMap
 from drawing.camera import Camera
 
 
 class DrawWrapper:
 
-    def __init__(self, window: pygame.Surface, world: OverworldMap, tick_manager):
+    def __init__(self, window: pygame.Surface, world: OverworldMap, tick_manager: GameTickManager):
         self.tick_manager = tick_manager
         self.MAP = world
         self.WINDOW = window
@@ -22,6 +23,6 @@ class DrawWrapper:
         self.survivor_painter = SurvivorPainter(self.WINDOW, self.camera, self.MAP.population)
         self.tree_painter = TreePainter(self.WINDOW, self.camera, self.MAP.trees)
 
-        self.survivor_info_painter = SurvivorInfoPainter(self.WINDOW, self.camera)
+        self.survivor_info_painter = SurvivorInfoPainter(self.WINDOW, self.camera, self.tick_manager)
         self.day_painter = DayPainter(self.WINDOW, self.camera, self.tick_manager)
 

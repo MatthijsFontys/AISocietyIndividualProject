@@ -37,7 +37,7 @@ class GameTickManager:
 
         # Chance to bring offspring from waiting room
         if random.random() < 0.15:
-            offspring = self.WAIT_MAP.dequeue()
+            offspring = self.WAIT_MAP.dequeue(self.day)
             if offspring is not None:
                 self.MAP.population.append(offspring)
 

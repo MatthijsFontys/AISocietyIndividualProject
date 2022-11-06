@@ -16,9 +16,11 @@ class WaitingMap(WorldMap):
             self.population.append(Survivor(self.get_rand_position(), genome, neat.create_brain(genome)))
         self.generation = self.population.copy()
 
-    def dequeue(self):
+    def dequeue(self, birthday: int):
         if len(self.population) > 0:
-            return self.population.pop()
+            offspring = self.population.pop()
+            offspring.birthday = birthday
+            return offspring
         return None
 
     def get_percent_alive(self):

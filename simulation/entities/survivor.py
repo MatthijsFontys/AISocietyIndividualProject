@@ -30,6 +30,7 @@ class Survivor:
         self.temperature = 100
         # drawing
         self.sprite = None
+        self.birthday = 0
 
     def tick(self, map_dto: MapDto):
         self.genome.fitness += 1
