@@ -1,5 +1,7 @@
 import pygame
 import math
+
+from drawing.image_store import ImageStore
 from util.vector_pool import VectorPool
 from drawing.camera import Camera
 from entities.tree import Tree
@@ -8,7 +10,7 @@ from entities.tree import Tree
 class TreePainter:
 
     def __init__(self, window, camera: Camera, trees: list[Tree]):
-        self.image_store = {}
+        self.image_store = ImageStore()
         self.vector_pool = VectorPool()
         self.camera = camera
         self.trees = trees

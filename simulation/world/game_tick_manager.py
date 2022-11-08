@@ -28,7 +28,6 @@ class GameTickManager:
 
         if self.day_counter.tick():
             self.day += 1
-            print('Day: ', self.day)
 
         for world in self.MAPS:
             for t in EntityType:

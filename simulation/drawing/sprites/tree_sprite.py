@@ -12,14 +12,7 @@ class TreeSprite(pygame.sprite.Sprite):
         self.index_appender = 0
         self.image_speed = 1
         self.fruit_tree = glob("assets/fruit_tree_*.svg")
-        self.animation = [self.load_image(x) for x in self.fruit_tree]
-
-    def load_image(self, filename):
-        image = self.image_store.get(filename)
-        if image is None:
-            image = pygame.image.load(filename).convert_alpha()
-            self.image_store.update({filename: image})
-        return image
+        self.animation = [self.image_store.get(x) for x in self.fruit_tree]
 
     def get_image(self, scale):
         # TODO: figure out a way to fix the svg issue without having to import and export with figma

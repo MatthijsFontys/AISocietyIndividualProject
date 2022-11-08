@@ -2,6 +2,7 @@ import pygame
 from drawing.camera import Camera
 from math import floor
 
+from drawing.image_store import ImageStore
 from drawing.sprites.cold_bar_sprite import ColdBarSprite
 from drawing.sprites.hunger_bar_sprite import HungerBarSprite
 from drawing.sprites.survivor_sprite import SurvivorSprite
@@ -15,7 +16,7 @@ class SurvivorInfoPainter:
 
     def __init__(self, window: pygame.Surface, camera: Camera, tick_manager: GameTickManager):
         self.tick_manager = tick_manager
-        self.image_store = {}
+        self.image_store = ImageStore()
         self.vector_pool = VectorPool()
         self.camera = camera
         self.window = window

@@ -1,6 +1,8 @@
 import pygame
 from drawing.camera import Camera
 from math import floor
+
+from drawing.image_store import ImageStore
 from drawing.sprites.survivor_sprite import SurvivorSprite
 from entities.survivor import Survivor
 from util.vector import Vector
@@ -10,7 +12,7 @@ from util.vector_pool import VectorPool
 class SurvivorPainter:
 
     def __init__(self, window: pygame.Surface, camera: Camera, population: list[Survivor]):
-        self.image_store = {}
+        self.image_store = ImageStore()
         self.vector_pool = VectorPool()
         self.camera = camera
         self.window = window

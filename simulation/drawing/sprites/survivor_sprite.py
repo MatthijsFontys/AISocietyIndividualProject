@@ -1,6 +1,5 @@
 from glob import glob
 import pygame
-import random
 
 
 class SurvivorSprite(pygame.sprite.Sprite):
@@ -14,15 +13,7 @@ class SurvivorSprite(pygame.sprite.Sprite):
         self.image_speed = 20
         self.walk_animation = []
         self.walk_paths = glob("assets/survivor*.svg")
-        self.walk_animation = [self.load_image(x) for x in self.walk_paths]
-
-    # Todo: make a class that does this instead
-    def load_image(self, filename):
-        image = self.image_store.get(filename)
-        if image is None:
-            image = pygame.image.load(filename).convert_alpha()
-            self.image_store.update({filename: image})
-        return image
+        self.walk_animation = [self.image_store.get(x) for x in self.walk_paths]
 
     def get_image(self, scale):
         to_return = pygame.transform.scale(self.walk_animation[self.image_index], (scale, scale))
