@@ -29,16 +29,6 @@ WIN_SIZE = 900
 WINDOW: pygame.surface = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("SurvAIvor")
 
-# Allow a playable character for debugging
-PLAYABLE_CHAR = False
-PLAYER_SPEED = 3
-PLAYER_MAP = {
-    pygame.K_UP: [0, -PLAYER_SPEED],
-    pygame.K_DOWN: [0, PLAYER_SPEED],
-    pygame.K_LEFT: [-PLAYER_SPEED, 0],
-    pygame.K_RIGHT: [PLAYER_SPEED, 0]
-}
-
 # Map from pygame keys to my enum to keep layers seperate
 MOVEMENT_MAP = {
     pygame.K_UP: Dir.UP,
@@ -51,7 +41,7 @@ MOVEMENT_MAP = {
 def draw(draw_wrapper, clicked_survivor):
     WINDOW.fill(pygame.Color(106, 148, 106))
     draw_wrapper.tree_painter.paint(draw_wrapper.survivor_painter.survivor_radius, False)
-    draw_wrapper.survivor_painter.paint()
+    draw_wrapper.survivor_painter.paint(clicked_survivor)
     draw_wrapper.grid_painter.paint(False, False)
     draw_wrapper.survivor_info_painter.paint(clicked_survivor)
     draw_wrapper.day_painter.paint()
@@ -60,6 +50,8 @@ def draw(draw_wrapper, clicked_survivor):
 
 
 def main():
+
+    # global initializations
     maps = ['HumbleBeginnings', 'LimitedTrees']
     init_map(maps[0], NEAT.population_size)
 
@@ -67,8 +59,8 @@ def main():
     tick_manager = GameTickManager(MAP, WAITING_MAP)
     draw_wrapper = DrawWrapper(WINDOW, MAP, tick_manager)
 
-    # if PLAYABLE_CHAR:
-    #     MAP.population.append(Survivor(Vector(400, 400)))
+    # Setup subs
+    tick_manager.subscribe(draw_wrapper.day_painter)
 
     # pygame stuff
     clock = pygame.time.Clock()
@@ -76,45 +68,6 @@ def main():
 
     while should_run:
         winner = NEAT.neat_population.run(lambda genomes, config: run_neat(genomes, draw_wrapper, tick_manager, clock))
-
-    for i in range(10_000):
-        print('######################################### DONE ######################################')
-
-    # Main loop and camera controls
-    while should_run:
-        clock.tick(FPS_CAP)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                should_run = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if event.button == 4:
-                    draw_wrapper.camera.set_zoom(True, *mouse_pos)
-                elif event.button == 5:
-                    draw_wrapper.camera.set_zoom(False, *mouse_pos)
-
-        # Player and camera movement
-        keys = pygame.key.get_pressed()
-        for key in MOVEMENT_MAP.keys():
-            if keys[key]:
-                if PLAYABLE_CHAR:
-                    player_dir = PLAYER_MAP[key]
-                    player = MAP.population[0]
-                    player.position.add(VECTOR_POOL.lend(player_dir[0], player_dir[1]))
-                    draw_wrapper.camera.follow_position(player.position)
-                else:
-                    draw_wrapper.camera.move(MOVEMENT_MAP[key])
-
-        # Handling the game world
-        # Also handles the waiting queue, to allow new agents into the world
-        # Actions before drawing
-        tick_manager.tick()
-        do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto)
-        # Actions of survivors in waiting room
-        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto)
-
-        # Drawing
-        #draw(draw_wrapper, clicked_survivor)
 
     pygame.quit()
 
@@ -178,6 +131,9 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
 
         if clicked_survivor is not None:
             draw_wrapper.camera.follow_position(clicked_survivor.position)
+            if clicked_survivor.is_dead():
+                clicked_survivor = None
+
         tick_manager.tick()
         MAP.collision_grid.rebuild()
         do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto)

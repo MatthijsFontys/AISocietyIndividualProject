@@ -17,7 +17,7 @@ class GameTickManager:
         self.MAP = world
         self.WAIT_MAP = wait_world
         self.MAPS = [self.MAP, self.WAIT_MAP]
-
+        self.subscribers = []
         self.tick_counter = TickCounter(10)
         self.day_counter = TickCounter(50)
         self.day = 1
@@ -34,11 +34,21 @@ class GameTickManager:
                 for entity in reversed(world.get_entities(t)):
                     entity.tick(world.dto)
 
+        for subscriber in self.subscribers:
+            subscriber.tick()
+
+        # Todo: make this a separate class that subs to the tick manager | low prio
         # Chance to bring offspring from waiting room
         if random.random() < 0.15:
             offspring = self.WAIT_MAP.dequeue(self.day)
             if offspring is not None:
                 self.MAP.population.append(offspring)
+
+    def subscribe(self, subscriber):
+        self.subscribers.append(subscriber)
+
+    def unsubscribe(self, subscriber):
+        self.subscribers.remove(subscriber)
 
     def get_day_percent(self):
         return self.day_counter.get_percentage()

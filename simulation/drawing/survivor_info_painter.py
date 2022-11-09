@@ -35,7 +35,9 @@ class SurvivorInfoPainter:
             w, h = self.info_surface.get_size()
 
             # Age
-            age_text = self.font.render(f'AGE: {self.tick_manager.day - clicked_survivor.birthday} days', True, 'white')
+            age = self.tick_manager.day - clicked_survivor.birthday
+            day_plural = 'day' if age == 1 else 'days'
+            age_text = self.font.render(f'AGE: {age} {day_plural}', True, 'white')
             self.info_surface.blit(age_text, (self.padding, self.start_y))
             self.start_y += self.font.get_linesize() + self.padding
 
