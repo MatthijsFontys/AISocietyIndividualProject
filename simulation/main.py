@@ -20,7 +20,7 @@ pygame.init()
 VECTOR_POOL = VectorPool()
 
 # Game setup
-FPS_CAP = 10_000 #60
+FPS_CAP = 60 #10_000
 
 MAP: OverworldMap
 WAITING_MAP: WaitingMap
@@ -127,6 +127,7 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
         keys = pygame.key.get_pressed()
         for key in MOVEMENT_MAP.keys():
             if keys[key]:
+                clicked_survivor = None
                 draw_wrapper.camera.move(MOVEMENT_MAP[key])
 
         if clicked_survivor is not None:

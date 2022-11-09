@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 from drawing.camera import Camera
 from util.vector_pool import VectorPool
 from world.game_tick_manager import GameTickManager
@@ -25,9 +26,8 @@ class DayPainter:
             self.prev_day = self.tick_manager.day
 
         if self.tick_counter.is_on:
-            alpha = min(320 - floor(self.tick_counter.counter / self.tick_counter.interval * 255), 255)
-            self.canvas.fill(pygame.Color(67, 67, 67, alpha))
-            text = self.font.render(f'Day: {self.tick_manager.day}', True, pygame.Color(255, 255, 255, alpha))
+            self.canvas.fill(pygame.Color(67, 67, 67))
+            text = self.font.render(f'Day: {self.tick_manager.day}', True, pygame.Color(255, 255, 255))
             text_rect = text.get_rect(center=self.canvas.get_rect().center)
             self.canvas.blit(text, text_rect)
             self.window.blit(self.canvas,
