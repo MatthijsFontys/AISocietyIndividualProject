@@ -24,5 +24,5 @@ class DrawWrapper:
         self.tree_painter = TreePainter(self.WINDOW, self.camera, self.MAP.trees)
 
         self.survivor_info_painter = SurvivorInfoPainter(self.WINDOW, self.camera, self.tick_manager)
-        self.day_painter = DayPainter(self.WINDOW, self.camera, self.tick_manager)
+        self.day_painter = DayPainter(self.WINDOW, self.camera, self.tick_manager.dto)
 

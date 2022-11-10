@@ -4,22 +4,21 @@ import os
 
 class MyNeat:
 
-    def __init__(self, start_new=True):
+    def __init__(self, start_from_gen=0):
         local_dir = os.path.dirname(__file__)
         config_path = os.path.join(local_dir, 'my-neat-config')
         self.CONFIG: neat.Config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
                                                neat.DefaultStagnation, config_path)
-        self.start_new = start_new
         self.checkpointer = neat.Checkpointer(10, filename_prefix='checkpoints/neat-checkpoint-')
-        if start_new:
+        self.start_gen = start_from_gen
+        if start_from_gen == 0:
             self.neat_population = neat.Population(self.CONFIG)
         else:
-            self.neat_population = self.checkpointer.restore_checkpoint(filename='neat-checkpoint-3059')
+            self.neat_population = self.checkpointer.restore_checkpoint(filename=f'checkpoints/neat-checkpoint-{self.start_gen}')
 
-        # Todo: check if this works
         self.population_size = len(self.neat_population.population)
 
-        # Todo: might add statistics reporter
+        # Todo: could add statistics reporter
         self.neat_population.add_reporter(neat.StdOutReporter(False))
         self.neat_population.add_reporter(self.checkpointer)
 

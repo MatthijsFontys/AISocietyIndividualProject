@@ -39,6 +39,17 @@ class Survivor:
         if self.is_dead():
             map_dto.population.remove(self)
 
+    """
+    Make it so that when agents transferred to the overworld, that their stats get refilled,
+    but get their score lowered, to better reflect being born in the visible world
+    """
+    def start_exist(self):
+        self.genome.fitness -= 100 - self.fullness
+        self.genome.fitness -= 100 - self.temperature
+        self.genome.fitness = max(self.genome.fitness, 0)
+        self.temperature = 100
+        self.fullness = 100
+
     def is_dead(self):
         return self.fullness <= 0
 

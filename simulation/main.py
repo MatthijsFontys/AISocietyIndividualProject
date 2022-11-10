@@ -2,6 +2,7 @@ import pygame
 
 # my imports
 from ai.my_neat import MyNeat
+from world.data_collector import DataCollector
 from drawing.draw_wrapper import DrawWrapper
 from entities.entity_enums import EntityType
 from entities.survivor import Survivor
@@ -24,7 +25,7 @@ FPS_CAP = 60 #10_000
 
 MAP: OverworldMap
 WAITING_MAP: WaitingMap
-NEAT: MyNeat = MyNeat()
+NEAT: MyNeat = MyNeat(start_from_gen=509)
 WIN_SIZE = 900
 WINDOW: pygame.surface = pygame.display.set_mode((WIN_SIZE, WIN_SIZE))
 pygame.display.set_caption("SurvAIvor")
@@ -58,6 +59,8 @@ def main():
     # drawing objects
     tick_manager = GameTickManager(MAP, WAITING_MAP)
     draw_wrapper = DrawWrapper(WINDOW, MAP, tick_manager)
+    data_collector = DataCollector(tick_manager.dto)
+    MAP.set_data_collector(data_collector)
 
     # Setup subs
     tick_manager.subscribe(draw_wrapper.day_painter)
