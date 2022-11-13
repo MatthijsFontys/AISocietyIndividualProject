@@ -12,7 +12,7 @@ class SurvivorSprite(pygame.sprite.Sprite):
         self.index_appender = 0
         self.image_speed = 20
         self.walk_animation = []
-        self.walk_paths = glob("drawing/assets/survivor*.svg")
+        self.walk_paths = glob("drawing/assets/images/survivor*.svg")
         self.walk_animation = [self.image_store.get(x) for x in self.walk_paths]
 
     def get_image(self, scale):
