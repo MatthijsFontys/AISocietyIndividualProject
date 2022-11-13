@@ -27,3 +27,6 @@ class DrawWrapper:
         self.survivor_info_painter = SurvivorInfoPainter(self.WINDOW, self.camera, self.tick_dto)
         self.day_painter = DayPainter(self.WINDOW, self.camera, self.tick_dto)
 
+        # active entities
+        self.clicked_survivor = None
+

@@ -25,7 +25,7 @@ FPS_CAP = 10_000
 
 MAP: OverworldMap
 WAITING_MAP: WaitingMap
-NEAT: MyNeat = MyNeat(start_from_gen=0, run_pygame=True)
+NEAT: MyNeat = MyNeat(start_from_gen=59, run_pygame=True)
 WIN_SIZE = 900
 # WINDOW = pygame.Surface((WIN_SIZE, WIN_SIZE))
 WINDOW: pygame.surface
@@ -40,12 +40,12 @@ MOVEMENT_MAP = {
 }
 
 
-def draw(draw_wrapper, clicked_survivor):
+def draw(draw_wrapper):
     WINDOW.fill(pygame.Color(106, 148, 106))
     draw_wrapper.tree_painter.paint(draw_wrapper.survivor_painter.survivor_radius, False)
-    draw_wrapper.survivor_painter.paint(clicked_survivor)
+    draw_wrapper.survivor_painter.paint(draw_wrapper.clicked_survivor)
     draw_wrapper.grid_painter.paint(False, False)
-    draw_wrapper.survivor_info_painter.paint(clicked_survivor)
+    draw_wrapper.survivor_info_painter.paint(draw_wrapper.clicked_survivor)
     draw_wrapper.day_painter.paint()
 
     pygame.display.update()
@@ -98,7 +98,7 @@ def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto
             tree.try_forage_food(survivor)
 
 
-def run_pygame(draw_wrapper, clock, clicked_survivor):
+def run_pygame(draw_wrapper, clock):
     clock.tick(FPS_CAP)
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -106,7 +106,7 @@ def run_pygame(draw_wrapper, clock, clicked_survivor):
             mouse_pos = pygame.mouse.get_pos()
             if event.button == 1:
                 mouse_world = VECTOR_POOL.lend(*draw_wrapper.camera.get_mouse_world_pos(*mouse_pos))
-                clicked_survivor = MAP.collision_grid.get_closest_entity(mouse_world.x, mouse_world.y,
+                draw_wrapper.clicked_survivor = MAP.collision_grid.get_closest_entity(mouse_world.x, mouse_world.y,
                                                                          EntityType.SURVIVOR)
             elif event.button == 4:
                 draw_wrapper.camera.set_zoom(True, *mouse_pos)
@@ -117,18 +117,16 @@ def run_pygame(draw_wrapper, clock, clicked_survivor):
     keys = pygame.key.get_pressed()
     for key in MOVEMENT_MAP.keys():
         if keys[key]:
-            clicked_survivor = None
+            draw_wrapper.clicked_survivor = None
             draw_wrapper.camera.move(MOVEMENT_MAP[key])
 
-    if clicked_survivor is not None:
-        draw_wrapper.camera.follow_position(clicked_survivor.position)
-        if clicked_survivor.is_dead():
-            clicked_survivor = None
-    return clicked_survivor
+    if draw_wrapper.clicked_survivor is not None:
+        draw_wrapper.camera.follow_position(draw_wrapper.clicked_survivor.position)
+        if draw_wrapper.clicked_survivor.is_dead():
+            draw_wrapper.clicked_survivor = None
 
 
 def run_neat(genomes, draw_wrapper, tick_manager, clock):
-    clicked_survivor = None
     is_first_gen = MAP.try_populate(genomes, NEAT)
     if not is_first_gen:
         WAITING_MAP.repopulate(genomes, NEAT)
@@ -136,7 +134,7 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
     # While generation alive > threshold # Or time passed
     while WAITING_MAP.get_percent_alive() >= 0.3 or (is_first_gen and len(MAP.population) >= MAP.POPULATION_SIZE / 2):
         if NEAT.should_run_pygame:
-            clicked_survivor = run_pygame(draw_wrapper, clock, clicked_survivor)
+            run_pygame(draw_wrapper, clock)
 
         tick_manager.tick()
         MAP.collision_grid.rebuild()
@@ -146,7 +144,7 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
         do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto)
 
         if NEAT.should_run_pygame:
-            draw(draw_wrapper, clicked_survivor)
+            draw(draw_wrapper)
 
 
 def init_map(name, population_size):
