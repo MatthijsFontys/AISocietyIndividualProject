@@ -1,12 +1,9 @@
 import pygame
-import numpy as np
 from drawing.camera import Camera
 from util.vector_pool import VectorPool
-from world.game_tick_dto import GameTickDto
-from world.game_tick_manager import GameTickManager
-from math import floor
+from world.time.game_tick_dto import GameTickDto
 
-from world.tick_counter import TickCounter
+from world.time.tick_counter import TickCounter
 
 
 class DayPainter:

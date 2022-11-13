@@ -4,7 +4,7 @@ from entities.entity_enums import EntityType
 
 # Grid datastructure
 # [x, y, {EntityType: [entities in grid cell]}]
-from world.map_dto import MapDto
+from world.map.map_dto import MapDto
 
 
 class CollisionGrid:

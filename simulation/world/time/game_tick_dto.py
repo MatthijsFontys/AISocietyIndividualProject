@@ -1,4 +1,4 @@
-from world.tick_counter import TickCounter
+from world.time.tick_counter import TickCounter
 
 
 class GameTickDto:

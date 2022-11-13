@@ -1,15 +1,12 @@
 import pygame
 from drawing.camera import Camera
-from math import floor
 
 from drawing.image_store import ImageStore
 from drawing.sprites.cold_bar_sprite import ColdBarSprite
 from drawing.sprites.hunger_bar_sprite import HungerBarSprite
-from drawing.sprites.survivor_sprite import SurvivorSprite
 from entities.survivor import Survivor
-from util.vector import Vector
 from util.vector_pool import VectorPool
-from world.game_tick_manager import GameTickManager
+from world.time.game_tick_manager import GameTickManager
 
 
 class SurvivorInfoPainter:

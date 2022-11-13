@@ -3,22 +3,20 @@
 
 # the only thing that needs to be updated every frame and thus not managed by game ticks are the player's actions
 import random
-from entities.survivor import Survivor
-from util.vector import Vector
-from world.game_tick_dto import GameTickDto
-from world.overworld_map import OverworldMap
-from world.tick_counter import TickCounter
-from world.waiting_map import WaitingMap
+from world.time.game_tick_dto import GameTickDto
+from world.map.overworld_map import OverworldMap
+from world.time.tick_counter import TickCounter
+from world.map.waiting_map import WaitingMap
 from entities.entity_enums import EntityType
 
 
 class GameTickManager:
 
     # Todo: somehow figure out how to start from a different day when loading a checkpoint
-    def __init__(self, world: OverworldMap, wait_world: WaitingMap):
-        self.MAP = world
-        self.WAIT_MAP = wait_world
-        self.MAPS = [self.MAP, self.WAIT_MAP]
+    def __init__(self):
+        self.MAP = None
+        self.WAIT_MAP = None
+        self.MAPS = []
         self.tick_counter = TickCounter(10)
         self.day_counter = TickCounter(50)
         self.day = 1
@@ -47,6 +45,11 @@ class GameTickManager:
             offspring = self.WAIT_MAP.dequeue(self.day)
             if offspring is not None:
                 self.MAP.birth(offspring)
+
+    def set_world(self, world: OverworldMap, wait_world: WaitingMap):
+        self.MAP = world
+        self.WAIT_MAP = wait_world
+        self.MAPS = [self.MAP, self.WAIT_MAP]
 
     def subscribe(self, subscriber):
         self.subscribers.append(subscriber)

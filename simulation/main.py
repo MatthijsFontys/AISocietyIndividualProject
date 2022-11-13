@@ -2,26 +2,26 @@ import pygame
 
 # my imports
 from ai.my_neat import MyNeat
-from world.data_collector import DataCollector
+from world.data.data_collector import DataCollector
 from drawing.draw_wrapper import DrawWrapper
 from entities.entity_enums import EntityType
 from entities.survivor import Survivor
 from map_creator.map_save import MapSave
-from util.vector import Vector
 from util.vector_pool import VectorPool
-from world.game_tick_manager import GameTickManager
+from world.data.mock_collector import MockCollector
+from world.time.game_tick_manager import GameTickManager
 from util.util_enums import Direction as Dir
-from world.collision_grid import CollisionGrid
-from world.map_dto import MapDto
-from world.overworld_map import OverworldMap
-from world.waiting_map import WaitingMap
+from world.map.collision_grid import CollisionGrid
+from world.map.map_dto import MapDto
+from world.map.overworld_map import OverworldMap
+from world.map.waiting_map import WaitingMap
 
 pygame.init()
 
 VECTOR_POOL = VectorPool()
 
 # Game setup
-FPS_CAP = 60 #10_000
+FPS_CAP = 10_000
 
 MAP: OverworldMap
 WAITING_MAP: WaitingMap
@@ -51,27 +51,23 @@ def draw(draw_wrapper, clicked_survivor):
 
 
 def main():
-
-    # global initializations
+    # World controllers
+    tick_manager = GameTickManager()
+    data_collector = DataCollector(tick_manager.dto)
     maps = ['HumbleBeginnings', 'LimitedTrees']
     init_map(maps[0], NEAT.population_size)
-
-    # drawing objects
-    tick_manager = GameTickManager(MAP, WAITING_MAP)
     draw_wrapper = DrawWrapper(WINDOW, MAP, tick_manager)
-    data_collector = DataCollector(tick_manager.dto)
     MAP.set_data_collector(data_collector)
+    WAITING_MAP.set_data_collector(MockCollector())
+    tick_manager.set_world(MAP, WAITING_MAP)
 
     # Setup subs
     tick_manager.subscribe(draw_wrapper.day_painter)
+    tick_manager.subscribe(data_collector)
 
     # pygame stuff
     clock = pygame.time.Clock()
-    should_run = True
-
-    while should_run:
-        winner = NEAT.neat_population.run(lambda genomes, config: run_neat(genomes, draw_wrapper, tick_manager, clock))
-
+    winner = NEAT.neat_population.run(lambda genomes, config: run_neat(genomes, draw_wrapper, tick_manager, clock))
     pygame.quit()
 
 

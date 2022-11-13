@@ -1,7 +1,7 @@
 import pygame
 import math
 from drawing.camera import Camera
-from world.collision_grid import CollisionGrid
+from world.map.collision_grid import CollisionGrid
 from util.vector_pool import VectorPool
 
 

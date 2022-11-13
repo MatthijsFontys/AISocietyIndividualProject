@@ -1,15 +1,18 @@
-import random
 import numpy as np
-from ai.neuralnetwork import NeuralNetwork
 from drawing.sprites.survivor_sprite import SurvivorSprite
+from entities.entity_base import EntityBase
 from util.vector import Vector
-from world.map_dto import MapDto
+from world.map.map_dto import MapDto
+from world.data.data_collector import DataCollector
+from world.data.data_enums import GlobalMetric
 
 
-class Survivor:
+class Survivor(EntityBase):
 
-    def __init__(self, position, genome, brain):
+    def __init__(self, position, genome, brain, data_collector=None):
         # movement
+        super().__init__(data_collector)
+
         self.position = position
 
         self.speed = 2
@@ -17,7 +20,6 @@ class Survivor:
                              Vector(self.speed, 0), Vector(self.speed / 2, self.speed / 2), Vector(0, self.speed),
                              Vector(-self.speed / 2, self.speed / 2), Vector(-self.speed, 0),
                              Vector(-self.speed / 2, -self.speed / 2)
-
                              ]
 
         # GeneticAlgorithm stuff
@@ -38,12 +40,15 @@ class Survivor:
         self.temperature -= 0.2
         if self.is_dead():
             map_dto.population.remove(self)
+            self.data_collector.add_data(GlobalMetric.DEATHS)
+            self.data_collector.add_data(GlobalMetric.DEATHS_BY_STARVATION)
 
     """
     Make it so that when agents transferred to the overworld, that their stats get refilled,
     but get their score lowered, to better reflect being born in the visible world
     """
-    def start_exist(self):
+    def start_exist(self, data_collector: DataCollector):
+        self.data_collector = data_collector
         self.genome.fitness -= 100 - self.fullness
         self.genome.fitness -= 100 - self.temperature
         self.genome.fitness = max(self.genome.fitness, 0)

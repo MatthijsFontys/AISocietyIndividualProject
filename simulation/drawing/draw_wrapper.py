@@ -5,8 +5,8 @@ from drawing.grid_painter import GridPainter
 from drawing.survivor_info_painter import SurvivorInfoPainter
 from drawing.survivor_painter import SurvivorPainter
 from drawing.tree_painter import TreePainter
-from world.game_tick_manager import GameTickManager
-from world.overworld_map import OverworldMap
+from world.time.game_tick_manager import GameTickManager
+from world.map.overworld_map import OverworldMap
 from drawing.camera import Camera
 
 
