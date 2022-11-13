@@ -54,7 +54,7 @@ def draw(draw_wrapper, clicked_survivor):
 def main():
     # World controllers
     tick_manager = GameTickManager()
-    data_collector = DataCollector(tick_manager.dto)
+    data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     maps = ['HumbleBeginnings', 'LimitedTrees']
     init_map(maps[0], NEAT.population_size)
     draw_wrapper = init_draw(tick_manager)
