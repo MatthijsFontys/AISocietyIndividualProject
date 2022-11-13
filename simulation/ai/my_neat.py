@@ -4,7 +4,7 @@ import os
 
 class MyNeat:
 
-    def __init__(self, start_from_gen=0):
+    def __init__(self, start_from_gen=0, run_pygame=True):
         local_dir = os.path.dirname(__file__)
         config_path = os.path.join(local_dir, 'my-neat-config')
         self.CONFIG: neat.Config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet,
@@ -17,13 +17,10 @@ class MyNeat:
             self.neat_population = self.checkpointer.restore_checkpoint(filename=f'checkpoints/neat-checkpoint-{self.start_gen}')
 
         self.population_size = len(self.neat_population.population)
-
+        self.should_run_pygame = run_pygame
         # Todo: could add statistics reporter
         self.neat_population.add_reporter(neat.StdOutReporter(False))
         self.neat_population.add_reporter(self.checkpointer)
-
-        self.should_run_pygame = True
-        self.should_run_neat = True
 
     def create_brain(self, genome):
         return neat.nn.FeedForwardNetwork.create(genome, self.CONFIG)

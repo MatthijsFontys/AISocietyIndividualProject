@@ -6,12 +6,13 @@ from drawing.sprites.cold_bar_sprite import ColdBarSprite
 from drawing.sprites.hunger_bar_sprite import HungerBarSprite
 from entities.survivor import Survivor
 from util.vector_pool import VectorPool
+from world.time.game_tick_dto import GameTickDto
 from world.time.game_tick_manager import GameTickManager
 
 
 class SurvivorInfoPainter:
 
-    def __init__(self, window: pygame.Surface, camera: Camera, tick_manager: GameTickManager):
+    def __init__(self, window: pygame.Surface, camera: Camera, tick_manager: GameTickDto):
         self.tick_manager = tick_manager
         self.image_store = ImageStore()
         self.vector_pool = VectorPool()
