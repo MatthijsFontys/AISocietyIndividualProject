@@ -36,8 +36,8 @@ class Survivor(EntityBase):
 
     def tick(self, map_dto: MapDto):
         self.genome.fitness += 1
-        self.fullness -= 0.5
-        self.temperature -= 0.2
+        self.fullness -= map_dto.fullness_loss
+        self.temperature -= map_dto.temperature_loss
         if self.is_dead():
             map_dto.population.remove(self)
             self.data_collector.add_data(GlobalMetric.DEATHS)

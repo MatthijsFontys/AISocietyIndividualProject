@@ -6,7 +6,6 @@ from drawing.survivor_info_painter import SurvivorInfoPainter
 from drawing.survivor_painter import SurvivorPainter
 from drawing.tree_painter import TreePainter
 from world.time.game_tick_dto import GameTickDto
-from world.time.game_tick_manager import GameTickManager
 from world.map.overworld_map import OverworldMap
 from drawing.camera import Camera
 

@@ -7,7 +7,6 @@ from drawing.sprites.hunger_bar_sprite import HungerBarSprite
 from entities.survivor import Survivor
 from util.vector_pool import VectorPool
 from world.time.game_tick_dto import GameTickDto
-from world.time.game_tick_manager import GameTickManager
 
 
 class SurvivorInfoPainter:

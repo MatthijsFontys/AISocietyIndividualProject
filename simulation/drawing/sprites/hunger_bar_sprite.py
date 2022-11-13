@@ -1,4 +1,5 @@
 from drawing.sprites.stat_bar_base import StatBarBase
+from world.map.map_dto import MapDto
 
 
 class HungerBarSprite(StatBarBase):

@@ -8,7 +8,7 @@ from world.map.collision_grid import CollisionGrid
 from world.map.map_dto import MapDto
 
 
-class WorldMap(ABC):
+class WorldBase(ABC):
 
     def __init__(self, save: MapSave, population_size, cell_size):
         self.WIDTH = save.width
@@ -31,10 +31,13 @@ class WorldMap(ABC):
             EntityType.CAMPFIRE.name: self.campfires,
             EntityType.SURVIVOR.name: self.population
         }
+        self.fullness_loss = 0.5
+        self.temperature_loss = 0  # 0.2
         self.dto = MapDto(
-                           self.entities, self.trees, self.population, self.saplings, self.campfires,
-                           self.HEIGHT, self.WIDTH, self.POPULATION_SIZE
-                         )
+            self.entities, self.trees, self.population, self.saplings, self.campfires,
+            self.HEIGHT, self.WIDTH, self.POPULATION_SIZE,
+            self.fullness_loss, self.temperature_loss
+        )
         self.collision_grid = CollisionGrid(cell_size, self.dto)
 
     def set_data_collector(self, data_collector):
@@ -52,4 +55,3 @@ class WorldMap(ABC):
 
     def get_rand_position(self, to_set: Vector = None):
         return Vector.unpack_nullable(randrange(self.WIDTH), randrange(self.HEIGHT), to_set)
-
