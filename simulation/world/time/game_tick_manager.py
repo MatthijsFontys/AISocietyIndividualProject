@@ -52,6 +52,10 @@ class GameTickManager:
         self.WAIT_MAP = wait_world
         self.MAPS = [self.MAP, self.WAIT_MAP]
 
+    def set_day(self, day: int):
+        self.day = day
+        self.dto.day = day
+
     def subscribe(self, subscriber):
         self.subscribers.append(subscriber)
 

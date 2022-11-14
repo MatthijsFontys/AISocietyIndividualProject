@@ -1,5 +1,6 @@
-from util.draw_util import sprite_glob
 import pygame
+
+from util.draw_util import sprite_glob
 
 
 class SurvivorSprite(pygame.sprite.Sprite):

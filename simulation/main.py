@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 
 # my imports
@@ -9,6 +11,7 @@ from entities.survivor import Survivor
 from map_creator.map_save import MapSave
 from util.vector_pool import VectorPool
 from world.data.mock_collector import MockCollector
+from world.map.map_checkpoint import MapCheckpoint
 from world.time.game_tick_manager import GameTickManager
 from util.util_enums import Direction as Dir
 from world.map.collision_grid import CollisionGrid
@@ -21,11 +24,11 @@ pygame.init()
 VECTOR_POOL = VectorPool()
 
 # Game setup
-FPS_CAP = 60
+FPS_CAP = 10_000 #60
 
 MAP: OverworldMap
 WAITING_MAP: WaitingMap
-NEAT: MyNeat = MyNeat(start_from_gen=59, run_pygame=True)
+NEAT: MyNeat
 WIN_SIZE = 900
 # WINDOW = pygame.Surface((WIN_SIZE, WIN_SIZE))
 WINDOW: pygame.surface
@@ -54,9 +57,11 @@ def draw(draw_wrapper):
 def main():
     # World controllers
     tick_manager = GameTickManager()
-    data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     maps = ['HumbleBeginnings', 'LimitedTrees']
-    init_map(maps[0], NEAT.population_size)
+    init_neat(maps[0], tick_manager, True)  # alternatively use load_neat to load an existing population
+    #load_neat(tick_manager, 2)  # alternatively use init_neat to start from scratch
+    init_map()
+    data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     draw_wrapper = init_draw(tick_manager)
     MAP.set_data_collector(data_collector)
     WAITING_MAP.set_data_collector(MockCollector())
@@ -101,13 +106,16 @@ def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto
 def run_pygame(draw_wrapper, clock):
     clock.tick(FPS_CAP)
     for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
             # 1 - left click, 2 - middle click, 3 - right click, 4 - scroll up, 5 - scroll down
             mouse_pos = pygame.mouse.get_pos()
             if event.button == 1:
                 mouse_world = VECTOR_POOL.lend(*draw_wrapper.camera.get_mouse_world_pos(*mouse_pos))
                 draw_wrapper.clicked_survivor = MAP.collision_grid.get_closest_entity(mouse_world.x, mouse_world.y,
-                                                                         EntityType.SURVIVOR)
+                                                                                      EntityType.SURVIVOR)
             elif event.button == 4:
                 draw_wrapper.camera.set_zoom(True, *mouse_pos)
             elif event.button == 5:
@@ -147,12 +155,24 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
             draw(draw_wrapper)
 
 
-def init_map(name, population_size):
+def init_neat(map_name: str, tick_manager: GameTickManager, should_pygame=True):
+    global NEAT
+    map_checkpoint = MapCheckpoint(map_name, tick_manager.dto)
+    NEAT = MyNeat(start_from_gen=0, run_pygame=should_pygame, map_checkpoint=map_checkpoint)
+
+
+def load_neat(tick_manager: GameTickManager, start_from_gen: int, should_pygame=True):
+    global NEAT
+    NEAT = MyNeat(start_from_gen=start_from_gen, run_pygame=should_pygame)
+    tick_manager.set_day(NEAT.map_checkpoint.tick_dto.day)
+
+
+def init_map():
     global WAITING_MAP, MAP
-    save: MapSave = MapSave.load(name)
+    save: MapSave = MapSave.load(NEAT.map_checkpoint.name)
     cell_size = 200
-    MAP = OverworldMap(save, population_size, cell_size)
-    WAITING_MAP = WaitingMap(MapSave.load(name), population_size, cell_size)
+    MAP = OverworldMap(save, NEAT.population_size, cell_size)
+    WAITING_MAP = WaitingMap(MapSave.load(NEAT.map_checkpoint.name), NEAT.population_size, cell_size)
 
 
 def init_draw(tick_manager):
