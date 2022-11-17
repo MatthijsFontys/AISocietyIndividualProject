@@ -26,8 +26,22 @@ class DayPainter:
 
 
     def paint(self):
+
+        # Time of day transparent overlay
+        overlay = pygame.Surface(self.window.get_size(), pygame.SRCALPHA)
+
+        night_clr = pygame.Color(7, 34, 93, 151)  # '#07225D'
+        day_clr = pygame.Color(214, 196, 185, 42)  # '#D6C4B9'
+        day_percent = self.tick_dto.get_day_percent()
+        if day_percent < 0.5:
+            lerped_clr = night_clr.lerp(day_clr, day_percent / 0.5)
+        else:
+            lerped_clr = day_clr.lerp(night_clr, (day_percent-0.5) / 0.5)
+        overlay.fill(lerped_clr)
+        self.window.blit(overlay, (0, 0))
+
         # Current time and day
-        minutes = self.tick_dto.get_day_percent() * self.MINUTES_IN_DAY
+        minutes = day_percent * self.MINUTES_IN_DAY
         hours = floor(minutes / 60)
         minutes = floor(minutes - hours * 60)
         min_prefix = '0' if minutes < 10 else ''

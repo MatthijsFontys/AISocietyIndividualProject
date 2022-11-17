@@ -47,9 +47,9 @@ def draw(draw_wrapper):
     WINDOW.fill(pygame.Color(106, 148, 106))
     draw_wrapper.tree_painter.paint(draw_wrapper.survivor_painter.survivor_radius, False)
     draw_wrapper.survivor_painter.paint(draw_wrapper.clicked_survivor)
+    draw_wrapper.day_painter.paint()
     draw_wrapper.grid_painter.paint(False, False)
     draw_wrapper.survivor_info_painter.paint(draw_wrapper.clicked_survivor)
-    draw_wrapper.day_painter.paint()
 
     pygame.display.update()
 
@@ -58,8 +58,8 @@ def main():
     # World controllers
     tick_manager = GameTickManager()
     maps = ['HumbleBeginnings', 'LimitedTrees']
-    init_neat(maps[0], tick_manager, True)  # alternatively use load_neat to load an existing population
-    #load_neat(tick_manager, 2)  # alternatively use init_neat to start from scratch
+    init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
+    # load_neat(tick_manager, 2)  # alternatively use init_neat to start from scratch
     init_map()
     data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     draw_wrapper = init_draw(tick_manager)
@@ -70,7 +70,7 @@ def main():
 
     # pygame stuff
     clock = pygame.time.Clock()
-    winner = NEAT.neat_population.run(lambda genomes, config: run_neat(genomes, draw_wrapper, tick_manager, clock))
+    _ = NEAT.neat_population.run(lambda genomes, config: run_neat(genomes, draw_wrapper, tick_manager, clock))
     pygame.quit()
 
 
