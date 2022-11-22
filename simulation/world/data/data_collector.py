@@ -3,7 +3,6 @@ from pathlib import Path
 
 from world.data.data_enums import GlobalMetric
 
-# Todo: make a folder for the data collection classes
 from world.time.game_tick_dto import GameTickDto
 from world.time.tick_counter import TickCounter
 
@@ -29,9 +28,10 @@ class DataCollector:
 
         df = pd.DataFrame(self.data)
 
+        # COLUMNS derived from gathered data get prefixed with DER to show it can be derived from existing columns
         # Set additional columns derived from collected data
-        df['POP_DELTA'] = df[GlobalMetric.BIRTHS.name] - df[GlobalMetric.DEATHS.name]
-        df['POPULATION'] = df['POP_DELTA'].cumsum() + self.init_population_size
+        df['DER_POP_DELTA'] = df[GlobalMetric.BIRTHS.name] - df[GlobalMetric.DEATHS.name]
+        df['DER_POPULATION'] = df['DER_POP_DELTA'].cumsum() + self.init_population_size
 
         df.set_index('DAY', inplace=True)
         df.to_csv(filepath)

@@ -12,3 +12,6 @@ class ImageStore:
             image = pygame.image.load(filename).convert_alpha()
             self.store.update({filename: image})
         return image
+
+    def deposit(self, name, image):
+        self.store.update({name: image})

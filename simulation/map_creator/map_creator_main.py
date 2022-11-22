@@ -57,7 +57,7 @@ def draw(tree_sprite, camera):
 
 
 def main():
-    tree_sprite = pygame.image.load('../drawing/assets/fruit_tree_3.svg')
+    tree_sprite = pygame.image.load('../drawing/assets/images/fruit_tree_3.svg')
     current_entity: EntityType = EntityType.TREE
     #collision_grid = CollisionGrid(200, WORLD_SIZE, WORLD_SIZE, trees)
     #tree_painter = TreePainter(WINDOW, camera, trees)

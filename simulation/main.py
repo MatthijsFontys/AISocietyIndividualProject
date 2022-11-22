@@ -58,8 +58,8 @@ def main():
     # World controllers
     tick_manager = GameTickManager()
     maps = ['HumbleBeginnings', 'LimitedTrees']
-    init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
-    # load_neat(tick_manager, 2)  # alternatively use init_neat to start from scratch
+    #init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
+    load_neat(tick_manager, 5)  # alternatively use init_neat to start from scratch
     init_map()
     data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     draw_wrapper = init_draw(tick_manager)
