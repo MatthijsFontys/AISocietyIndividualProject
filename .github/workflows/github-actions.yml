@@ -1,0 +1,27 @@
+name: Poetry Actions
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Setup poetry
+        uses: abatilo/actions-poetry@v2.1.6
+      - name: Export requirements.txt using poetry
+        run: |
+          cd ./simulation
+          poetry --version
+          poetry version
+          poetry export --format=requirements.txt > requirements.txt
+      - name: Archive poetry artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: pip requirements
+          path: |
+            simulation/requirements.txt
+      - run: echo "🍏 This job's status is ${{ job.status }}."
