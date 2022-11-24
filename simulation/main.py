@@ -59,7 +59,7 @@ def main():
     tick_manager = GameTickManager()
     maps = ['HumbleBeginnings', 'LimitedTrees']
     #init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
-    load_neat(tick_manager, 5)  # alternatively use init_neat to start from scratch
+    load_neat(tick_manager, start_from_gen=170, should_pygame=True)  # alternatively use init_neat to start from scratch
     init_map()
     data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     draw_wrapper = init_draw(tick_manager)
@@ -158,7 +158,7 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
 def init_neat(map_name: str, tick_manager: GameTickManager, should_pygame=True):
     global NEAT
     map_checkpoint = MapCheckpoint(map_name, tick_manager.dto)
-    NEAT = MyNeat(start_from_gen=0, run_pygame=should_pygame, map_checkpoint=map_checkpoint)
+    NEAT = MyNeat(start_from_gen=323, run_pygame=should_pygame, map_checkpoint=map_checkpoint)
 
 
 def load_neat(tick_manager: GameTickManager, start_from_gen: int, should_pygame=True):
