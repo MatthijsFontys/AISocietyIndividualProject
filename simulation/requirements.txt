@@ -1,6 +1,19 @@
+cloudpickle==2.2.0 ; python_version >= "3.9" and python_version < "4.0" \
+    --hash=sha256:3f4219469c55453cfe4737e564b67c2a149109dabf7f242478948b895f61106f \
+    --hash=sha256:7428798d5926d8fcbfd092d18d01a2a03daf8237d8fcdc8095d256b8490796f0
+gym-notices==0.0.8 ; python_version >= "3.9" and python_version < "4.0" \
+    --hash=sha256:ad25e200487cafa369728625fe064e88ada1346618526102659b4640f2b4b911 \
+    --hash=sha256:e5f82e00823a166747b4c2a07de63b6560b1acb880638547e0cabf825a01e463
+gym==0.26.2 ; python_version >= "3.9" and python_version < "4.0" \
+    --hash=sha256:e0d882f4b54f0c65f203104c24ab8a38b039f1289986803c7d02cdbe214fbcc4
+importlib-metadata==5.0.0 ; python_version >= "3.9" and python_version < "3.10" \
+    --hash=sha256:da31db32b304314d044d3c12c79bd59e307889b287ad12ff387b3500835fc2ab \
+    --hash=sha256:ddb0e35065e8938f867ed4928d0ae5bf2a53b7773871bfe6bcc7e4fcdc7dea43
 neat-python==0.92 ; python_version >= "3.9" and python_version < "4.0" \
     --hash=sha256:be722a62d053b39fe960228e3e0baffdebe73074133ce40bbd35de650ca53a0f \
     --hash=sha256:c69f3748032cc9653b902f0cca05983b79f5288c67aed747aa47279161117059
+neurolab==0.3.5 ; python_version >= "3.9" and python_version < "4.0" \
+    --hash=sha256:96ec311988383c63664f3325668f27c30561cf4349e3bc5420665c042a3b9191
 numpy==1.23.4 ; python_version >= "3.9" and python_version < "4.0" \
     --hash=sha256:0fe563fc8ed9dc4474cbf70742673fc4391d70f4363f917599a7fa99f042d5a8 \
     --hash=sha256:12ac457b63ec8ded85d85c1e17d85efd3c2b0967ca39560b307a35a6703a4735 \
@@ -126,7 +139,6 @@ pytz==2022.6 ; python_version >= "3.9" and python_version < "4.0" \
 six==1.16.0 ; python_version >= "3.9" and python_version < "4.0" \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
-
-numpy~=1.23.4
-pandas~=1.5.1
-pygame~=2.1.2
+zipp==3.10.0 ; python_version >= "3.9" and python_version < "3.10" \
+    --hash=sha256:4fcb6f278987a6605757302a6e40e896257570d11c51628968ccb2a47e80c6c1 \
+    --hash=sha256:7a7262fd930bd3e36c50b9a64897aec3fafff3dfdeec9623ae22b40e93f99bb8
