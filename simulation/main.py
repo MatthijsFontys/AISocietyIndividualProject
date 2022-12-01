@@ -157,9 +157,9 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
     day_of_prev_gen = tick_manager.day
     day_threshold = 5
     # While generation alive > threshold # Or time passed
-    while WAITING_MAP.get_percent_alive() >= 0.10 \
-            or (is_first_gen and len(MAP.population) >= MAP.POPULATION_SIZE / 2)\
-            or tick_manager.day - day_of_prev_gen < day_threshold:
+    while (WAITING_MAP.get_percent_alive() >= 0.10
+            or (is_first_gen and len(MAP.population) >= MAP.POPULATION_SIZE / 2))\
+            and tick_manager.day - day_of_prev_gen < day_threshold:
         if NEAT.should_run_pygame:
             run_pygame(draw_wrapper, clock)
 
@@ -183,17 +183,14 @@ def init_neat(map_name: str, tick_manager: GameTickManager, should_pygame=True):
 def load_neat(tick_manager: GameTickManager, start_from_gen: int, should_pygame=True):
     global NEAT
     NEAT = MyNeat(start_from_gen=start_from_gen, run_pygame=should_pygame)
-    # TODO: this loaded day is wrong sometimes, figure out why!!
-    # this seems to occur after loading a new generation for the second time
-    # so run, save run save -> next run would not give the correct day
-    tick_manager.set_day(NEAT.map_checkpoint.tick_dto.day)
+    tick_manager.set_dto(NEAT.map_checkpoint.tick_dto)
 
 
 def load_latest_gen_neat(tick_manager: GameTickManager, init_map_name, should_pygame=True):
     checkpoints = glob('./checkpoints/neat-checkpoint-*[0-9]')
     checkpoints.sort(key=lambda x: (len(x), x))
     if checkpoints:
-        latest_gen = int(checkpoints[-1].split('-')[-1]) if checkpoints else 0
+        latest_gen = int(checkpoints[-1].split('-')[-1])
         load_neat(tick_manager, start_from_gen=latest_gen, should_pygame=should_pygame)
     else:
         init_neat(init_map_name, tick_manager, should_pygame)
