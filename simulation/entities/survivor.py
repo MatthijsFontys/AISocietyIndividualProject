@@ -12,7 +12,6 @@ class Survivor(EntityBase):
     def __init__(self, position, genome, brain, data_collector=None):
         # movement
         super().__init__(data_collector)
-
         self.position = position
 
         self.speed = 2
@@ -47,6 +46,10 @@ class Survivor(EntityBase):
     Make it so that when agents transferred to the overworld, that their stats get refilled,
     but get their score lowered, to better reflect being born in the visible world
     """
+
+    def get_input_value(self) -> int:
+        return 0
+
     def start_exist(self, data_collector: DataCollector):
         self.data_collector = data_collector
         self.genome.fitness -= 100 - self.fullness

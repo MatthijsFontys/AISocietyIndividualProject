@@ -1,4 +1,7 @@
 import math
+
+from entities.entity_base import EntityBase
+from entities.survivor import Survivor
 from util.vector_pool import VectorPool
 from entities.entity_enums import EntityType
 
@@ -48,6 +51,45 @@ class CollisionGrid:
                 nearby_entities.extend(self.grid[x_index][y_index][entity_type.name])
 
         return nearby_entities
+
+    # Todo: split up this method to improve readability
+    def get_inputs(self, survivor: Survivor):
+        start_x = self.position_to_index(survivor.position.x)
+        start_y = self.position_to_index(survivor.position.y)
+        closest_distance = math.inf
+        closest_entity = None
+        inputs = []
+        for directions in self.nearby_directions:
+            # Top left, Top right, Bottom Left, Bottom Right, Population index
+            cel_inputs = [0 for _ in range(5)]
+            x_index = start_x + directions[0]
+            y_index = start_y + directions[1]
+            # don't check outside the edges of the grid
+            if self.is_in_grid(x_index, y_index):
+                for t in EntityType:
+                    for entity in self.grid[x_index][y_index][t.name]:
+                        entity: EntityBase
+                        distance = entity.position.get_distance_squared(survivor.position, self.vector_pool.lend())
+                        if distance < closest_distance:
+                            closest_distance = distance
+                            closest_entity = entity
+                        input_index_x = 0
+                        input_index_y = 0
+                        if entity.position.x >= (x_index + 0.5) * self.cell_size:
+                            input_index_x = 1
+                        if entity.position.y >= (y_index + 0.5) * self.cell_size:
+                            input_index_y = 1
+                        # Most important pixel input
+                        input_index = input_index_x + input_index_y * 2
+                        cel_inputs[input_index] = max(cel_inputs[input_index], entity.get_input_value())
+                # Population density input
+                cel_inputs[4] = len(self.grid[x_index][y_index][EntityType.SURVIVOR.name])
+            inputs.extend(cel_inputs)
+        return inputs, closest_entity
+
+
+
+
 
     def get_closest_entity(self, x, y, entity_type):
         position = self.vector_pool.acquire(x, y)

@@ -8,6 +8,7 @@ from world.time.tick_counter import TickCounter
 
 class Tree(EntityBase):
 
+
     def __init__(self, position, data_collector=None):
         super().__init__(data_collector)
         self.vector_pool = VectorPool()
@@ -43,6 +44,9 @@ class Tree(EntityBase):
         if self.sprite is None:
             self.sprite = TreeSprite(tree_painter.image_store)
         return self.sprite
+
+    def get_input_value(self) -> int:
+        return self.food_count + 1
 
     def update_food_count(self, delta_food):
         self.food_count += delta_food

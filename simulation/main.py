@@ -1,7 +1,8 @@
 import sys
-
+import os
+from glob import glob
 import pygame
-
+import math
 # my imports
 from ai.my_neat import MyNeat
 from world.data.data_collector import DataCollector
@@ -24,7 +25,7 @@ pygame.init()
 VECTOR_POOL = VectorPool()
 
 # Game setup
-FPS_CAP = 10_000 #60
+FPS_CAP = 10_000  # 60
 
 MAP: OverworldMap
 WAITING_MAP: WaitingMap
@@ -58,8 +59,9 @@ def main():
     # World controllers
     tick_manager = GameTickManager()
     maps = ['HumbleBeginnings', 'LimitedTrees']
-    #init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
-    load_neat(tick_manager, start_from_gen=170, should_pygame=True)  # alternatively use init_neat to start from scratch
+    init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
+    # load_neat(tick_manager, start_from_gen=725, should_pygame=True)  # alternatively use init_neat to start from scratch
+    #load_latest_gen_neat(tick_manager, True)
     init_map()
     data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     draw_wrapper = init_draw(tick_manager)
@@ -74,33 +76,34 @@ def main():
     pygame.quit()
 
 
-def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto):
+def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto, clicked_survivor):
+    # stats (fullness and cold)
+    # self position (self x + self y)
+    # inputs = 9 * 4 grid
+    # closest entity position (tree / fire / seed) (x dist, y dist)
+    # population count for each of the 9 cells in the grid
+
+    # so for each of the 9 cells, we need:
+    # population density + 4 pixel input + check entities for the closest record
+
     for survivor in population:
-        # getting the inputs for the neural network and performing the chosen action
-        tree = grid.get_closest_entity(survivor.position.x, survivor.position.y, EntityType.TREE)
-        tree_x_dist = 1
-        tree_y_dist = 1
-        tree_fruit_count = 0
-
-        # todo: make a nullable survivor and tree instead
-        if tree is not None:
-            tree_x_dist = (survivor.position.x - tree.position.x) / MAP.WIDTH
-            tree_y_dist = (survivor.position.y - tree.position.y) / MAP.HEIGHT
-            tree_fruit_count = tree.food_count / tree.max_food_count
-
+        grid_inputs, closest_entity = grid.get_inputs(survivor)
+        # if survivor == clicked_survivor:
+        #     print(grid_inputs[21:25])
         inputs = [
+            *grid_inputs,
             survivor.fullness / 100,
+            # survivor.temperature / 100,
             survivor.position.x / MAP.WIDTH,
             survivor.position.y / MAP.HEIGHT,
-            tree_x_dist,
-            tree_y_dist,
-            tree_fruit_count
+            # (survivor.position.x - closest_entity.position.x) / MAP.WIDTH,
+            # (survivor.position.y - closest_entity.position.y) / MAP.HEIGHT
         ]
-
-        action_index = NEAT.feed_forward(survivor, inputs)
-        survivor.move(action_index, dto)
+        tree = grid.get_closest_entity(survivor.position.x, survivor.position.y, EntityType.TREE)
         if tree is not None:
             tree.try_forage_food(survivor)
+        action_index = NEAT.feed_forward(survivor, inputs)
+        survivor.move(action_index, dto)
 
 
 def run_pygame(draw_wrapper, clock):
@@ -140,16 +143,16 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
         WAITING_MAP.repopulate(genomes, NEAT)
 
     # While generation alive > threshold # Or time passed
-    while WAITING_MAP.get_percent_alive() >= 0.3 or (is_first_gen and len(MAP.population) >= MAP.POPULATION_SIZE / 2):
+    while WAITING_MAP.get_percent_alive() >= 0.10 or (is_first_gen and len(MAP.population) >= MAP.POPULATION_SIZE / 2):
         if NEAT.should_run_pygame:
             run_pygame(draw_wrapper, clock)
 
         tick_manager.tick()
         MAP.collision_grid.rebuild()
-        do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto)
+        do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto, None)
 
         WAITING_MAP.collision_grid.rebuild()
-        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto)
+        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto, None)
 
         if NEAT.should_run_pygame:
             draw(draw_wrapper)
@@ -158,13 +161,20 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
 def init_neat(map_name: str, tick_manager: GameTickManager, should_pygame=True):
     global NEAT
     map_checkpoint = MapCheckpoint(map_name, tick_manager.dto)
-    NEAT = MyNeat(start_from_gen=323, run_pygame=should_pygame, map_checkpoint=map_checkpoint)
+    NEAT = MyNeat(start_from_gen=0, run_pygame=should_pygame, map_checkpoint=map_checkpoint)
 
 
 def load_neat(tick_manager: GameTickManager, start_from_gen: int, should_pygame=True):
     global NEAT
     NEAT = MyNeat(start_from_gen=start_from_gen, run_pygame=should_pygame)
     tick_manager.set_day(NEAT.map_checkpoint.tick_dto.day)
+
+
+def load_latest_gen_neat(tick_manager: GameTickManager, should_pygame=True):
+    checkpoints = glob('./checkpoints/neat-checkpoint-*[0-9]')
+    checkpoints.sort(key=lambda x: (len(x), x))
+    latest_gen = int(checkpoints[-1].split('-')[-1])
+    load_neat(tick_manager, start_from_gen=latest_gen, should_pygame=should_pygame)
 
 
 def init_map():
