@@ -70,7 +70,7 @@ class CollisionGrid:
                     for entity in self.grid[x_index][y_index][t.name]:
                         entity: EntityBase
                         distance = entity.position.get_distance_squared(survivor.position, self.vector_pool.lend())
-                        if distance < closest_distance:
+                        if distance < closest_distance and t != EntityType.SURVIVOR:
                             closest_distance = distance
                             closest_entity = entity
                         input_index_x = 0

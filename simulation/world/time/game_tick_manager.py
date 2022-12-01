@@ -19,7 +19,7 @@ class GameTickManager:
         self.MAPS = []
         self.tick_counter = TickCounter(10)
         # Todo: figure out a good amount of ticks each day, but 1500 at 60 fps shows each minute
-        self.day_counter = TickCounter(20) #TickCounter(1_500)
+        self.day_counter = TickCounter(1_500)
         self.day = 1
         self.dto = GameTickDto(self.day, self.day_counter)
         self.subscribers = [self.dto]
