@@ -57,7 +57,7 @@ def main():
     # World controllers
     tick_manager = GameTickManager()
     maps = ['HumbleBeginnings', 'LimitedTrees']
-    #init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
+    # init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
     # load_neat(tick_manager, start_from_gen=725, should_pygame=True)  # alternatively use init_neat to start from scratch
     load_latest_gen_neat(tick_manager, init_map_name=maps[0], should_pygame=True)
     init_map()
@@ -152,14 +152,12 @@ def run_pygame(draw_wrapper, clock):
 def run_neat(genomes, draw_wrapper, tick_manager, clock):
     is_first_gen = MAP.try_populate(genomes, NEAT, tick_manager.dto)
     if not is_first_gen:
-        WAITING_MAP.repopulate(genomes, NEAT)
+        WAITING_MAP.repopulate(genomes)
 
     day_of_prev_gen = tick_manager.day
     day_threshold = 5
     # While generation alive > threshold # Or time passed
-    while (WAITING_MAP.get_percent_alive() >= 0.10
-            or (is_first_gen and len(MAP.population) >= MAP.POPULATION_SIZE / 2))\
-            and tick_manager.day - day_of_prev_gen < day_threshold:
+    while WAITING_MAP.get_percent_alive() >= 0.01 or (is_first_gen and len(MAP.population) >= MAP.POPULATION_SIZE / 2):
         if NEAT.should_run_pygame:
             run_pygame(draw_wrapper, clock)
 
@@ -197,14 +195,12 @@ def load_latest_gen_neat(tick_manager: GameTickManager, init_map_name, should_py
         init_neat(init_map_name, tick_manager, should_pygame)
 
 
-
-
 def init_map():
     global WAITING_MAP, MAP
     save: MapSave = MapSave.load(NEAT.map_checkpoint.name)
     cell_size = 200
     MAP = OverworldMap(save, NEAT.population_size, cell_size)
-    WAITING_MAP = WaitingMap(MapSave.load(NEAT.map_checkpoint.name), NEAT.population_size, cell_size)
+    WAITING_MAP = WaitingMap(MapSave.load(NEAT.map_checkpoint.name), NEAT.population_size, cell_size, NEAT)
 
 
 def init_draw(tick_manager):

@@ -20,6 +20,7 @@ class MyNeat:
         else:
             self.neat_population, self.map_checkpoint = MyCheckpointer.restore_checkpoint(
                 filename=f'checkpoints/neat-checkpoint-{self.start_gen}')
+            self.CONFIG = self.neat_population.config
 
         self.checkpointer = MyCheckpointer(self.map_checkpoint, 3, filename_prefix='checkpoints/neat-checkpoint-')
         self.population_size = len(self.neat_population.population)

@@ -1,3 +1,6 @@
+import copy
+
+import neat
 import numpy as np
 from drawing.sprites.survivor_sprite import SurvivorSprite
 from entities.entity_base import EntityBase
@@ -77,3 +80,10 @@ class Survivor(EntityBase):
         if self.sprite is None:
             self.sprite = SurvivorSprite(survivor_painter.image_store)
         return self.sprite
+
+    def create_mutated_genome(self, neat_config) -> neat.genome.DefaultGenome:
+        mutated_genes: neat.genome.DefaultGenome = copy.deepcopy(self.genome)
+        mutated_genes.fitness = 0
+        mutated_genes.mutate(neat_config)
+        return mutated_genes
+
