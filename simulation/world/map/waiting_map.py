@@ -27,6 +27,7 @@ class WaitingMap(WorldBase):
         elif self.generation:
             genome = self.pick_parent().create_mutated_genome(self.neat.CONFIG.genome_config)
             offspring = Survivor(self.get_rand_position(), genome, self.neat.create_brain(genome))
+            offspring.birthday = birthday
 
         return offspring
 

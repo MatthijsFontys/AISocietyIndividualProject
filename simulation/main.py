@@ -172,7 +172,7 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
             draw(draw_wrapper)
 
 
-def init_neat(map_name: str, tick_manager: GameTickManager, should_pygame=True):
+def init_neat(map_name: str, tick_manager: GameTickManager, should_pygame=False):
     global NEAT
     map_checkpoint = MapCheckpoint(map_name, tick_manager.dto)
     NEAT = MyNeat(start_from_gen=0, run_pygame=should_pygame, map_checkpoint=map_checkpoint)
