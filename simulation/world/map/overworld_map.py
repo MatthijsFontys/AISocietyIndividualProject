@@ -4,6 +4,7 @@ from world.data.data_enums import GlobalMetric
 from world.map.world_base import WorldBase
 from map_creator.map_save import MapSave
 from world.data.data_collector import DataCollector
+from world.time.game_tick_dto import GameTickDto
 
 """
 The map that is actually going to be visible to the user
@@ -19,11 +20,11 @@ class OverworldMap(WorldBase):
     """
     :return true if populated when the method was called, false if populated already
     """
-    def try_populate(self, genomes, neat: MyNeat) -> bool:
+    def try_populate(self, genomes, neat: MyNeat, dto: GameTickDto) -> bool:
         to_return = not self.did_populate
         if not self.did_populate:
             for _, genome in genomes:
-                self.population.append(Survivor(self.get_rand_position(), genome, neat.create_brain(genome), self.data_collector))
+                self.population.append(Survivor(self.get_rand_position(), genome, neat.create_brain(genome), self.data_collector, dto.day))
             self.did_populate = True
         return to_return
 

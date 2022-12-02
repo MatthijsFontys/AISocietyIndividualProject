@@ -47,7 +47,7 @@ def draw(draw_wrapper):
     draw_wrapper.tree_painter.paint(draw_wrapper.survivor_painter.survivor_radius, False)
     draw_wrapper.survivor_painter.paint(draw_wrapper.clicked_survivor)
     draw_wrapper.day_painter.paint()
-    draw_wrapper.grid_painter.paint(should_paint=True)
+    draw_wrapper.grid_painter.paint(should_paint=False)
     draw_wrapper.survivor_info_painter.paint(draw_wrapper.clicked_survivor)
 
     pygame.display.update()
@@ -87,12 +87,12 @@ def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto
     for survivor in population:
         grid_inputs, closest_entity = grid.get_inputs(survivor)
         # Todo: Figure out why the quantity of the entities match the situation, but the order is messed up somehow
-        if survivor == clicked_survivor:
-            # [inclusive:exclusive]
-            print('### START ###')
-            for i in range(0, 45, 5):
-                print(grid_inputs[i: i+5])
-            print('### END ###')
+        # if survivor == clicked_survivor:
+        #     # [inclusive:exclusive]
+        #     print('### START ###')
+        #     for i in range(0, 45, 5):
+        #         print(grid_inputs[i: i+5])
+        #     print('### END ###')
         closest_entity_inputs = [MAP.WIDTH, MAP.HEIGHT]
         if closest_entity is not None:
             closest_entity_inputs[0] = (survivor.position.x - closest_entity.position.x) / MAP.WIDTH
@@ -150,7 +150,7 @@ def run_pygame(draw_wrapper, clock):
 
 
 def run_neat(genomes, draw_wrapper, tick_manager, clock):
-    is_first_gen = MAP.try_populate(genomes, NEAT)
+    is_first_gen = MAP.try_populate(genomes, NEAT, tick_manager.dto)
     if not is_first_gen:
         WAITING_MAP.repopulate(genomes, NEAT)
 
@@ -165,10 +165,10 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
 
         tick_manager.tick()
         MAP.collision_grid.rebuild()
-        do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto, draw_wrapper.clicked_survivor)
+        do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto, None)
 
         WAITING_MAP.collision_grid.rebuild()
-        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto, draw_wrapper.clicked_survivor)
+        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto, None)
 
         if NEAT.should_run_pygame:
             draw(draw_wrapper)
@@ -184,6 +184,7 @@ def load_neat(tick_manager: GameTickManager, start_from_gen: int, should_pygame=
     global NEAT
     NEAT = MyNeat(start_from_gen=start_from_gen, run_pygame=should_pygame)
     tick_manager.set_dto(NEAT.map_checkpoint.tick_dto)
+    NEAT.set_game_tick_dto(tick_manager.dto)
 
 
 def load_latest_gen_neat(tick_manager: GameTickManager, init_map_name, should_pygame=True):

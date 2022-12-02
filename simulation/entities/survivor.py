@@ -9,7 +9,7 @@ from world.data.data_enums import GlobalMetric
 
 class Survivor(EntityBase):
 
-    def __init__(self, position, genome, brain, data_collector=None):
+    def __init__(self, position, genome, brain, data_collector=None, birthday=0):
         # movement
         super().__init__(data_collector)
         self.position = position
@@ -31,7 +31,7 @@ class Survivor(EntityBase):
         self.temperature = 100
         # drawing
         self.sprite = None
-        self.birthday = 0
+        self.birthday = birthday
 
     def tick(self, map_dto: MapDto):
         self.genome.fitness += 1

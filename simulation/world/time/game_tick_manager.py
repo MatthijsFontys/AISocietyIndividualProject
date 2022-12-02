@@ -56,10 +56,8 @@ class GameTickManager:
         self.MAPS = [self.MAP, self.WAIT_MAP]
 
     def set_dto(self, dto: GameTickDto):
-        self.unsubscribe(self.dto)
-        self.subscribe(dto)
         self.day = dto.day
-        self.dto = dto
+        self.dto.day = dto.day
 
     def subscribe(self, subscriber):
         self.subscribers.append(subscriber)
