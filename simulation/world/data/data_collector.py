@@ -25,8 +25,8 @@ class DataCollector:
             self.add_missing_values(metric, exclude_last=True)
        #filepath = Path(f'world/data/csv/global_data_day_{self.start_day}_to_{self.get_index()}.csv')
         # Todo: change back to old filepath when not using path anymore for mount in azure container
-        filepath = Path(f'checkpoints/global_data_day_{self.start_day}_to_{self.get_index()}.csv')
-        self.data.update({'DAY': [i + 1 for i in range(self.get_index())]})
+        filepath = Path(f'checkpoints/global_data_day_{self.start_day}_to_{self.start_day + self.tick_dto.day}.csv')
+        self.data.update({'DAY': [i + self.start_day for i in range(self.get_index())]})
 
         df = pd.DataFrame(self.data)
 

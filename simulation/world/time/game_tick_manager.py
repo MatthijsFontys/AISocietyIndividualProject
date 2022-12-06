@@ -45,7 +45,7 @@ class GameTickManager:
 
         # Todo: make this a separate class that subs to the tick manager | low prio
         # Chance to bring offspring from waiting room
-        if random.random() < 0.15:
+        if random.random() < 0.08:
             offspring = self.WAIT_MAP.dequeue(self.day)
             if offspring is not None:
                 self.MAP.birth(offspring)

@@ -23,7 +23,7 @@ pygame.init()
 VECTOR_POOL = VectorPool()
 
 # Game setup
-FPS_CAP = 10_000  # 60
+FPS_CAP = 10_000
 
 MAP: OverworldMap
 WAITING_MAP: WaitingMap

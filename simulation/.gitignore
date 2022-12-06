@@ -291,3 +291,4 @@ world/data/csv/*
 # Neat checkpoints
 
 /**/neat-checkpoint-*
+/checkpoints/*to*.csv

@@ -17,7 +17,7 @@ class Survivor(EntityBase):
         super().__init__(data_collector)
         self.position = position
 
-        self.speed = 2
+        self.speed = 4
         self.velocity_arr = [Vector(), Vector(0, -self.speed), Vector(self.speed / 2, -self.speed / 2),
                              Vector(self.speed, 0), Vector(self.speed / 2, self.speed / 2), Vector(0, self.speed),
                              Vector(-self.speed / 2, self.speed / 2), Vector(-self.speed, 0),
