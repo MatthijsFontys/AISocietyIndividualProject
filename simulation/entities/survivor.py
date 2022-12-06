@@ -1,5 +1,4 @@
 import copy
-
 import neat
 import numpy as np
 from drawing.sprites.survivor_sprite import SurvivorSprite
@@ -38,12 +37,11 @@ class Survivor(EntityBase):
 
     def tick(self, map_dto: MapDto):
         self.genome.fitness += 1
-        self.fullness -= map_dto.fullness_loss
-        self.temperature -= map_dto.temperature_loss
+        self.fullness -= map_dto.get_hunger_loss()
+        self.temperature -= map_dto.get_temperature_loss()
         if self.is_dead():
             map_dto.population.remove(self)
             self.data_collector.add_data(GlobalMetric.DEATHS)
-            self.data_collector.add_data(GlobalMetric.DEATHS_BY_STARVATION)
 
     """
     Make it so that when agents transferred to the overworld, that their stats get refilled,
@@ -62,7 +60,15 @@ class Survivor(EntityBase):
         self.fullness = 100
 
     def is_dead(self):
-        return self.fullness <= 0
+        if self.temperature <= 0:
+            self.data_collector.add_data(GlobalMetric.DEATHS_BY_HYPOTHERMIA)
+            return True
+
+        if self.fullness <= 0:
+            self.data_collector.add_data(GlobalMetric.DEATHS_BY_STARVATION)
+            return True
+
+        return False
 
     def give_food(self):
         self.fullness += 20

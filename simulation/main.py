@@ -3,6 +3,9 @@ from glob import glob
 import pygame
 # my imports
 from ai.my_neat import MyNeat
+from entities.sapling import Sapling
+from entities.campfire import Campfire
+from entities.tree import Tree
 from world.data.data_collector import DataCollector
 from drawing.draw_wrapper import DrawWrapper
 from entities.entity_enums import EntityType
@@ -11,6 +14,7 @@ from map_creator.map_save import MapSave
 from util.vector_pool import VectorPool
 from world.data.mock_collector import MockCollector
 from world.map.map_checkpoint import MapCheckpoint
+from world.time.game_tick_dto import GameTickDto
 from world.time.game_tick_manager import GameTickManager
 from util.util_enums import Direction as Dir
 from world.map.collision_grid import CollisionGrid
@@ -45,6 +49,8 @@ MOVEMENT_MAP = {
 def draw(draw_wrapper):
     WINDOW.fill(pygame.Color(106, 148, 106))
     draw_wrapper.tree_painter.paint(draw_wrapper.survivor_painter.survivor_radius, False)
+    draw_wrapper.campfire_painter.paint()
+    draw_wrapper.sapling_painter.paint()
     draw_wrapper.survivor_painter.paint(draw_wrapper.clicked_survivor)
     draw_wrapper.day_painter.paint()
     draw_wrapper.grid_painter.paint(should_paint=False)
@@ -57,10 +63,10 @@ def main():
     # World controllers
     tick_manager = GameTickManager()
     maps = ['HumbleBeginnings', 'LimitedTrees']
-    # init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
-    # load_neat(tick_manager, start_from_gen=725, should_pygame=True)  # alternatively use init_neat to start from scratch
-    load_latest_gen_neat(tick_manager, init_map_name=maps[0], should_pygame=True)
-    init_map()
+    #init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
+    #load_neat(tick_manager, start_from_gen=725, should_pygame=True)  # alternatively use init_neat to start from scratch
+    load_latest_gen_neat(tick_manager, init_map_name=maps[0], should_pygame=False)
+    init_map(tick_manager.dto)
     data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     draw_wrapper = init_draw(tick_manager)
     MAP.set_data_collector(data_collector)
@@ -75,14 +81,6 @@ def main():
 
 
 def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto, clicked_survivor):
-    # stats (fullness and cold)
-    # self position (self x + self y)
-    # inputs = 9 * 4 grid
-    # closest entity position (tree / fire / seed) (x dist, y dist)
-    # population count for each of the 9 cells in the grid
-
-    # so for each of the 9 cells, we need:
-    # population density + 4 pixel input + check entities for the closest record
 
     for survivor in population:
         grid_inputs, closest_entity = grid.get_inputs(survivor)
@@ -94,28 +92,28 @@ def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto
         #         print(grid_inputs[i: i+5])
         #     print('### END ###')
         closest_entity_inputs = [MAP.WIDTH, MAP.HEIGHT]
+        self_position_inputs = [survivor.position.x / MAP.WIDTH, survivor.position.y / MAP.HEIGHT]
+        stat_inputs = [survivor.fullness / 100, survivor.temperature / 100]
         if closest_entity is not None:
             closest_entity_inputs[0] = (survivor.position.x - closest_entity.position.x) / MAP.WIDTH
             closest_entity_inputs[1] = (survivor.position.y - closest_entity.position.y) / MAP.HEIGHT
 
         inputs = [
-            # Low res pixel input
             *grid_inputs,
-            # Stat inputs
-            survivor.fullness / 100,
-            # survivor.temperature / 100,
-            # Own location input
-            survivor.position.x / MAP.WIDTH,
-            survivor.position.y / MAP.HEIGHT,
-            # Nearby entity input
+            *stat_inputs,
+            *self_position_inputs,
             *closest_entity_inputs
-
         ]
-        tree = grid.get_closest_entity(survivor.position.x, survivor.position.y, EntityType.TREE)
+        move_index, action_index = NEAT.feed_forward(survivor, inputs)
+        survivor.move(move_index, dto)
+        tree: Tree = grid.get_closest_entity(survivor.position.x, survivor.position.y, EntityType.TREE)
+        campfire: Campfire = grid.get_closest_entity(survivor.position.x, survivor.position.y, EntityType.CAMPFIRE)
+        if campfire is not None:
+            campfire.try_give_warmth(survivor)
         if tree is not None:
             tree.try_forage_food(survivor)
-        action_index = NEAT.feed_forward(survivor, inputs)
-        survivor.move(action_index, dto)
+            if action_index == 1:
+                tree.try_ignite(survivor, dto)
 
 
 def run_pygame(draw_wrapper, clock):
@@ -150,7 +148,7 @@ def run_pygame(draw_wrapper, clock):
 
 
 def run_neat(genomes, draw_wrapper, tick_manager, clock):
-    is_first_gen = MAP.try_populate(genomes, NEAT, tick_manager.dto)
+    is_first_gen = MAP.try_populate(genomes, NEAT)
     if not is_first_gen:
         WAITING_MAP.repopulate(genomes)
 
@@ -195,12 +193,12 @@ def load_latest_gen_neat(tick_manager: GameTickManager, init_map_name, should_py
         init_neat(init_map_name, tick_manager, should_pygame)
 
 
-def init_map():
+def init_map(dto: GameTickDto):
     global WAITING_MAP, MAP
     save: MapSave = MapSave.load(NEAT.map_checkpoint.name)
     cell_size = 200
-    MAP = OverworldMap(save, NEAT.population_size, cell_size)
-    WAITING_MAP = WaitingMap(MapSave.load(NEAT.map_checkpoint.name), NEAT.population_size, cell_size, NEAT)
+    MAP = OverworldMap(save, NEAT.population_size, cell_size, dto)
+    WAITING_MAP = WaitingMap(MapSave.load(NEAT.map_checkpoint.name), NEAT.population_size, cell_size, NEAT, dto)
 
 
 def init_draw(tick_manager):

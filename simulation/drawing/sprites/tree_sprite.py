@@ -15,6 +15,7 @@ class TreeSprite(pygame.sprite.Sprite):
 
     def get_image(self, scale):
         # TODO: figure out a way to fix the svg issue without having to import and export with figma
+        # TODO: I should have my own sprite base that inherits pygame sprite and that has this method implemented
         to_return = pygame.transform.scale(self.animation[self.image_index], (scale, scale))
         return to_return
 

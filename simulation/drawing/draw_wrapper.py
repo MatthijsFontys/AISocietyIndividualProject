@@ -1,7 +1,9 @@
 import pygame
 
+from drawing.campfire_painter import CampfirePainter
 from drawing.day_painter import DayPainter
 from drawing.grid_painter import GridPainter
+from drawing.sapling_painter import SaplingPainter
 from drawing.survivor_info_painter import SurvivorInfoPainter
 from drawing.survivor_painter import SurvivorPainter
 from drawing.tree_painter import TreePainter
@@ -22,6 +24,8 @@ class DrawWrapper:
         self.grid_painter = GridPainter(self.WINDOW, self.camera, self.MAP.collision_grid)
         self.survivor_painter = SurvivorPainter(self.WINDOW, self.camera, self.MAP.population)
         self.tree_painter = TreePainter(self.WINDOW, self.camera, self.MAP.trees)
+        self.sapling_painter = SaplingPainter(self.WINDOW, self.camera, self.MAP.saplings)
+        self.campfire_painter = CampfirePainter(self.WINDOW, self.camera, self.MAP.campfires)
 
         self.survivor_info_painter = SurvivorInfoPainter(self.WINDOW, self.camera, self.tick_dto)
         self.day_painter = DayPainter(self.WINDOW, self.camera, self.tick_dto)

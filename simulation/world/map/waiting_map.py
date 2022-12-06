@@ -6,11 +6,13 @@ from map_creator.map_save import MapSave
 from world.map.world_base import WorldBase
 from functools import reduce
 
+from world.time.game_tick_dto import GameTickDto
+
 
 class WaitingMap(WorldBase):
 
-    def __init__(self, save: MapSave, population_size, cell_size, neat: MyNeat):
-        super().__init__(save, population_size, cell_size)
+    def __init__(self, save: MapSave, population_size, cell_size, neat: MyNeat, tick_dto: GameTickDto):
+        super().__init__(save, population_size, cell_size, tick_dto)
         self.generation = self.population.copy()
         self.neat = neat
 

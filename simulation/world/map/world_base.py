@@ -6,15 +6,18 @@ from entities.tree import Tree
 from util.vector import Vector
 from world.map.collision_grid import CollisionGrid
 from world.map.map_dto import MapDto
+from world.time.game_tick_dto import GameTickDto
+from util.linalg import lerp
 
 
 class WorldBase(ABC):
 
-    def __init__(self, save: MapSave, population_size, cell_size):
+    def __init__(self, save: MapSave, population_size, cell_size, tick_dto: GameTickDto):
         self.WIDTH = save.width
         self.HEIGHT = save.height
         self.POPULATION_SIZE = population_size
 
+        self.tick_dto = tick_dto
         self.data_collector = None
         # Might map below from save in future
         self.time_perception = -1
@@ -31,14 +34,21 @@ class WorldBase(ABC):
             EntityType.CAMPFIRE.name: self.campfires,
             EntityType.SURVIVOR.name: self.population
         }
-        self.fullness_loss = 0.5
-        self.temperature_loss = 0  # 0.2
+        # 0 - hunger | 1 = temperature  is pass as array for reference type benefits
+        self.stat_loss = [0.5, 0.25]
         self.dto = MapDto(
             self.entities, self.trees, self.population, self.saplings, self.campfires,
             self.HEIGHT, self.WIDTH, self.POPULATION_SIZE,
-            self.fullness_loss, self.temperature_loss
+            self.stat_loss
         )
         self.collision_grid = CollisionGrid(cell_size, self.dto)
+
+    def tick(self, _: bool):
+        day_percent = self.tick_dto.get_day_percent()
+        if day_percent < 0.5:
+            self.stat_loss[1] = lerp(0.75, 0.25, day_percent)
+        else:
+            self.stat_loss[1] = lerp(0.25, 0.75, (day_percent-0.5) / 0.5)
 
     def set_data_collector(self, data_collector):
         if self.data_collector is None:

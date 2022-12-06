@@ -43,7 +43,7 @@ class SurvivorInfoPainter:
             # Hunger bar
             self.draw_stat_bar(self.hunger_bar, 'Fullness', clicked_survivor.fullness, w)
             # Cold bar
-            self.draw_stat_bar(self.cold_bar, 'Warmth', 100, w)
+            self.draw_stat_bar(self.cold_bar, 'Warmth', clicked_survivor.temperature, w)
 
             # Blit surface holding all the info
             self.window.blit(self.info_surface, (0, 0))

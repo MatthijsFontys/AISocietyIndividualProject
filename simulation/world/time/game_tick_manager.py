@@ -22,7 +22,8 @@ class GameTickManager:
         self.day_counter = TickCounter(1_500)
         self.day = 1
         self.dto = GameTickDto(self.day, self.day_counter)
-        self.subscribers = [self.dto]
+        self.subscribers: list[any] = []
+        self.subscribers.append(self.dto)
 
     def tick(self):
         if not self.tick_counter.tick():
@@ -33,12 +34,12 @@ class GameTickManager:
             log = f' Starting day {self.day} '
             print(f' {log:*^{len(log) + 12}}')
 
+        has_fired = self.day_counter.get_has_fired()
+
         for world in self.MAPS:
             for t in EntityType:
                 for entity in reversed(world.get_entities(t)):
                     entity.tick(world.dto)
-
-        has_fired = self.day_counter.get_has_fired()
 
         for subscriber in self.subscribers:
             subscriber.tick(has_fired)
@@ -54,6 +55,7 @@ class GameTickManager:
         self.MAP = world
         self.WAIT_MAP = wait_world
         self.MAPS = [self.MAP, self.WAIT_MAP]
+        self.subscribers.extend(self.MAPS)
 
     def set_dto(self, dto: GameTickDto):
         self.day = dto.day

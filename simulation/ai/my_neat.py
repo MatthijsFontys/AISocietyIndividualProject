@@ -39,4 +39,17 @@ class MyNeat:
     def feed_forward(self, survivor, inputs):
         outputs = survivor.brain.activate(inputs)
         highest = max(outputs)
-        return outputs.index(highest)
+        movement_index = outputs.index(highest)
+        if movement_index == len(outputs) -1:
+            action_index = 1
+            movement_index = 0
+        else:
+            action_index = 0
+
+        return movement_index, action_index
+
+        # movement_len = len(survivor.velocity_arr)
+        # highest_movement = max(outputs[:movement_len])
+        # highest_action = max(outputs[movement_len:len(outputs)])
+        # 0 - 9 for movement index, 0 - 1 for action index
+        # return outputs.index(highest_movement), outputs.index(highest_action) - movement_len
