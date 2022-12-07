@@ -82,10 +82,8 @@ class Survivor(EntityBase):
             if self.sprite is not None:
                 self.sprite.notify(index)
 
-    def get_sprite(self, survivor_painter):
-        if self.sprite is None:
-            self.sprite = SurvivorSprite(survivor_painter.image_store)
-        return self.sprite
+    def init_sprite(self, survivor_painter):
+        return SurvivorSprite(survivor_painter.image_store)
 
     def create_mutated_genome(self, neat_config) -> neat.genome.DefaultGenome:
         mutated_genes: neat.genome.DefaultGenome = copy.deepcopy(self.genome)

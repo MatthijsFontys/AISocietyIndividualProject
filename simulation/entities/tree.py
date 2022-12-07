@@ -23,7 +23,7 @@ class Tree(EntityBase):
         self.is_forageable = True
         self.did_ignite = False
         self.forage_range = 80
-        self.ignite_range = 60
+        self.ignite_range = 90
         self.forage_range_squared = self.forage_range ** 2
         self.ignite_range_squared = self.ignite_range ** 2
         self.position = position
@@ -61,10 +61,8 @@ class Tree(EntityBase):
         if self.forage_counter.tick():
             self.is_forageable = True
 
-    def get_sprite(self, tree_painter):
-        if self.sprite is None:
-            self.sprite = TreeSprite(tree_painter.image_store)
-        return self.sprite
+    def init_sprite(self, tree_painter):
+        return TreeSprite(tree_painter.image_store)
 
     def get_input_value(self) -> int:
         return self.food_count + 1

@@ -49,8 +49,7 @@ MOVEMENT_MAP = {
 def draw(draw_wrapper):
     WINDOW.fill(pygame.Color(106, 148, 106))
     draw_wrapper.tree_painter.paint(draw_wrapper.survivor_painter.survivor_radius, False)
-    draw_wrapper.campfire_painter.paint()
-    draw_wrapper.sapling_painter.paint()
+    draw_wrapper.paint_default()
     draw_wrapper.survivor_painter.paint(draw_wrapper.clicked_survivor)
     draw_wrapper.day_painter.paint()
     draw_wrapper.grid_painter.paint(should_paint=False)
@@ -65,7 +64,7 @@ def main():
     maps = ['HumbleBeginnings', 'LimitedTrees']
     #init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
     #load_neat(tick_manager, start_from_gen=725, should_pygame=True)  # alternatively use init_neat to start from scratch
-    load_latest_gen_neat(tick_manager, init_map_name=maps[0], should_pygame=False)
+    load_latest_gen_neat(tick_manager, init_map_name=maps[0], should_pygame=True)
     init_map(tick_manager.dto)
     data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     draw_wrapper = init_draw(tick_manager)
@@ -80,7 +79,7 @@ def main():
     pygame.quit()
 
 
-def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto, clicked_survivor):
+def do_survivor_actions(population: list[Survivor], grid: CollisionGrid, dto: MapDto, tick_dto: GameTickDto, clicked_survivor: Survivor = None):
 
     for survivor in population:
         grid_inputs, closest_entity = grid.get_inputs(survivor)
@@ -102,7 +101,8 @@ def do_survivor_actions(population: [Survivor], grid: CollisionGrid, dto: MapDto
             *grid_inputs,
             *stat_inputs,
             *self_position_inputs,
-            *closest_entity_inputs
+            *closest_entity_inputs,
+            # tick_dto.get_day_percent()
         ]
         move_index, action_index = NEAT.feed_forward(survivor, inputs)
         survivor.move(move_index, dto)
@@ -161,10 +161,10 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
 
         tick_manager.tick()
         MAP.collision_grid.rebuild()
-        do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto, None)
+        do_survivor_actions(MAP.population, MAP.collision_grid, MAP.dto, tick_manager.dto)
 
         WAITING_MAP.collision_grid.rebuild()
-        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto, None)
+        do_survivor_actions(WAITING_MAP.population, WAITING_MAP.collision_grid, WAITING_MAP.dto, tick_manager.dto)
 
         if NEAT.should_run_pygame:
             draw(draw_wrapper)

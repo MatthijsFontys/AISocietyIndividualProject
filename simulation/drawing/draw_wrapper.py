@@ -1,9 +1,8 @@
 import pygame
 
-from drawing.campfire_painter import CampfirePainter
 from drawing.day_painter import DayPainter
+from drawing.entity_painter import EntityPainter
 from drawing.grid_painter import GridPainter
-from drawing.sapling_painter import SaplingPainter
 from drawing.survivor_info_painter import SurvivorInfoPainter
 from drawing.survivor_painter import SurvivorPainter
 from drawing.tree_painter import TreePainter
@@ -24,12 +23,17 @@ class DrawWrapper:
         self.grid_painter = GridPainter(self.WINDOW, self.camera, self.MAP.collision_grid)
         self.survivor_painter = SurvivorPainter(self.WINDOW, self.camera, self.MAP.population)
         self.tree_painter = TreePainter(self.WINDOW, self.camera, self.MAP.trees)
-        self.sapling_painter = SaplingPainter(self.WINDOW, self.camera, self.MAP.saplings)
-        self.campfire_painter = CampfirePainter(self.WINDOW, self.camera, self.MAP.campfires)
+        self.sapling_painter = EntityPainter(self.WINDOW, self.camera, self.MAP.saplings, 80)
+        self.campfire_painter = EntityPainter(self.WINDOW, self.camera, self.MAP.campfires, 160)
 
+        self.default_painters = [self.campfire_painter, self.sapling_painter]
         self.survivor_info_painter = SurvivorInfoPainter(self.WINDOW, self.camera, self.tick_dto)
         self.day_painter = DayPainter(self.WINDOW, self.camera, self.tick_dto)
 
         # active entities
         self.clicked_survivor = None
+
+    def paint_default(self):
+        for painter in self.default_painters:
+            painter.paint()
 
