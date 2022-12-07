@@ -3,7 +3,6 @@ from glob import glob
 import pygame
 # my imports
 from ai.my_neat import MyNeat
-from entities.sapling import Sapling
 from entities.campfire import Campfire
 from entities.tree import Tree
 from world.data.data_collector import DataCollector
@@ -33,7 +32,6 @@ MAP: OverworldMap
 WAITING_MAP: WaitingMap
 NEAT: MyNeat
 WIN_SIZE = 900
-# WINDOW = pygame.Surface((WIN_SIZE, WIN_SIZE))
 WINDOW: pygame.surface
 pygame.display.set_caption("SurvAIvor")
 
@@ -84,12 +82,6 @@ def do_survivor_actions(population: list[Survivor], grid: CollisionGrid, dto: Ma
     for survivor in population:
         grid_inputs, closest_entity = grid.get_inputs(survivor)
         # Todo: Figure out why the quantity of the entities match the situation, but the order is messed up somehow
-        # if survivor == clicked_survivor:
-        #     # [inclusive:exclusive]
-        #     print('### START ###')
-        #     for i in range(0, 45, 5):
-        #         print(grid_inputs[i: i+5])
-        #     print('### END ###')
         closest_entity_inputs = [MAP.WIDTH, MAP.HEIGHT]
         self_position_inputs = [survivor.position.x / MAP.WIDTH, survivor.position.y / MAP.HEIGHT]
         stat_inputs = [survivor.fullness / 100, survivor.temperature / 100]
@@ -102,7 +94,7 @@ def do_survivor_actions(population: list[Survivor], grid: CollisionGrid, dto: Ma
             *stat_inputs,
             *self_position_inputs,
             *closest_entity_inputs,
-            # tick_dto.get_day_percent()
+            tick_dto.get_day_percent()
         ]
         move_index, action_index = NEAT.feed_forward(survivor, inputs)
         survivor.move(move_index, dto)
@@ -152,9 +144,6 @@ def run_neat(genomes, draw_wrapper, tick_manager, clock):
     if not is_first_gen:
         WAITING_MAP.repopulate(genomes)
 
-    day_of_prev_gen = tick_manager.day
-    day_threshold = 5
-    # While generation alive > threshold # Or time passed
     while WAITING_MAP.get_percent_alive() >= 0.01 or (is_first_gen and len(MAP.population) >= MAP.POPULATION_SIZE / 2):
         if NEAT.should_run_pygame:
             run_pygame(draw_wrapper, clock)
