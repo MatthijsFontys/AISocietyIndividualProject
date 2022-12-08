@@ -62,7 +62,7 @@ def main():
     maps = ['HumbleBeginnings', 'LimitedTrees']
     #init_neat(maps[0], tick_manager, should_pygame=True)  # alternatively use load_neat to load an existing population
     #load_neat(tick_manager, start_from_gen=725, should_pygame=True)  # alternatively use init_neat to start from scratch
-    load_latest_gen_neat(tick_manager, init_map_name=maps[0], should_pygame=True)
+    load_latest_gen_neat(tick_manager, init_map_name=maps[0], should_pygame=True) # alternatively use load or init neat
     init_map(tick_manager.dto)
     data_collector = DataCollector(tick_manager.dto, NEAT.population_size)
     draw_wrapper = init_draw(tick_manager)
