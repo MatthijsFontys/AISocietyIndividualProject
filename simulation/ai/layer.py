@@ -10,7 +10,6 @@ class Layer:
         self.input_count = input_count
         self.node_count = node_count
         self.weights = []
-        # one bias for every node right?
         self.biases = []
 
         # initialize the weights with random values between -1 and 1
@@ -20,8 +19,8 @@ class Layer:
             for j in range(input_count):
                 self.weights[i].append(random.random() * 2 - 1)
 
+    # Sigmoid activation function
     def activate(self, values):
-        # sigmoid
         return list(map(lambda x: 1 / (1 + np.exp(-x)), values))
 
     def feed_forward(self, inputs):
